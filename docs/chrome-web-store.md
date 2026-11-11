@@ -7,10 +7,10 @@ Tudo o que o painel de desenvolvedor da Chrome Web Store pede, pronto para copia
 O ZIP enviado à loja leva só o que a extensão usa, com o `manifest.json` na raiz. No terminal, na pasta do projeto:
 
 ```powershell
-tar.exe -a -c -f ..\pokeidle-smartmarket.zip manifest.json src popup icons LICENSE
+tar.exe -a -c -f dist\pokeidle-smartmarket-1.0.0.zip manifest.json src popup icons LICENSE
 ```
 
-Use o `tar` (vem com o Windows 10/11), não o `Compress-Archive`: o do Windows PowerShell 5.1 grava os caminhos com `\` (`src\ws.js`), e a loja pode não reconhecer as pastas. A cada versão nova, suba o `version` do `manifest.json` antes de empacotar.
+Use o `tar` (vem com o Windows 10/11), não o `Compress-Archive`: o do Windows PowerShell 5.1 grava os caminhos com `\` (`src\ws.js`), e a loja pode não reconhecer as pastas. A cada versão nova, suba o `version` do `manifest.json` antes de empacotar e troque o número no nome do arquivo. A pasta `dist/` fica fora do git.
 
 O resumo da loja vem do campo `description` do `manifest.json` (no máximo 132 caracteres):
 

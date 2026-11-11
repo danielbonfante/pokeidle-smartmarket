@@ -8,3 +8,6 @@ docs/superpowers/
 
 # Capturas de tela para a loja (mostram dados da conta)
 capturas-loja/
+
+# Pacotes gerados para a Chrome Web Store
+dist/
