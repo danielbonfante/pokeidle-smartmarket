@@ -110,8 +110,19 @@
     });
   }
 
+  // ---------- "Apoie o dev!": o cartão só abre com o clique ----------
+  function iniciarApoie() {
+    const bt = $('#apoie-bt');
+    bt.addEventListener('click', () => {
+      const abrir = $('#apoie').hidden;
+      $('#apoie').hidden = !abrir;
+      bt.setAttribute('aria-expanded', String(abrir));
+    });
+  }
+
   async function iniciar() {
     $('#versao').textContent = chrome.runtime.getManifest().version;
+    iniciarApoie();
     await iniciarOpcoes();
     mostrarLimpar();
     try { [aba] = await chrome.tabs.query({ active: true, currentWindow: true }); } catch (e) { aba = null; }

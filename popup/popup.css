@@ -69,6 +69,30 @@ button.perigo:hover { background: rgba(160, 50, 60, 0.9); }
 .confirmar p { margin: 0 0 6px; }
 .confirmar button + button { margin-left: 6px; }
 .feito { color: var(--verde); font-size: 12px; }
+/* "Apoie o dev!": botão dourado no topo e cartão com o QR do Pix (só abre com o clique) */
+header > div { flex: 1; min-width: 0; }
+.apoie-bt {
+  flex: none; align-self: center; padding: 5px 9px; font-size: 11.5px; font-weight: 700; white-space: nowrap;
+  color: #3a1f05; background: linear-gradient(180deg, #ffd977, #e7a92c); border: 1px solid #b8791a;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5);
+}
+.apoie-bt:hover, .apoie-bt[aria-expanded="true"] { background: linear-gradient(180deg, #ffe39a, #f0b53a); }
+.apoie {
+  display: grid; grid-template-columns: 112px 1fr; gap: 10px; align-items: start;
+  margin: 6px 14px 2px; padding: 10px; border-radius: 8px;
+  background: var(--fundo-caixa); border: 1px solid rgba(242, 200, 107, 0.55);
+}
+.apoie[hidden] { display: none; }
+.apoie img { border-radius: 6px; background: #fff; image-rendering: pixelated; }
+.apoie b { color: var(--ouro); font-size: 13px; }
+.apoie p { margin: 4px 0 0; font-size: 11.5px; color: var(--texto); }
+.apoie p + p { color: var(--suave); }
+.apoie-link {
+  grid-column: 1 / -1; display: block; text-align: center; padding: 6px 8px; border-radius: 6px;
+  font-size: 12px; font-weight: 700; text-decoration: none;
+  color: #3a1f05; background: linear-gradient(180deg, #ffd977, #e7a92c); border: 1px solid #b8791a;
+}
+.apoie-link:hover { background: linear-gradient(180deg, #ffe39a, #f0b53a); }
 footer { padding: 8px 14px 10px; border-top: 1px solid rgba(255, 255, 255, 0.06); margin-top: 6px; }
 footer p { margin: 0; font-size: 11px; color: var(--suave); }
 footer .versao { margin-top: 2px; font-size: 10px; color: #8f7cad; }

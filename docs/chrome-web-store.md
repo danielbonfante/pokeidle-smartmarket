@@ -53,6 +53,8 @@ Código aberto (GPL-3.0): github.com/danielbonfante/pokeidle-smartmarket
 
 Projeto independente, sem relação com os criadores do pokeidle.io. Os preços são estimativas e não garantem nada.
 
+Gostou? Dá para apoiar o desenvolvimento com um Pix de valor livre: livepix.gg/danthetreiner (botão "Apoie o dev!" no ícone da extensão). Doar não libera nada; a extensão é a mesma para todos.
+
 Created by dan_the_treiner.
 ```
 

@@ -59,6 +59,10 @@ Enquanto a aba do jogo está aberta, a extensão também mantém **na memória**
 
 A extensão não coleta dados pessoais de ninguém, de nenhuma idade.
 
+## Link de apoio (Pix)
+
+O popup da extensão tem o botão **Apoie o dev!**, que mostra um QR code e um link para [livepix.gg/danthetreiner](https://livepix.gg/danthetreiner), a página de doação do autor na Livepix. O QR é uma imagem dentro da extensão: abrir o popup não acessa nenhum site. Só se você escanear o QR ou clicar no link é que a página da Livepix abre, e o que acontece lá (inclusive o pagamento) segue as regras e a política de privacidade da Livepix. A extensão não envia nenhum dado para a Livepix e não sabe se alguém doou. Doar não libera nada: a extensão é a mesma para todos.
+
 ## Relação com o pokeidle.io
 
 A Pokeidle Smart Market é um projeto independente, sem relação com os criadores do pokeidle.io. Os dados do jogo que passam pelo seu navegador estão sujeitos também às regras e à política de privacidade do próprio jogo.

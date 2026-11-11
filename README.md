@@ -80,7 +80,8 @@ Clique no ícone 💎 na barra do Chrome:
 
 - **liga e desliga** o quadro da ficha, os selos do Mercado e o painel de anúncio (vale na hora, em todas as abas do jogo);
 - mostra quantas vendas estão guardadas e permite **limpar o cache**;
-- mostra o **freio**: se as consultas estão no ritmo normal, mais devagar ou pausadas porque o jogo pediu calma.
+- mostra o **freio**: se as consultas estão no ritmo normal, mais devagar ou pausadas porque o jogo pediu calma;
+- tem o botão **Apoie o dev!**, com o QR do Pix.
 
 ## Perguntas frequentes
 
@@ -125,6 +126,10 @@ Para repetir com uma planilha exportada pelo jogo: `node tests/backtest-csv.js p
 **Contribuir.** Contribuições são bem-vindas. Leia o [CONTRIBUTING.md](CONTRIBUTING.md) antes: a extensão é só leitura, não guarda nicks e segue um ritmo de consultas que não pode ser acelerado. Mudanças entram por pull request, com revisão do mantenedor.
 
 **Créditos.** Ideia inspirada no [Precificador de Pokémon](https://briaoale.github.io/precificador-pokemon/) do briao. Esta extensão não usa os dados nem o código dele: coleta as vendas direto do jogo e tem um motor próprio.
+
+## Apoie o dev
+
+A extensão é gratuita e continua igual para todo mundo. Se ela te ajudou a vender ou comprar melhor, dá para apoiar com um Pix de valor livre pela Livepix: [livepix.gg/danthetreiner](https://livepix.gg/danthetreiner). O botão **Apoie o dev!** no ícone da extensão mostra o QR. Obrigado!
 
 ## Licença
 
