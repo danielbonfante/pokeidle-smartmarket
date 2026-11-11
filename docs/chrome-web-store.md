@@ -59,7 +59,7 @@ Created by dan_the_treiner.
 **Imagens:**
 
 - Ícone da loja: `icons/icone-128.png` (128×128).
-- Capturas de tela: de 1 a 5, em 1280×800 (ou 640×400). Sugestões, nesta ordem: a ficha com o quadro de preço; a vitrine do Mercado com os selos; a janela Precificar; o painel da tela de anúncio; o popup. Cubra nicks de outros jogadores que aparecerem (chat, vendedores).
+- Capturas de tela: 5, em 1280×800, na pasta `capturas-loja/` (fora do git, porque mostram dados da conta): `1-ficha.png`, `2-precificar.png`, `3-vitrine.png`, `4-anuncio.png` (painel no Editar anúncio) e `5-popup.png`. Foram tiradas no jogo com as colunas laterais (chat, conta) e os nicks dos vendedores borrados; a do popup é a página de teste sobre a ficha escurecida. Para refazer: viewport do jogo com proporção 1,6, recorte e redimensionamento para 1280×800.
 - Bloco promocional pequeno (440×280): o painel pode pedir. Pode ser o ícone com o nome sobre o fundo vinho da extensão.
 
 **Site oficial / página inicial:** `https://github.com/danielbonfante/pokeidle-smartmarket`
