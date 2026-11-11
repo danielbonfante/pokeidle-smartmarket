@@ -61,6 +61,24 @@ test('detectarGrupos: acha os dois grupos do Blastoise e o que os diferencia', (
   assert.equal(A.noVao(110, g), false);
 });
 
+test('detectarGrupos: cada grupo traz o preço do grupo (mediana ponderada) e o mais parecido sai pelo peso', () => {
+  const p = A.pontosVendas(alvo, bimodal(), 'orb', AGORA);
+  const g = A.detectarGrupos(p);
+  assert.ok(g.baixo.preco >= 20 && g.baixo.preco <= 27, 'preço do grupo barato: ' + g.baixo.preco);
+  assert.ok(g.alto.preco >= 100 && g.alto.preco <= 120, 'preço do grupo caro: ' + g.alto.preco);
+  // o alvo é Nv 395: as vendas do grupo barato (Nv 300–345) e do caro (Nv 500–545) pesam diferente
+  const mp = A.grupoMaisParecido(g);
+  assert.ok(mp && (mp.lado === 'baixo' || mp.lado === 'alto'));
+  assert.equal(mp.fracao, Math.max(g.baixo.fracao, g.alto.fracao));
+});
+
+test('grupoMaisParecido: com os pesos quase iguais (menos de 60%) não aponta nenhum', () => {
+  const g = { baixo: { fracao: 0.55 }, alto: { fracao: 0.45 } };
+  assert.equal(A.grupoMaisParecido(g), null);
+  assert.deepEqual(A.grupoMaisParecido({ baixo: { fracao: 0.3 }, alto: { fracao: 0.7 } }), { lado: 'alto', fracao: 0.7 });
+  assert.equal(A.grupoMaisParecido(null), null);
+});
+
 test('detectarGrupos: preços próximos (um grupo só) não viram dois grupos', () => {
   const v = [];
   for (let i = 0; i < 20; i++) v.push(venda({ preco: 45 + i * 2 }));

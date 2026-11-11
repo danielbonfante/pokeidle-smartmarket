@@ -49,11 +49,20 @@
     return x => Math.min(1, Math.max(0, (Math.log(x) - lo) / (hi - lo)));
   }
 
+  /** Mediana ponderada dos preços (pts em ordem de preço). */
+  function medianaPonderada(pts) {
+    const tot = pts.reduce((s, p) => s + p.peso, 0);
+    let acc = 0;
+    for (const p of pts) { acc += p.peso; if (acc >= tot / 2) return p.preco; }
+    return pts[pts.length - 1].preco;
+  }
+
   function resumoGrupo(pts, total) {
     const peso = pts.reduce((s, p) => s + p.peso, 0);
     const media = f => pts.reduce((s, p) => s + f(p) * p.peso, 0) / peso;
     return {
       n: pts.length,
+      preco: medianaPonderada(pts), // "preço do grupo": o meio das vendas dele, as mais parecidas pesando mais
       min: Math.min(...pts.map(p => p.preco)),
       max: Math.max(...pts.map(p => p.preco)),
       fracao: peso / total,
@@ -91,6 +100,21 @@
     };
   }
 
+  /**
+   * O grupo mais parecido com o Pokémon: o de maior peso, porque o peso de cada venda já mede
+   * a semelhança (Nota, nível, potência, extras). Com menos de `minimo` (60%) do peso, não aponta
+   * nenhum. Medido na planilha de 11/11/2026 (justo no vão): em Coins o grupo mais pesado era o
+   * certo em 79% das vezes; em Gemas, só em 59%. Por isso a janela mostra os dois preços e só
+   * indica o mais parecido, sem trocar o Preço justo.
+   */
+  function grupoMaisParecido(grupos, minimo) {
+    if (!grupos) return null;
+    const m = minimo == null ? 0.6 : minimo;
+    const lado = grupos.alto.fracao > grupos.baixo.fracao ? 'alto' : 'baixo';
+    const fracao = grupos[lado].fracao;
+    return fracao >= m ? { lado, fracao } : null;
+  }
+
   /** O preço cai no vão entre os dois grupos (onde quase ninguém vende)? */
   function noVao(preco, grupos) {
     return !!grupos && preco > grupos.baixo.max && preco < grupos.alto.min;
@@ -121,7 +145,7 @@
     return { total, acertos, taxa: acertos / total };
   }
 
-  const api = { pontosVendas, escalaBarra, detectarGrupos, noVao, confiancaEspecie };
+  const api = { pontosVendas, escalaBarra, detectarGrupos, grupoMaisParecido, noVao, confiancaEspecie };
   root.PIAnalise = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

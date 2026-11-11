@@ -31,6 +31,11 @@
   // Gemas: grupo barato e grupo caro (o caro com mais AoE, nível e refino)
   for (let i = 0; i < 18; i++) vendas.push(v({ preco: 20 + (i % 8), level: 300 + i * 6, nota: 3.53 + (i % 6) * 0.02 }));
   for (let i = 0; i < 14; i++) vendas.push(v({ preco: 100 + (i % 3) * 10, level: 380 + i * 12, nota: 3.55 + (i % 5) * 0.02, aoe: i < 3, refino: 3 }));
+  // #caro: vendas caras recentes e parecidas com o seu, para o grupo caro virar o "★ mais parecido"
+  // (#caro=N muda quantas entram; com 7 a 11 os dois grupos ficam quase empatados e nenhum ganha a ★).
+  // O texto do "justo no vão" é conferido com PIPrecificar._htmlGrupos e um resultado montado à mão.
+  const nCaro = /^#caro/.test(location.hash) ? Number((location.hash.match(/caro=(\d+)/) || [])[1] || 12) : 0;
+  for (let i = 0; i < nCaro; i++) vendas.push(v({ preco: 100 + (i % 3) * 10, level: 375 + i * 3, nota: 3.58 + (i % 3) * 0.01, em: agora - (i + 1) * H }));
   // Coins: estáveis
   for (let i = 0; i < 30; i++) vendas.push(v({ moeda: 'gold', preco: 1.8e8 + (i % 5) * 1e7, level: 330 + i * 7, nota: 3.53 + (i % 6) * 0.02 }));
   window.PIWs = { pokemon: () => ({ id: 97553169, speciesId: 9, nome: 'Blastoise', level: 395, nota: 3.598, quality: 1.8, potencia: 1, shiny: false, tmAoe: false, tmElemental: null, ivTotal: 130 }), conectado: () => false };

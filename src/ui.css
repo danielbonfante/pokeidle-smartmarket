@@ -388,6 +388,11 @@
 .pp-prec-vermais { background: none; border: none; padding: 0; color: #f2c86b; font: inherit; text-decoration: underline; cursor: pointer; }
 .pp-prec-grupos { border: 1px dashed rgba(242, 200, 107, 0.6); }
 .pp-prec-grupos .pp-prec-titulo { color: #f2c86b; }
+.pp-prec-grupos p + p { margin-top: 6px; }
+.pp-prec-grupos .pp-prec-acao { color: #efe6ff; }
+.pp-prec-parecido { display: inline-block; margin-left: 4px; padding: 0 5px; border-radius: 8px; font-size: 10px; font-weight: 700; color: #3a1f05; background: #f2c86b; cursor: help; white-space: nowrap; }
+.pp-prec-grupos tr.pp-prec-preco-grupo td { color: #fff; font-weight: 700; }
+.pp-prec-grupos tr.pp-prec-preco-grupo td small { font-weight: 400; font-size: 10px; color: #a993c9; }
 .pp-prec-grupos table { width: 100%; margin-top: 8px; border-collapse: collapse; font-size: 12px; }
 .pp-prec-grupos th, .pp-prec-grupos td { padding: 3px 6px; text-align: right; border-top: 1px solid rgba(255, 255, 255, 0.06); }
 .pp-prec-grupos th:first-child, .pp-prec-grupos td:first-child { text-align: left; color: #a993c9; }

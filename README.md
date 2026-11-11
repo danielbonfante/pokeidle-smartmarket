@@ -46,7 +46,7 @@ O botão **Precificar**, no quadro da ficha, abre a análise completa:
 - uma **barra** com as vendas parecidas como pontos (maiores = mais parecidas com o seu);
 - a tabela das **vendas que mais pesaram no preço**, com o seu Pokémon na primeira linha para comparar nível, Potência, IV, Qualidade e Nota;
 - a **confiança medida**: a extensão refaz a conta para as últimas vendas da espécie e diz quantas vezes acertou;
-- um **aviso** quando as vendas se dividem em dois grupos de preço bem diferentes, e o que diferencia cada grupo.
+- um **aviso** quando as vendas se dividem em dois grupos de preço bem diferentes: o **preço de cada grupo**, qual deles mais se parece com o seu (★), o que os diferencia, e a dica de vender perto do grupo barato para vender logo ou perto do caro se puder esperar.
 
 **O que pesa no preço:** principalmente a **Nota**, que já resume IV, Qualidade e Potência; depois o **nível**. TM AoE, Z-Move e Mega também contam, e vendas recentes pesam mais que as antigas.
 

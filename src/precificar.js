@@ -202,15 +202,27 @@
     if (!grupos) return '';
     const { baixo, alto } = grupos;
     const vao = res && res.suficiente && A.noVao(res.precoJusto, grupos);
-    const linha = (rot, fb, fa, seu) => `<tr><td>${rot}</td><td>${fb}</td><td>${fa}</td><td>${seu}</td></tr>`;
+    const linha = (rot, fb, fa, seu, cls) => `<tr${cls ? ` class="${cls}"` : ''}><td>${rot}</td><td>${fb}</td><td>${fa}</td><td>${seu}</td></tr>`;
     const p = x => pct(x);
+    const mp = A.grupoMaisParecido(grupos);
+    const nomeGrupo = lado => (lado === 'alto' ? 'caro' : 'barato');
+    const cab = lado => `Grupo ${nomeGrupo(lado)}${mp && mp.lado === lado ? ' <span class="pp-prec-parecido" title="o grupo com mais peso: as vendas dele se parecem mais com o seu Pokémon (Nota, nível, potência, extras)">★ mais parecido</span>' : ''}`;
+    const est = res && res.estimativa ? '≈ ' : '';
+    const seuPreco = res && res.suficiente ? `<small>justo</small> ${est}${fmt(res.precoJusto, moeda)}` : '—';
+    const parecido = mp
+      ? `Pelas vendas, o seu se parece mais com o <b>grupo ${nomeGrupo(mp.lado)}</b> (${p(mp.fracao)} do peso).`
+      : 'O seu fica no meio dos dois: nenhum grupo se parece claramente mais com ele.';
+    // Medido na planilha de 11/11/2026: com o justo no vão, ele ficou a até 25% do pago em ~1 de cada 6 vendas
+    const avisoVao = vao ? ' <b>O Preço justo cai no vão entre eles</b>, e nesse caso ele erra mais: nos testes, acertou só cerca de 1 em cada 6 vendas.' : '';
     return `
       <div class="pp-prec-bloco pp-prec-grupos">
         <div class="pp-prec-titulo">⚠ As vendas parecidas se dividem em dois grupos</div>
-        <p>Um grupo saiu por <b>${fmt(baixo.min, moeda)}–${fmt(baixo.max, moeda)}</b> (${p(baixo.fracao)} do peso) e outro por <b>${fmt(alto.min, moeda)}–${fmt(alto.max, moeda)}</b> (${p(alto.fracao)}), quase sem nada no meio.${vao ? ' <b>O Preço justo cai no vão entre eles</b>: na prática, quase ninguém vende por esse valor.' : ''} Compare o seu Pokémon com cada grupo:</p>
+        <p>Um grupo saiu por <b>${fmt(baixo.min, moeda)}–${fmt(baixo.max, moeda)}</b> (${p(baixo.fracao)} do peso) e outro por <b>${fmt(alto.min, moeda)}–${fmt(alto.max, moeda)}</b> (${p(alto.fracao)}), com pouca coisa no meio.${avisoVao}</p>
+        <p class="pp-prec-acao">Para <b>vender logo</b>, anuncie perto do preço do grupo barato (<b>${fmt(baixo.preco, moeda)}</b>); se puder <b>esperar</b> um comprador, perto do grupo caro (<b>${fmt(alto.preco, moeda)}</b>). ${parecido} Compare o seu Pokémon com cada grupo:</p>
         <table>
-          <thead><tr><th></th><th>Grupo barato</th><th>Grupo caro</th><th>O seu</th></tr></thead>
+          <thead><tr><th></th><th>${cab('baixo')}</th><th>${cab('alto')}</th><th>O seu</th></tr></thead>
           <tbody>
+            ${linha('Preço do grupo', fmt(baixo.preco, moeda), fmt(alto.preco, moeda), seuPreco, 'pp-prec-preco-grupo')}
             ${linha('Nível médio', num(baixo.nivelMedio, 0), num(alto.nivelMedio, 0), alvo.level)}
             ${linha('Nota média', num(baixo.notaMedia, 3), num(alto.notaMedia, 3), isFinite(alvo.nota) ? num(alvo.nota, 3) : '—')}
             ${linha('Com TM AoE', p(baixo.pctAoe), p(alto.pctAoe), alvo.parcial ? '?' : (alvo.aoe ? 'sim' : 'não'))}
@@ -221,5 +233,5 @@
       </div>`;
   }
 
-  window.PIPrecificar = { abrir, fechar };
+  window.PIPrecificar = { abrir, fechar, _htmlGrupos: htmlGrupos }; // _htmlGrupos: para as páginas de teste
 })();
