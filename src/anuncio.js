@@ -1,10 +1,10 @@
 /*
- * Pokeidle Smart Market — painel de preços na tela "Novo anúncio" do RMT
+ * Pokeidle Smart Market — painel de preços nas telas "Novo anúncio" e "Editar anúncio" do RMT
  *
  * Quando a folha de anúncio do jogo mostra a tela de preço (#cm-preco dentro de
  * .cm-folha), põe ao lado da caixa um painel de tenda com o preço estimado na moeda
  * escolhida (com o líq e botões "usar") e as abas "À venda" / "Vendidos".
- * O "usar" só preenche o campo de preço: publicar é sempre com o usuário.
+ * O "usar" só preenche o campo de preço: publicar ou salvar é sempre com o usuário.
  */
 (function () {
   'use strict';
@@ -17,6 +17,7 @@
   const MOEDA = { gold: { nome: 'Coins', icone: '🪙' }, orb: { nome: 'Gemas', icone: '💎' } };
 
   let escolha = null; // { id, dados } do Pokémon escolhido no passo "Qual pokemon?"
+  let edicao = null;  // { id, dados } do card de "Meus anúncios" cujo Editar foi clicado (ou { item: true })
   let painel = null;  // estado do painel aberto
   let agendado = null;
 
@@ -29,20 +30,41 @@
     return { id, dados: { nome: nome ? nome.trim() : '', level: num(/Nv\s*([\d.]+)/), potencia: num(/\bP(\d)\b/), nota: num(/\bN\s*([\d.,]+)/) } };
   }
 
+  /** Card de "Meus anúncios": não traz o id; o Pokémon vem do índice pelo nome, nível, Nota e potência. */
+  function lerCardMeus(card) {
+    if (!card.classList.contains('poke')) return { item: true };
+    const txt = s => ((card.querySelector(s) || {}).textContent || '').trim();
+    const num = (s, re) => { const m = txt(s).match(re); return m ? Number(m[1].replace(/\./g, '').replace(',', '.')) : NaN; };
+    const dados = { nome: txt('.cm-nome-txt'), level: num('.cm-sub', /Nv\s*([\d.]+)/), potencia: num('.cm-pot', /P(\d)/), nota: num('.pk-selo-n', /([\d.,]+)/) };
+    const lista = window.PIWs.pokemonsIndexados ? window.PIWs.pokemonsIndexados() : [];
+    const achado = L.acharNoIndice(lista, dados);
+    return { id: achado ? achado.id : null, dados };
+  }
+
   function aoEscolher(ev) {
     if (ev.type === 'keydown' && ev.key !== 'Enter' && ev.key !== ' ') return;
-    const card = ev.target && ev.target.closest && ev.target.closest('[data-chave^="cm-sel"]');
-    if (card) escolha = lerCard(card);
+    const alvo = ev.target && ev.target.closest ? ev.target : null;
+    if (!alvo) return;
+    const card = alvo.closest('[data-chave^="cm-sel"]');
+    if (card) { escolha = lerCard(card); return; }
+    const botao = alvo.closest('.cm-card .cm-btn');
+    if (botao && !botao.classList.contains('perigo') && botao.textContent.trim() === 'Editar') edicao = lerCardMeus(botao.closest('.cm-card'));
   }
   document.addEventListener('click', aoEscolher, true);
   document.addEventListener('keydown', aoEscolher, true);
 
-  function brutoDoAnuncio() {
-    return (escolha && window.PIWs.pokemon(escolha.id)) || null;
+  /** Editar anúncio: a folha tem o botão Salvar (#cm-salvar) em vez de Publicar. */
+  const ehEdicao = folha => !!folha.querySelector('#cm-salvar');
+  const fonte = folha => (ehEdicao(folha) ? edicao : escolha);
+
+  function brutoDoAnuncio(folha) {
+    const f = fonte(folha);
+    return (f && f.id != null && window.PIWs.pokemon(f.id)) || null;
   }
 
   function alvoDoAnuncio(folha) {
-    const bruto = brutoDoAnuncio();
+    const escolha = fonte(folha);
+    const bruto = brutoDoAnuncio(folha);
     if (bruto) return M.normalizarAlvo(bruto);
     // Sem o índice do WebSocket: usa o que o card e a vitrine da folha mostram
     const palco = folha.querySelector('.dlg-palco');
@@ -52,7 +74,7 @@
     const nome = d.nome || linhas.find(l => !/^Nv\s*\d/.test(l)) || '';
     if (!nome) return null;
     return {
-      id: escolha ? escolha.id : null, speciesId: null, nome, level: nivel || 1,
+      id: escolha && escolha.id != null ? escolha.id : null, speciesId: null, nome, level: nivel || 1,
       nota: isFinite(d.nota) ? d.nota : NaN, potencia: isFinite(d.potencia) ? d.potencia : 0,
       shiny: false, aoe: false, zmove: false, mega: /^mega\s/i.test(nome), parcial: true,
     };
@@ -103,7 +125,7 @@
     const on = folha.querySelector('.cm-moeda.on');
     const moedaJogo = on ? on.getAttribute('data-moeda') : 'gold';
     painel = {
-      folha, input, alvo, el: criarElemento(),
+      folha, input, alvo, el: criarElemento(), editando: ehEdicao(folha),
       moeda: L.moedaPainel(alvo, moedaJogo), aba: 'avenda', geracao: 0,
       resultado: null, vendidos: [], avenda: null, avendaErro: null,
       avendaPorMoeda: {},   // moeda -> { itens, erro, visto } (uma consulta por moeda)
@@ -111,7 +133,7 @@
       consultas: [],        // promessas das consultas de vitrine feitas por este painel
     };
     folha.appendChild(painel.el);
-    painel.ficha = criarFicha(alvo, brutoDoAnuncio());
+    painel.ficha = criarFicha(alvo, brutoDoAnuncio(folha));
     folha.appendChild(painel.ficha);
     posicionar();
     painel.obsMoeda = new MutationObserver(() => {
@@ -240,6 +262,14 @@
     const ja = p.avendaPorMoeda[moeda];
     if (ja) { aplicarAVenda(p, moeda); return; }
     const sid = p.alvo.speciesId;
+    // No Editar, atrás da folha está a lista de "Meus anúncios": uma consulta de vitrine a trocaria.
+    // Mostra só os anúncios desta espécie que o caçador de pechinchas já viu.
+    if (p.editando && sid != null) {
+      const vistos = window.PIVitrine && window.PIVitrine.anunciosDaEspecie ? window.PIVitrine.anunciosDaEspecie(sid, moeda) : [];
+      p.avendaPorMoeda[moeda] = { itens: vistos, erro: 'no Editar a lista não é atualizada', visto: true };
+      aplicarAVenda(p, moeda);
+      return;
+    }
     if (sid == null) {
       p.avendaPorMoeda[moeda] = { itens: [], erro: 'não deu para identificar a espécie deste anúncio' };
       aplicarAVenda(p, moeda);
@@ -313,11 +343,12 @@
     base.title = res.estimativa ? D().estimativa : '';
     const col = (rot, dica, x, cls) => {
       const v = L.valorUsar(x);
+      const travado = painel.input.disabled || painel.input.readOnly;
       return `<div class="pp-an-col">
         <span class="pp-an-rot" title="${esc(dica)}">${rot}</span>
         <b class="${cls}">${cls === 'pp-q2' ? est : ''}${fmt(x, moeda)}</b>
         <span class="pp-an-liq" title="${esc(moeda === 'orb' ? D().liquidoGemas : D().liquidoCoins)}">líq ${M.formatarValor(M.liquidoVendedor(v, moeda), moeda)}</span>
-        <button type="button" class="pp-usar" data-valor="${v}" title="${esc(D().usar)}">usar ${fmt(v, moeda)}</button>
+        <button type="button" class="pp-usar" data-valor="${v}" title="${esc(travado ? D().travado : D().usar)}"${travado ? ' disabled' : ''}>usar ${fmt(v, moeda)}</button>
       </div>`;
     };
     box.innerHTML = col('Vender rápido', D().venderRapido, res.venderRapido, 'pp-q1') +
@@ -368,21 +399,25 @@
 
   // ---------- observar a folha ----------
   /**
-   * A tela de preço de ITEM (pedras, tokens…) usa o mesmo #cm-preco, mas tem quantidade:
-   * o controle deslizante e "Quantos anunciar". O painel é só para Pokémon (spec), e o id
-   * do card escolhido não serve para distinguir (pode ser numérico nos dois casos).
+   * A tela de preço de ITEM (pedras, tokens…) usa o mesmo #cm-preco. Ela tem "Quantos anunciar",
+   * e o palco não mostra nível. O controle deslizante não serve para distinguir: o Editar de
+   * Pokémon também tem um (a estadia na feira). O id do card escolhido também não serve (pode
+   * ser numérico nos dois casos).
    */
   function telaDeItem(folha) {
     const form = folha.querySelector('.cm-form') || folha;
-    if (form.querySelector('input[type="range"]')) return true;
-    return /quantos anunciar/i.test(form.textContent || '');
+    if (/quantos anunciar/i.test(form.textContent || '')) return true;
+    const palco = folha.querySelector('.dlg-palco');
+    // textContent junta "Scizor" e "Nv 100" sem espaço: sem \b antes do Nv
+    return !!palco && !/Nv\s*\d/.test(palco.textContent || '');
   }
 
   function verificar() {
     const input = document.querySelector('.cm-folha #cm-preco');
     const folha = input && input.closest('.cm-folha');
     const visivel = folha && folha.getClientRects().length > 0;
-    const ehPokemon = folha && !telaDeItem(folha);
+    // no Editar, só com o card de Pokémon clicado em "Meus anúncios" (o de item não abre painel)
+    const ehPokemon = folha && !telaDeItem(folha) && !(ehEdicao(folha) && (!edicao || edicao.item));
     const ligado = !window.PIConfig || window.PIConfig.ligado('painel'); // pode ser desligado no popup
     if (painel && (!ligado || !painel.input.isConnected || painel.input !== input || !visivel || !ehPokemon)) desmontar();
     if (ligado && !painel && input && visivel && ehPokemon) montar(folha, input);

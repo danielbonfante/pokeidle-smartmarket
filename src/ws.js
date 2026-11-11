@@ -290,6 +290,7 @@
     restaurarVitrine,
     ultimoListarDoJogo: () => ultimoListar,
     pokemon: id => pokemons.get(Number(id)) || null,
+    pokemonsIndexados: () => [...pokemons.values()],
     conectado: () => !!socket && socket.readyState === 1,
     aoConectar: fn => { ouvintesSocket.push(fn); if (socket) fn(socket); },
     aoReceberVitrine: fn => { ouvintesVitrine.push(fn); },

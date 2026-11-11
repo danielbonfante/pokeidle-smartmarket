@@ -5,3 +5,6 @@ node_modules/
 
 # Anotações locais de planejamento (ficam só na máquina de quem desenvolve)
 docs/superpowers/
+
+# Capturas de tela para a loja (mostram dados da conta)
+capturas-loja/

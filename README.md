@@ -4,7 +4,7 @@ Extensão do Chrome para quem joga [pokeidle.io](https://pokeidle.io): mostra **
 
 - Na **ficha do Pokémon**: Vender rápido, Preço justo e Esperar, e quanto você recebe depois da comissão.
 - No **Mercado**: um selo em cada anúncio dizendo se é **pechincha**, **no preço** ou **acima do justo**.
-- Na hora de **anunciar**: os preços e os anúncios parecidos ao lado da tela, com um botão para preencher o preço.
+- Na hora de **anunciar** (ou editar um anúncio): os preços e os anúncios parecidos ao lado da tela, com um botão para preencher o preço.
 
 **Só leitura:** a extensão não compra, não vende, não anuncia e não guarda o nick de ninguém. Quem decide e clica é sempre você.
 
@@ -71,6 +71,8 @@ Ao anunciar um Pokémon (Mercado → **+ Anunciar** → **Um pokemon** → escol
 - As abas **À venda** (anúncios abertos agora da mesma espécie) e **Vendidos** (vendas dos últimos 30 dias), com os mais parecidos com o seu primeiro.
 
 Trocou a moeda na tela do jogo, o painel troca junto.
+
+O mesmo painel aparece ao **editar** um anúncio de Pokémon (Mercado → **Meus anúncios** → **Editar**). Ali a aba À venda mostra os anúncios que você já viu na vitrine, e, se o jogo ainda não deixar mudar o preço (30 min depois da última mudança), os botões "usar" ficam desativados.
 
 ### Ícone da extensão
 

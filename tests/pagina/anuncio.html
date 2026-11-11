@@ -3,7 +3,7 @@
   Página de teste do painel de preços na tela "Novo anúncio".
   Reproduz a estrutura da folha do jogo medida em 11/11/2026 (v1.416.0).
   Servir a raiz do projeto em 127.0.0.1 e abrir /tests/pagina/anuncio.html#<caso>.
-  Casos: #ok (padrão), #fora-do-indice, #shiny, #lento, #pausa, #agitado, #cores.
+  Casos: #ok (padrão), #fora-do-indice, #shiny, #lento, #pausa, #agitado, #cores, #editar, #editar-travado.
 -->
 <html lang="pt-BR"><head><meta charset="utf-8"><title>Teste — painel do anúncio</title>
 <link rel="stylesheet" href="../../src/ui.css">
@@ -106,7 +106,45 @@
   });
   document.querySelector('.cm-folha-voltar').addEventListener('click', passo2);
   document.querySelector('.cm-fechar').addEventListener('click', () => document.getElementById('folha').remove());
-  passo2();
+
+  // ---------- #editar / #editar-travado: "Meus anúncios" → Editar (estrutura vista no jogo em 11/11/2026) ----------
+  // Os cards de "Meus anúncios" não trazem o id; a tela Editar tem a estadia (controle deslizante) e
+  // o botão #cm-salvar.cm-publicar (nunca tocar).
+  window.__cliquesSalvar = 0;
+  function telaEditar(item) {
+    const folha = document.getElementById('folha');
+    folha.style.display = '';
+    folha.querySelector('.cm-folha-caixa').style.height = '779px';
+    const travado = caso === 'editar-travado';
+    corpo.innerHTML = '<div class="dlg-palco dlg-feira compacta"><span class="dlg-ator-nome">' + (item ? 'Darkness Stone' : 'Furious Scizor') + '</span>' +
+      (item ? '' : '<span class="dlg-ator-sub">Nv 100</span>') + '<span class="dlg-placa-dias">1 dia</span></div>' +
+      '<div class="cm-form"><label><input id="cm-preco" type="number" value="666" min="2"' + (travado ? ' disabled' : '') + '><em>mínimo 2 Gemas/un.</em></label>' +
+      '<div class="cm-moedas"><button type="button" class="cm-moeda" data-moeda="gold">Coins</button><button type="button" class="cm-moeda on" data-moeda="orb">Gemas</button></div>' +
+      '<div id="cm-resumo">VOCÊ RECEBE <b>584</b></div>' +
+      '<div class="cm-estadia">ESTADIA NA FEIRA <input type="range" min="0" max="29" value="0"><button type="button" class="qtd-atalho">+1 dia</button></div>' +
+      '<p class="cm-nota dim">Mudar o preço leva o anúncio de volta ao topo da vitrine.</p>' +
+      '<button id="cm-salvar" class="cm-publicar" type="button">Salvar</button></div>';
+    document.getElementById('cm-salvar').addEventListener('click', () => { window.__cliquesSalvar++; });
+    corpo.querySelectorAll('.cm-moeda').forEach(b => b.addEventListener('click', () => corpo.querySelectorAll('.cm-moeda').forEach(x => x.classList.toggle('on', x === b))));
+  }
+  if (caso === 'editar' || caso === 'editar-travado') {
+    document.getElementById('folha').style.display = 'none';
+    window.PIWs.pokemonsIndexados = () => [Object.assign({}, alvoJogo, { id: 5, nota: 4.5 }), alvoJogo];
+    const lista = document.createElement('div');
+    lista.id = 'cm-lista';
+    lista.style.cssText = 'position:absolute;left:20px;top:20px;display:flex;gap:10px';
+    lista.innerHTML =
+      '<div class="cm-card tem-fav"><span class="cm-nome-txt">Darkness Stone</span><button class="cm-btn">Editar</button><button class="cm-btn perigo">Remover</button></div>' +
+      '<div class="cm-card poke tem-fav"><span class="cm-nome-txt">Furious Scizor</span><div class="cm-sub">Nv 100</div><span class="cm-pot p2">P2</span>' +
+      '<span class="pk-selo pk-selo-n">N 4,610</span><button class="cm-btn">Editar</button><button class="cm-btn perigo">Remover</button></div>';
+    document.querySelector('.modal-caixa').appendChild(lista);
+    lista.addEventListener('click', ev => {
+      const b = ev.target.closest('.cm-btn');
+      if (b && !b.classList.contains('perigo')) telaEditar(!b.closest('.cm-card').classList.contains('poke'));
+    });
+  } else {
+    passo2();
+  }
   // #agitado: o jogo atualiza a tela o tempo todo (XP, chat…); o painel tem de aparecer mesmo assim
   if (caso === 'agitado') {
     const cont = document.createElement('div');

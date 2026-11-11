@@ -102,7 +102,24 @@
     return Math.max(2, M.arredondarPreco(x));
   }
 
-  const api = { moedaPainel, semelhanca, ordenarAVenda, ordenarVendidos, posicaoPainel, valorUsar, faixaNota, indiceFaixaNota, nivelSelo };
+  /**
+   * O Pokémon de um card de "Meus anúncios" no índice do WebSocket. O card não traz o id,
+   * então compara nome, nível e Nota (3 casas), e a potência quando o card mostra. Sem Nota
+   * não arrisca: devolve null e o painel usa só o que a tela mostra.
+   */
+  function acharNoIndice(pokemons, dados) {
+    if (!dados || !isFinite(dados.nota) || !isFinite(dados.level)) return null;
+    const nome = String(dados.nome || '').trim().toLowerCase();
+    for (const p of pokemons || []) {
+      if (String(p.nome || '').toLowerCase() !== nome || Number(p.level) !== dados.level) continue;
+      if (Math.abs(Number(p.nota) - dados.nota) > 0.0006) continue;
+      if (isFinite(dados.potencia) && Number(p.potencia) !== dados.potencia) continue;
+      return p;
+    }
+    return null;
+  }
+
+  const api = { moedaPainel, semelhanca, ordenarAVenda, ordenarVendidos, posicaoPainel, valorUsar, faixaNota, indiceFaixaNota, nivelSelo, acharNoIndice };
   root.PIAnuncioLogica = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

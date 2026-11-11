@@ -134,3 +134,16 @@ test('indiceFaixaNota: índice 0–9 das 10 faixas (mesma regra de faixaNota)', 
   assert.equal(L.indiceFaixaNota(4.0), 3);
   assert.equal(L.indiceFaixaNota(NaN), -1);
 });
+
+test('acharNoIndice: acha o Pokémon do card de "Meus anúncios" pelo nome, nível, Nota e potência', () => {
+  const indice = [
+    { id: 1, nome: 'Furious Scizor', level: 100, nota: 3.662, potencia: 2 },
+    { id: 2, nome: 'Furious Scizor', level: 100, nota: 3.688, potencia: 3 },
+    { id: 3, nome: 'Charizard', level: 100, nota: 3.688, potencia: 3 },
+  ];
+  assert.equal(L.acharNoIndice(indice, { nome: 'Furious Scizor', level: 100, nota: 3.688, potencia: 3 }).id, 2);
+  assert.equal(L.acharNoIndice(indice, { nome: 'furious scizor', level: 100, nota: 3.688 }).id, 2, 'sem potência e com outra caixa');
+  assert.equal(L.acharNoIndice(indice, { nome: 'Furious Scizor', level: 101, nota: 3.688 }), null, 'nível diferente');
+  assert.equal(L.acharNoIndice(indice, { nome: 'Furious Scizor', level: 100, nota: NaN }), null, 'sem Nota não arrisca');
+  assert.equal(L.acharNoIndice([], { nome: 'X', level: 1, nota: 1 }), null);
+});
