@@ -1,0 +1,7 @@
+# Planilhas exportadas do jogo (dados de vendas)
+*.csv
+node_modules/
+.superpowers/
+
+# Anotações locais de planejamento (ficam só na máquina de quem desenvolve)
+docs/superpowers/

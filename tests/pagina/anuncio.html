@@ -1,0 +1,124 @@
+<!doctype html>
+<!--
+  Página de teste do painel de preços na tela "Novo anúncio".
+  Reproduz a estrutura da folha do jogo medida em 11/11/2026 (v1.416.0).
+  Servir a raiz do projeto em 127.0.0.1 e abrir /tests/pagina/anuncio.html#<caso>.
+  Casos: #ok (padrão), #fora-do-indice, #shiny, #lento, #pausa, #agitado, #cores.
+-->
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Teste — painel do anúncio</title>
+<link rel="stylesheet" href="../../src/ui.css">
+<style>
+  body { margin: 0; background: #120a12; color: #eee; font-family: system-ui, sans-serif; width: 1920px; height: 889px; }
+  .modal-caixa { position: absolute; left: 300px; top: 36px; width: 1320px; height: 818px; background: #2a1520; }
+  .cm-folha { position: absolute; inset: 0; background: rgba(0,0,0,.55); }
+  .cm-folha-caixa { position: absolute; left: 400px; top: 116px; width: 520px; height: 584px; background: #4a2633; border: 2px solid #6e3a4a; border-radius: 8px; box-sizing: border-box; }
+  .cm-folha-corpo { padding: 10px; }
+  .dlg-palco { background: #2a1520; text-align: center; padding: 18px 0; color: #ffd166; }
+  .mk-card { display: inline-block; padding: 10px; margin: 6px; background: #1d0f16; cursor: pointer; }
+  .cm-moeda.on { outline: 2px solid #b58cff; }
+  #resumo { margin-top: 8px; }
+</style>
+</head><body>
+<div class="modal-caixa quadrado" data-modal="community">
+  <div class="cm-folha" id="folha">
+    <div class="cm-folha-caixa"><button class="cm-folha-voltar" type="button">‹</button><button class="cm-fechar" type="button">✕</button>
+      <div class="cm-folha-corpo" id="corpo"></div>
+    </div>
+  </div>
+</div>
+<script>
+  // ---------- dados de exemplo ----------
+  const caso = location.hash.slice(1) || 'ok';
+  const agora = Date.now(), H = 3600e3;
+  const shiny = caso === 'shiny';
+  const alvoJogo = { id: 111927090, speciesId: 212, nome: 'Furious Scizor', level: 100, nota: 4.61, quality: 1.2, potencia: 2, shiny, tmAoe: false, tmElemental: null, ivTotal: 120, tipos: ['bug', 'steel'], poder: 131 };
+  // #cores: os números de um Furious Scizor real, para conferir as cores dos cartões
+  if (caso === 'cores') Object.assign(alvoJogo, { quality: 1.768, potencia: 3, ivTotal: 109, nota: 3.688, poder: 377 });
+  const vendas = [];
+  for (let i = 0; i < 16; i++) {
+    const moeda = shiny ? 'orb' : (i % 2 ? 'orb' : 'gold');
+    vendas.push({ id: i + 1, em: agora - i * 5 * H, moeda, preco: moeda === 'orb' ? (shiny ? 4000 + i * 200 : 560 + i * 15) : 1.1e8 + i * 4e6,
+      speciesId: 212, nome: 'Furious Scizor', level: 96 + (i % 9), nota: 4.5 + (i % 7) * 0.03, ivTotal: 120, quality: 1.2, potencia: 2,
+      shiny, aoe: i === 3, zmove: false, mega: false, refino: 0 });
+  }
+  window.__cliquesPublicar = 0;
+  window.__chamadas = { consultarVitrine: 0, restaurarVitrine: 0 };
+  window.PIWs = {
+    pokemon: id => (caso === 'fora-do-indice' ? null : (Number(id) === alvoJogo.id ? alvoJogo : null)),
+    conectado: () => true,
+    ultimoListarDoJogo: () => ({ t: 'market.listar', tipo: 'pokemon', moeda: 'orb', soShiny: true, pagina: 0 }),
+    // Anúncios abertos da espécie: responde em 800 ms (#ok, #lento) ou recusa pelo freio (#pausa)
+    consultarVitrine: ({ especieId, moeda }) => {
+      window.__chamadas.consultarVitrine++;
+      window.__ultimaConsulta = { especieId, moeda };
+      if (caso === 'pausa') return Promise.reject(new Error('o jogo pediu para ir mais devagar; consultas pausadas por ~3 min'));
+      const linhas = [4.62, 4.40, 4.60, 4.10].map((nota, i) => ({ id: 500 + i, tipo: 'pokemon', moeda, preco: moeda === 'orb' ? [520, 900, 640, 450][i] : [1e8, 1.8e8, 1.25e8, 9e7][i],
+        pokemonId: 7000 + i, vendedor: 'NAO_MOSTRAR', ficha: { id: 7000 + i, speciesId: 212, nome: 'Furious Scizor', level: 100, nota, potencia: 2, shiny, tmAoe: false, tmElemental: null, caughtBy: 'NAO_MOSTRAR' } }));
+      return new Promise(r => setTimeout(() => r({ t: 'market', aba: 'vitrine', linhas }), 800));
+    },
+    restaurarVitrine: msg => { window.__chamadas.restaurarVitrine++; window.__restaurou = msg; return Promise.resolve(); },
+  };
+  // Anúncios que o caçador de pechinchas já viu (plano B quando a consulta é recusada)
+  window.PIVitrine = { anunciosDaEspecie: (sid, moeda) => [
+    { id: 900, preco: moeda === 'orb' ? 610 : 1.2e8, moeda, vistoEm: agora - 12 * 60000, alvo: Object.assign({}, alvoJogo, { id: 7900, nota: 4.58 }) },
+  ] };
+  window.PIStore = { vendasPorEspecie: async () => vendas, vendasPorClasse: async () => [] };
+  window.PISync = { sincronizar: async () => ({ pulou: true }) };
+
+  // ---------- a folha do jogo ----------
+  const corpo = document.getElementById('corpo');
+  function passo2() {
+    corpo.innerHTML = '<p class="cm-passo-txt">Qual pokemon?</p><div id="cm-pks">' +
+      '<div class="mk-card cm-pk-escolha" role="button" tabindex="0" data-chave="cm-sel111927090"><div class="mk-nome">Furious Scizor</div><div>Nv 100</div>' +
+      '<span>P2</span> <span>IV 120</span> <span>Q 1,200</span> <span>N 4,610</span></div>' +
+      // um item, com data-chave numérico de propósito (pior caso: não dá para distinguir pelo id)
+      '<div class="mk-card cm-pk-escolha" role="button" tabindex="0" data-chave="cm-sel4021" data-teste-item="1"><div class="mk-nome">Bronze Boss Token</div><div>x7</div></div></div>';
+  }
+  // Tela de preço de ITEM, como no print de 11/11/2026 (Bronze Boss Token): quantidade e atalhos
+  function telaItem() {
+    corpo.innerHTML = '<div class="dlg-palco dlg-feira compacta"><div>x7</div><div>18.000.000 /un.</div><div>Bronze Boss Token</div></div>' +
+      '<div class="cm-form"><label>Preço por unidade</label><br><input id="cm-preco" type="number" value="18000000" min="2">' +
+      '<div class="cm-atalhos"><div>MENOR ANÚNCIO 15.300.000 <button type="button">usar</button></div><div>MÉDIA VENDIDA 15.306.331 <button type="button">usar</button></div></div>' +
+      '<div><button type="button" class="cm-moeda on" data-moeda="gold">Coins</button><button type="button" class="cm-moeda" data-moeda="orb">Gemas</button></div>' +
+      '<label>Quantos anunciar</label> <span>até 7</span><input type="range" min="1" max="7" value="7"><input type="number" value="7">' +
+      '<button type="button">25%</button><button type="button">50%</button><button type="button">Tudo</button>' +
+      '<div id="resumo">VOCÊ RECEBE <b id="recebe">107.100.000</b></div><button id="cm-publicar" class="cm-publicar" type="button">Publicar anúncio</button></div>';
+    document.getElementById('cm-publicar').addEventListener('click', () => { window.__cliquesPublicar++; });
+  }
+  function telaPreco() {
+    corpo.innerHTML = '<div class="dlg-palco dlg-feira compacta"><div>Furious Scizor</div><div>Nv 100</div></div>' +
+      '<div class="cm-form"><label>Preço por unidade</label><br><input id="cm-preco" type="number" value="1" min="2">' +
+      '<div><button type="button" class="cm-moeda ' + (shiny ? '' : 'on') + '" data-moeda="gold"' + (shiny ? ' disabled' : '') + '>Coins</button>' +
+      '<button type="button" class="cm-moeda ' + (shiny ? 'on' : '') + '" data-moeda="orb">Gemas</button></div>' +
+      '<div id="resumo">VOCÊ RECEBE <b id="recebe">0</b></div><button id="cm-publicar" class="cm-publicar" type="button">Publicar anúncio</button></div>';
+    const inp = document.getElementById('cm-preco');
+    inp.addEventListener('input', () => { document.getElementById('recebe').textContent = String(Math.floor(Number(inp.value) * 0.85)); });
+    document.getElementById('cm-publicar').addEventListener('click', () => { window.__cliquesPublicar++; });
+    corpo.querySelectorAll('.cm-moeda').forEach(b => b.addEventListener('click', () => {
+      if (b.disabled) return;
+      corpo.querySelectorAll('.cm-moeda').forEach(x => x.classList.toggle('on', x === b));
+    }));
+  }
+  corpo.addEventListener('click', ev => {
+    const card = ev.target.closest('[data-chave^="cm-sel"]');
+    if (!card) return;
+    if (card.hasAttribute('data-teste-item')) telaItem(); else telaPreco();
+  });
+  document.querySelector('.cm-folha-voltar').addEventListener('click', passo2);
+  document.querySelector('.cm-fechar').addEventListener('click', () => document.getElementById('folha').remove());
+  passo2();
+  // #agitado: o jogo atualiza a tela o tempo todo (XP, chat…); o painel tem de aparecer mesmo assim
+  if (caso === 'agitado') {
+    const cont = document.createElement('div');
+    cont.id = 'contador';
+    document.body.appendChild(cont);
+    let n = 0;
+    setInterval(() => { cont.textContent = 'xp ' + (n++); }, 40);
+  }
+</script>
+<script src="../../src/config.js"></script>
+<script src="../../src/motor.js"></script>
+<script src="../../src/ui.js"></script>
+<script src="../../src/anuncio-logica.js"></script>
+<script src="../../src/anuncio.js"></script>
+</body></html>

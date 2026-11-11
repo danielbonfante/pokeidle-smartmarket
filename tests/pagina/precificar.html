@@ -1,0 +1,44 @@
+<!doctype html>
+<!--
+  Página de teste da janela "Precificar" (src/precificar.js).
+  Uma ficha com um caso real de Blastoise (11/11/2026): vendas parecidas em Gemas em dois
+  grupos (~20–27 e ~100–120); em Coins, preços estáveis.
+  Servir a raiz do projeto em 127.0.0.1 e abrir /tests/pagina/precificar.html, depois clicar
+  em "Precificar" no quadro de preço.
+-->
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Teste — Precificar</title>
+<link rel="stylesheet" href="../../src/ui.css">
+<style>
+  body { background: #120a12; color: #eee; font-family: system-ui, sans-serif; padding: 16px; }
+  #ficha { position: fixed; top: 10px; left: 10px; width: 760px; }
+  .fi-heroi { display: grid; grid-template-columns: 440px 300px; gap: 12px; margin: 0 0 12px; }
+  .palco { background: #2a1838; height: 140px; border-radius: 8px; }
+</style>
+</head><body>
+<div id="ficha" class="modal"><div class="fi-corpo">
+  <div class="fi-heroi"><div class="fi-heroi-info">
+    <div class="fi-nome">Blastoise</div><div class="fi-nivel-chip">Nv 395</div><span class="txt-num">#97553169</span>
+    <div class="fi-acoes"><button>Calcular pokemon</button></div></div><div class="palco"></div></div>
+  <section class="fi-cartao">Stats atuais…</section>
+</div></div>
+<script src="../../src/config.js"></script>
+<script src="../../src/motor.js"></script>
+<script>
+  const agora = Date.now(), H = 3600e3;
+  const vendas = []; let id = 1;
+  const v = (extra) => Object.assign({ id: id++, em: agora - id * 5 * H, moeda: 'orb', preco: 50, speciesId: 9, nome: 'Blastoise', level: 395, nota: 3.6,
+    ivTotal: 100 + (id * 7) % 50, quality: [1.8, 1.596, 1.741, 1.44][id % 4], potencia: [1, 1, 4, 2][id % 4], shiny: false, aoe: false, zmove: false, mega: false, refino: 0 }, extra);
+  // Gemas: grupo barato e grupo caro (o caro com mais AoE, nível e refino)
+  for (let i = 0; i < 18; i++) vendas.push(v({ preco: 20 + (i % 8), level: 300 + i * 6, nota: 3.53 + (i % 6) * 0.02 }));
+  for (let i = 0; i < 14; i++) vendas.push(v({ preco: 100 + (i % 3) * 10, level: 380 + i * 12, nota: 3.55 + (i % 5) * 0.02, aoe: i < 3, refino: 3 }));
+  // Coins: estáveis
+  for (let i = 0; i < 30; i++) vendas.push(v({ moeda: 'gold', preco: 1.8e8 + (i % 5) * 1e7, level: 330 + i * 7, nota: 3.53 + (i % 6) * 0.02 }));
+  window.PIWs = { pokemon: () => ({ id: 97553169, speciesId: 9, nome: 'Blastoise', level: 395, nota: 3.598, quality: 1.8, potencia: 1, shiny: false, tmAoe: false, tmElemental: null, ivTotal: 130 }), conectado: () => false };
+  window.PIStore = { vendasPorEspecie: async () => vendas, vendasPorClasse: async () => [] };
+  window.PISync = { sincronizar: async () => ({ pulou: true }) };
+</script>
+<script src="../../src/ui.js"></script>
+<script src="../../src/anuncio-logica.js"></script>
+<script src="../../src/analise.js"></script>
+<script src="../../src/precificar.js"></script>
+</body></html>

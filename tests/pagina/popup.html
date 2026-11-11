@@ -1,0 +1,61 @@
+<!doctype html>
+<!--
+  Página de teste do popup (popup/popup.html) com um chrome.* falso.
+  Servir a raiz do projeto em 127.0.0.1 e abrir /tests/pagina/popup.html com:
+    #ok       aba do jogo, freio normal, cache com vendas
+    #lento    freio: intervalo dobrado por 1 h
+    #pausado  freio: pausado pelo aviso do servidor
+    #vazio    cache vazio
+    #fora     a aba ativa não é o jogo
+  window.__storage mostra o que o popup gravou; window.__pedidos, o que ele pediu à aba.
+-->
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Teste — Popup</title>
+<base href="../../popup/">
+<link rel="stylesheet" href="popup.css">
+</head><body>
+<script>
+  const caso = location.hash.slice(1) || 'ok';
+  const agora = Date.now();
+  window.__storage = { config: { selos: false } };
+  window.__pedidos = [];
+  let vendas = caso === 'vazio' ? 0 : 12615;
+  const ritmo = () => ({
+    intervalo: caso === 'lento' || caso === 'pausado' ? 3000 : 1500, intervaloNormal: 1500,
+    pausadoAte: caso === 'pausado' ? agora + 150000 : 0,
+    freioAte: caso === 'lento' || caso === 'pausado' ? agora + 40 * 60000 : 0,
+    tetoPorMinuto: 12, orcamentoConexao: 45, enviosConexaoUltimoMinuto: caso === 'lento' ? 41 : 23,
+  });
+  const resposta = p => {
+    if (p === 'limpar-cache') vendas = 0;
+    const cache = { vendas, especies: vendas ? 214 : 0, maisAntiga: vendas ? agora - 8 * 864e5 : 0, maisNova: vendas ? agora - 6e4 : 0 };
+    return p === 'ritmo' ? { conectado: true, ritmo: ritmo() } : { conectado: true, ritmo: ritmo(), cache };
+  };
+  const falso = {
+    storage: { local: {
+      get: (k, cb) => setTimeout(() => cb({ [k]: window.__storage[k] }), 5),
+      set: (o) => Object.assign(window.__storage, JSON.parse(JSON.stringify(o))),
+    } },
+    tabs: {
+      query: async () => [{ id: 1 }],
+      sendMessage: (id, msg, cb) => {
+        window.__pedidos.push(msg.pism);
+        setTimeout(() => {
+          if (caso === 'fora') { falso.runtime.lastError = { message: 'Receiving end does not exist.' }; cb(undefined); falso.runtime.lastError = undefined; return; }
+          cb(resposta(msg.pism));
+        }, 30);
+      },
+    },
+    runtime: { lastError: undefined, getManifest: () => ({ version: '0.1.0' }) },
+  };
+  Object.defineProperty(window, 'chrome', { value: falso, configurable: true, writable: true });
+  // monta o corpo do popup de verdade e roda o popup.js dele
+  fetch('popup.html').then(r => r.text()).then(html => {
+    const corpo = new DOMParser().parseFromString(html, 'text/html').body;
+    corpo.querySelectorAll('script').forEach(s => s.remove());
+    document.body.insertAdjacentHTML('beforeend', corpo.innerHTML);
+    const s = document.createElement('script');
+    s.src = 'popup.js';
+    document.body.appendChild(s);
+  });
+</script>
+</body></html>

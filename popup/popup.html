@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <title>Pokeidle Smart Market</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="toldo"></div>
+  <header>
+    <img src="../icons/icone-48.png" alt="" width="32" height="32">
+    <div>
+      <h1>Pokeidle Smart Market</h1>
+      <p class="sub">preços do RMT a partir das vendas</p>
+    </div>
+  </header>
+
+  <section>
+    <h2>Na tela do jogo</h2>
+    <label class="opcao">
+      <span><b>Quadro de preço na ficha</b><small>Preço estimado em Gemas e Coins e o botão Precificar.</small></span>
+      <input type="checkbox" role="switch" data-chave="quadro">
+    </label>
+    <label class="opcao">
+      <span><b>Selos na vitrine do Mercado</b><small>Pechincha, no preço ou acima do justo em cada anúncio.</small></span>
+      <input type="checkbox" role="switch" data-chave="selos">
+    </label>
+    <label class="opcao">
+      <span><b>Painel no Novo anúncio</b><small>Preços, anúncios à venda e vendidos ao lado da tela de anunciar.</small></span>
+      <input type="checkbox" role="switch" data-chave="painel">
+    </label>
+    <p class="nota" id="nota-chaves">Vale na hora, em todas as abas do jogo.</p>
+  </section>
+
+  <section id="jogo">
+    <h2>Cache de vendas</h2>
+    <div id="cache" class="caixa">carregando…</div>
+    <div id="limpar-area">
+      <button type="button" id="limpar">Limpar cache…</button>
+    </div>
+    <h2>Freio</h2>
+    <div id="freio" class="caixa">carregando…</div>
+  </section>
+
+  <section id="fora" hidden>
+    <h2>Cache e freio</h2>
+    <div class="caixa">Abra a aba do <b>pokeidle.io</b> e clique no ícone de novo para ver o cache de vendas e o freio.</div>
+  </section>
+
+  <footer>
+    <p>Só leitura: não compra, não vende, não anuncia e não guarda nicks.</p>
+    <p class="versao">v<span id="versao"></span> · created by dan_the_treiner</p>
+  </footer>
+  <script src="popup.js"></script>
+</body>
+</html>

@@ -1,0 +1,74 @@
+/* Popup da Pokeidle Smart Market: mesmas cores do quadro e dos painéis no jogo */
+:root {
+  --fundo: #2a141f;
+  --fundo-caixa: rgba(20, 10, 16, 0.75);
+  --borda: rgba(181, 140, 255, 0.85);
+  --texto: #efe6ff;
+  --suave: #a993c9;
+  --titulo: #e8d7ff;
+  --ouro: #f2c86b;
+  --verde: #7ee2a8;
+  --amarelo: #f2c86b;
+  --vermelho: #ff8f8f;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  width: 340px;
+  background: linear-gradient(180deg, #4a2633, var(--fundo));
+  color: var(--texto);
+  font: 13px/1.4 system-ui, "Segoe UI", sans-serif;
+  border: 2px solid var(--borda);
+  font-variant-numeric: tabular-nums;
+}
+.toldo { height: 14px; background: repeating-linear-gradient(90deg, #c2444f 0 14px, #e9d6c8 14px 28px); border-bottom: 2px solid #7c2f3b; }
+header { display: flex; align-items: center; gap: 10px; padding: 10px 14px 4px; }
+header img { image-rendering: pixelated; }
+h1 { margin: 0; font-size: 15px; color: var(--titulo); }
+.sub { margin: 0; font-size: 11px; color: var(--suave); }
+section { padding: 4px 14px 6px; }
+h2 { margin: 10px 0 6px; font-size: 11px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ouro); }
+.opcao {
+  display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  padding: 7px 10px; margin-bottom: 6px; border-radius: 8px; background: var(--fundo-caixa); cursor: pointer;
+}
+.opcao b { display: block; color: var(--titulo); font-weight: 600; }
+.opcao small { display: block; color: var(--suave); font-size: 11px; }
+.opcao input {
+  flex: none; appearance: none; width: 36px; height: 20px; margin: 0; border-radius: 10px;
+  background: rgba(255, 255, 255, 0.15); position: relative; cursor: pointer; transition: background 0.15s;
+}
+.opcao input::after {
+  content: ""; position: absolute; top: 2px; left: 2px; width: 16px; height: 16px; border-radius: 50%;
+  background: #cbbbe0; transition: transform 0.15s, background 0.15s;
+}
+.opcao input:checked { background: #7a4fc0; }
+.opcao input:checked::after { transform: translateX(16px); background: #fff; }
+.opcao input:focus-visible { outline: 2px solid var(--ouro); outline-offset: 2px; }
+.nota { margin: 2px 0 0; font-size: 11px; color: var(--suave); }
+.caixa { padding: 8px 10px; border-radius: 8px; background: var(--fundo-caixa); font-size: 12px; }
+.caixa b { color: var(--titulo); }
+.caixa .linha { margin: 2px 0; }
+.caixa .fraco { color: var(--suave); font-size: 11px; }
+.estado { display: inline-block; padding: 1px 7px; border-radius: 10px; font-weight: 700; font-size: 11px; margin-right: 4px; }
+.estado.ok { background: rgba(126, 226, 168, 0.18); color: var(--verde); }
+.estado.lento { background: rgba(242, 200, 107, 0.18); color: var(--amarelo); }
+.estado.parado { background: rgba(255, 143, 143, 0.18); color: var(--vermelho); }
+.barra { height: 6px; border-radius: 3px; background: rgba(255, 255, 255, 0.08); overflow: hidden; margin: 4px 0 2px; }
+.barra i { display: block; height: 100%; background: var(--verde); }
+.barra i.alto { background: var(--amarelo); }
+#limpar-area { margin-top: 6px; }
+button {
+  font: inherit; font-size: 12px; padding: 4px 10px; border-radius: 6px; cursor: pointer;
+  border: 1px solid rgba(181, 140, 255, 0.5); background: rgba(90, 60, 130, 0.5); color: var(--texto);
+}
+button:hover { background: rgba(90, 60, 130, 0.85); }
+button.perigo { border-color: rgba(255, 143, 143, 0.6); background: rgba(160, 50, 60, 0.6); }
+button.perigo:hover { background: rgba(160, 50, 60, 0.9); }
+.confirmar { padding: 8px 10px; border-radius: 8px; border: 1px dashed rgba(255, 143, 143, 0.6); font-size: 12px; }
+.confirmar p { margin: 0 0 6px; }
+.confirmar button + button { margin-left: 6px; }
+.feito { color: var(--verde); font-size: 12px; }
+footer { padding: 8px 14px 10px; border-top: 1px solid rgba(255, 255, 255, 0.06); margin-top: 6px; }
+footer p { margin: 0; font-size: 11px; color: var(--suave); }
+footer .versao { margin-top: 2px; font-size: 10px; color: #8f7cad; }

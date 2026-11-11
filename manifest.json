@@ -1,0 +1,60 @@
+{
+  "manifest_version": 3,
+  "name": "Pokeidle Smart Market",
+  "version": "0.1.0",
+  "description": "Mostra na ficha do Pokémon o preço estimado em Gemas e Coins, calculado a partir das vendas do RMT. Created by dan_the_treiner.",
+  "icons": {
+    "16": "icons/icone-16.png",
+    "32": "icons/icone-32.png",
+    "48": "icons/icone-48.png",
+    "128": "icons/icone-128.png"
+  },
+  "action": {
+    "default_title": "Pokeidle Smart Market",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "icons/icone-16.png",
+      "32": "icons/icone-32.png",
+      "48": "icons/icone-48.png",
+      "128": "icons/icone-128.png"
+    }
+  },
+  "permissions": [
+    "storage"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "https://pokeidle.io/*"
+      ],
+      "js": [
+        "src/ponte.js"
+      ],
+      "run_at": "document_start",
+      "world": "ISOLATED"
+    },
+    {
+      "matches": [
+        "https://pokeidle.io/*"
+      ],
+      "js": [
+        "src/config.js",
+        "src/ws.js",
+        "src/motor.js",
+        "src/store.js",
+        "src/sync.js",
+        "src/ui.js",
+        "src/vitrine.js",
+        "src/anuncio-logica.js",
+        "src/anuncio.js",
+        "src/analise.js",
+        "src/precificar.js"
+      ],
+      "css": [
+        "src/ui.css"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ]
+}

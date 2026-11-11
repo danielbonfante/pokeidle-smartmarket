@@ -1,0 +1,94 @@
+<!doctype html>
+<!--
+  Página de teste do caçador de pechinchas (vitrine.js).
+  Servir a raiz do projeto em 127.0.0.1 e abrir /tests/pagina/vitrine.html#<caso>.
+  Casos:
+  - #medir (padrão): o jogo redesenha os cards a cada ~3 s (aqui 500 ms) — diagnóstico de
+    11/11/2026: 144 cards trocados em 20 s. window.__medicao conta os quadros de tela em que
+    algum card ficou sem selo.
+  - #buscar: um Scizor comum sem vendas no cache ao lado dos Furious Scizor. O selo dele
+    oferece "buscar"; a busca (stub) traz vendas depois de 300 ms.
+  - #pausa: igual a #buscar, mas a busca é recusada pelo freio ("Devagar").
+  Também redesenha os cards a cada 500 ms em #buscar e #pausa, como o jogo.
+-->
+<html lang="pt-BR"><head><meta charset="utf-8"><title>Teste — vitrine</title>
+<link rel="stylesheet" href="../../src/ui.css">
+<style>
+  body { background: #120a12; color: #eee; font-family: system-ui, sans-serif; }
+  #cm-lista { display: grid; grid-template-columns: repeat(7, 166px); gap: 8px; }
+  .cm-card { background: #2a1520; padding: 8px; border-radius: 6px; min-height: 120px; }
+</style>
+</head><body>
+<div id="cm-lista"></div>
+<script>
+  const caso = location.hash.slice(1) || 'medir';
+  const agora = Date.now(), H = 3600e3;
+  const venda = (i, speciesId, nome, preco) => ({ id: speciesId * 1000 + i, em: agora - i * 4 * H, moeda: 'orb', preco, speciesId, nome,
+    level: 100, nota: 3.5 + (i % 7) * 0.03, ivTotal: 120, quality: 1.2, potencia: 2, shiny: false, aoe: false, zmove: false, mega: false, refino: 0 });
+  const vendas = [];
+  for (let i = 0; i < 16; i++) vendas.push(venda(i, 212, 'Furious Scizor', 560 + i * 15));
+  let ouvinte = null;
+  window.__buscas = [];
+  window.__cliquesNoCard = 0;
+  window.PIWs = { aoReceberVitrine: fn => { ouvinte = fn; }, conectado: () => true, pokemon: () => null };
+  // IndexedDB é assíncrono no jogo: o stub também responde depois de um tempo
+  window.PIStore = {
+    vendasPorEspecie: (sid) => new Promise(r => setTimeout(() => r(vendas.filter(v => sid == null || v.speciesId === sid)), 40)),
+    vendasPorClasse: async () => [],
+  };
+  window.PISync = {
+    sincronizar: (busca, moeda, prog, filtro) => {
+      if (!busca) return Promise.resolve({ pulou: true }); // sync de classe da vitrine: fora deste teste
+      window.__buscas.push({ busca, moeda });
+      if (caso === 'pausa') return Promise.reject(new Error('o jogo pediu para ir mais devagar; consultas pausadas por ~3 min'));
+      return new Promise(r => setTimeout(() => {
+        for (let i = 0; i < 6; i++) vendas.push(venda(i, 123, 'Scizor', 14 + (i % 3)));
+        r({ pulou: false, paginas: 1, novas: 6 });
+      }, 300));
+    },
+  };
+</script>
+<script src="../../src/config.js"></script>
+<script src="../../src/motor.js"></script>
+<script src="../../src/ui.js"></script>
+<script src="../../src/vitrine.js"></script>
+<script>
+  const linhas = [520, 640, 700, 900, 450, 610].map((preco, i) => ({ id: 800 + i, tipo: 'pokemon', moeda: 'orb', preco, pokemonId: 7000 + i,
+    ficha: { id: 7000 + i, speciesId: 212, nome: 'Furious Scizor', level: 100, nota: 3.5 + i * 0.02, potencia: 2, shiny: false, tmAoe: false, tmElemental: null } }));
+  if (caso !== 'medir') linhas.push({ id: 900, tipo: 'pokemon', moeda: 'orb', preco: 14, pokemonId: 7900,
+    ficha: { id: 7900, speciesId: 123, nome: 'Scizor', level: 100, nota: 3.502, potencia: 1, shiny: false, tmAoe: false, tmElemental: null } });
+  // O jogo redesenha a lista inteira: cards novos, sem os selos da extensão
+  function desenhar() {
+    document.getElementById('cm-lista').innerHTML = linhas.map(l =>
+      `<div class="cm-card" data-teste-anuncio="${l.id}"><div class="cm-nome">${l.ficha.nome}</div><button class="cm-fav" data-fav="${l.id}">★</button>` +
+      `<div class="cm-rodape"><span class="cm-preco orb">${l.preco}</span><div class="cm-vend">de alguém</div></div></div>`).join('');
+  }
+  // um clique no card (fora do selo) conta: o selo não pode deixar o clique chegar ao jogo
+  document.getElementById('cm-lista').addEventListener('click', () => { window.__cliquesNoCard++; });
+  desenhar();
+  ouvinte({ t: 'market', aba: 'vitrine', linhas });
+  if (caso !== 'medir') setInterval(desenhar, 500);
+
+  // Medição (#medir): depois que todos os selos apareceram uma vez, redesenha 10 vezes e, logo
+  // depois de cada redesenho (numa microtarefa, que roda depois do MutationObserver e antes da
+  // pintura da tela), conta quantos redesenhos deixaram algum card sem selo. Não depende de
+  // requestAnimationFrame, que para quando a aba ou o painel do navegador está escondido.
+  window.__medicao = null;
+  if (caso === 'medir') {
+    const esperarSelos = setInterval(() => {
+      if (document.querySelectorAll('#cm-lista .pp-vit').length !== linhas.length) return;
+      clearInterval(esperarSelos);
+      let redesenhos = 0, semSelo = 0;
+      const redesenho = setInterval(() => {
+        desenhar();
+        redesenhos++;
+        Promise.resolve().then(() => {
+          const cards = document.querySelectorAll('#cm-lista .cm-card');
+          if ([...cards].some(c => !c.querySelector('.pp-vit'))) semSelo++;
+          if (redesenhos >= 10) { clearInterval(redesenho); window.__medicao = { redesenhos, semSelo }; }
+        });
+      }, 200);
+    }, 50);
+  }
+</script>
+</body></html>
