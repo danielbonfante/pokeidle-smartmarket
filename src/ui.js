@@ -194,9 +194,23 @@
     }
     if (!res || !res.suficiente) {
       q1.textContent = '–'; q3.textContent = '–';
-      q2.textContent = res && res.soGemas ? 'só em Gemas'
-        : res && res.vendasEspecie ? `${res.vendasEspecie} venda(s)` : 'sem vendas';
-      linha.title = res && res.soGemas ? DICA.soGemas : '';
+      // Sem preço: o texto diz o que falta, como o selo da vitrine. Com 3+ vendas da espécie,
+      // o que falta são vendas parecidas (nível ou Nota muito diferentes), não vendas.
+      const n = (res && res.vendasEspecie) || 0;
+      const onde = `desta espécie em ${(MOEDAS.find(m => m.id === moeda) || { nome: moeda }).nome} nos últimos 30 dias`;
+      if (res && res.soGemas) {
+        q2.textContent = 'só em Gemas';
+        linha.title = DICA.soGemas;
+      } else if (n >= 3) {
+        q2.textContent = 'poucas com Nv e Nota parecidos';
+        linha.title = `Há ${n} vendas ${onde}, mas poucas com Nv e Nota parecidos com este Pokémon — um preço justo aqui seria chute.`;
+      } else if (n > 0) {
+        q2.textContent = `só ${n} venda${n > 1 ? 's' : ''}`;
+        linha.title = `Só ${n === 1 ? '1 venda' : n + ' vendas'} ${onde}; são precisas pelo menos 3 para um preço justo.`;
+      } else {
+        q2.textContent = 'sem vendas';
+        linha.title = `Nenhuma venda ${onde} guardada ainda.`;
+      }
       linha.classList.add('pp-vazia');
       return;
     }

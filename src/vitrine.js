@@ -284,27 +284,30 @@
     const lista = document.getElementById('cm-lista');
     if (!lista || !lista.getClientRects().length) return;
     const moedas = [...new Set(desta.map(a => a.moeda))];
-    const tarefas = [];
     const especies = new Set(desta.map(a => a.alvo.speciesId));
-    if (especies.size === 1) {
-      const nome = desta[0].alvo.nome;
-      moedas.forEach(m => tarefas.push(() => window.PISync.sincronizar(nome, m)));
-    }
+    const nome = especies.size === 1 ? desta[0].alvo.nome : '';
     const classes = new Set(desta.map(a => window.PIMotor.classeDe(a.alvo)));
     const classe = classes.size === 1 ? [...classes][0] : '';
-    if (classe) {
-      const filtro = classe === 'S' ? { soShiny: true } : { soP5: true };
-      moedas.forEach(m => tarefas.push(() => window.PISync.sincronizar('', m, null, filtro)));
-    }
-    if (!tarefas.length) return;
-    sincronizando = true;
-    try {
-      for (const t of tarefas) {
-        const r = await t();
+    const filtro = classe === 'S' ? { soShiny: true } : classe ? { soP5: true } : null;
+    if (!nome && !filtro) return;
+    // As moedas ao mesmo tempo: a fila do ws.js manda uma consulta por vez, na ordem de chegada,
+    // então as páginas saem intercaladas (Gemas, Coins…) e os selos das duas moedas chegam logo,
+    // em vez de uma esperar a outra terminar. Mesmo ritmo e mesmo número de consultas.
+    const porMoeda = async m => {
+      const buscas = [];
+      if (nome) buscas.push(() => window.PISync.sincronizar(nome, m));
+      if (filtro) buscas.push(() => window.PISync.sincronizar('', m, null, filtro));
+      for (const b of buscas) {
+        const r = await b();
         if (r && !r.pulou) { versao++; agendar(); }
       }
-    } catch (e) {
-      console.warn('[Pokeidle Smart Market] vitrine:', e.message);
+    };
+    sincronizando = true;
+    try {
+      const fim = await Promise.allSettled(moedas.map(porMoeda));
+      const falha = fim.find(f => f.status === 'rejected');
+      // console.info: um aviso esperado (freio, conexão ocupada) não deve aparecer como erro da extensão
+      if (falha) console.info('[Pokeidle Smart Market] vitrine:', falha.reason && falha.reason.message);
     } finally {
       sincronizando = false;
     }

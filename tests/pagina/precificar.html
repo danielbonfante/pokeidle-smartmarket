@@ -41,7 +41,10 @@
   // #sync: finge uma busca no jogo (Gemas 4 páginas, Coins 3, uma página a cada 1,5 s alternando,
   // como a fila do ws.js) para ver o andamento no quadro: "atualizando gemas pág. 2 · coins pág. 1…"
   const comSync = location.hash === '#sync';
-  window.PIWs = { pokemon: () => ({ id: 97553169, speciesId: 9, nome: 'Blastoise', level: 395, nota: 3.598, quality: 1.8, potencia: 1, shiny: false, tmAoe: false, tmElemental: null, ivTotal: 130 }), conectado: () => comSync };
+  // #longe: o mesmo Blastoise com Nv 5.000 — a espécie tem vendas, mas nenhuma parecida
+  // ("poucas com Nv e Nota parecidos" no quadro)
+  const nivel = location.hash === '#longe' ? 5000 : 395;
+  window.PIWs = { pokemon: () => ({ id: 97553169, speciesId: 9, nome: 'Blastoise', level: nivel, nota: 3.598, quality: 1.8, potencia: 1, shiny: false, tmAoe: false, tmElemental: null, ivTotal: 130 }), conectado: () => comSync };
   window.PIStore = { vendasPorEspecie: async () => vendas, vendasPorClasse: async () => [] };
   let filaFalsa = Promise.resolve();
   window.PISync = { sincronizar: async (busca, moeda, aoProgresso) => {
