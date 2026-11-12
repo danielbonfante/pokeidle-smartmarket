@@ -25,7 +25,7 @@ O resumo da loja vem do campo `description` do `manifest.json` (no máximo 132 c
 **Descrição:**
 
 ```text
-Quanto vale o seu Pokémon no Mercado da Comunidade do pokeidle.io? A Pokeidle Smart Market responde dentro do próprio jogo, em Gemas e em Coins, com base nas vendas reais do Mercado.
+Quanto vale o seu Pokémon no Mercado da Comunidade do pokeidle.io? A Smart Market responde dentro do próprio jogo, em Gemas e em Coins, com base nas vendas reais do Mercado.
 
 NA FICHA DO POKÉMON
 • Vender rápido, Preço justo e Esperar, nas duas moedas.

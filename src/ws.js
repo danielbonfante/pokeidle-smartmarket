@@ -1,5 +1,5 @@
 /*
- * Pokeidle Smart Market — ponte com o WebSocket do jogo
+ * Smart Market — ponte com o WebSocket do jogo
  *
  * Roda no "MAIN world" em document_start: embrulha o construtor do WebSocket
  * para guardar a conexão do jogo, indexar os Pokémon que passam nas mensagens
@@ -100,7 +100,7 @@
           e.resolve(j);
         }
       }
-      ouvintesVitrine.forEach(fn => { try { fn(j); } catch (e) { console.warn('[Pokeidle Smart Market]', e); } });
+      ouvintesVitrine.forEach(fn => { try { fn(j); } catch (e) { console.warn('[Smart Market]', e); } });
     }
     if (ehHistorico && j.seq != null && pendentes.has(j.seq)) {
       const p = pendentes.get(j.seq);
@@ -186,7 +186,7 @@
     intervalo = Math.min(intervalo * 2, INTERVALO_MAX_MS);
     try { localStorage.setItem(CHAVE_FREIO, JSON.stringify({ intervalo, pausadoAte, em: Date.now() })); } catch (e) {}
     // info, não warn: o Chrome lista warn de extensão como "erro" em chrome://extensions
-    console.info('[Pokeidle Smart Market] o jogo pediu para ir mais devagar — consultas pausadas por 3 min, intervalo agora ' + intervalo + ' ms.', motivo || '');
+    console.info('[Smart Market] o jogo pediu para ir mais devagar — consultas pausadas por 3 min, intervalo agora ' + intervalo + ' ms.', motivo || '');
   }
 
   /** Passada 1 h do último pedido de calma, o intervalo volta ao normal. */

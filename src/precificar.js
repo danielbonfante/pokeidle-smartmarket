@@ -1,5 +1,5 @@
 /*
- * Pokeidle Smart Market — janela "Precificar" (análise de preço do Pokémon)
+ * Smart Market — janela "Precificar" (análise de preço do Pokémon)
  *
  * Aberta pelo botão "Precificar" do quadro de preço da ficha. Mostra o Preço justo em
  * destaque com uma barra onde aparecem as vendas parecidas, frases em português claro,
@@ -39,7 +39,7 @@
           <button type="button" class="pp-prec-fechar" title="Fechar">✕</button>
         </div>
         <div class="pp-prec-corpo"><div class="pp-an-vazio">calculando…</div></div>
-        <div class="pp-prec-rodape">análise com as vendas já guardadas · Pokeidle Smart Market</div>
+        <div class="pp-prec-rodape">análise com as vendas já guardadas · Smart Market</div>
       </div>`;
     el.addEventListener('click', ev => {
       if (ev.target === el || ev.target.closest('.pp-prec-fechar')) { fechar(); return; }

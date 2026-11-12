@@ -1,5 +1,5 @@
 /*
- * Pokeidle Smart Market — configuração do popup, no lado do jogo (MAIN world)
+ * Smart Market — configuração do popup, no lado do jogo (MAIN world)
  *
  * O MAIN world não tem chrome.*. Quem lê o chrome.storage é a ponte (src/ponte.js, mundo
  * ISOLATED), que manda a configuração para cá por window.postMessage. Os pedidos do popup
@@ -63,7 +63,7 @@
       const nova = mesclar(d.config);
       if (JSON.stringify(nova) === JSON.stringify(atual)) return;
       atual = nova;
-      ouvintes.forEach(fn => { try { fn(atual); } catch (e) { console.warn('[Pokeidle Smart Market]', e); } });
+      ouvintes.forEach(fn => { try { fn(atual); } catch (e) { console.warn('[Smart Market]', e); } });
     } else if (d.tipo === 'pedido') {
       responder(d.id, d.pedido);
     }

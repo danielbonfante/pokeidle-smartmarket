@@ -1,5 +1,5 @@
 /*
- * Pokeidle Smart Market — popup do ícone da extensão
+ * Smart Market — popup do ícone da extensão
  *
  * Liga e desliga o quadro, os selos e o painel (chrome.storage.local, chave "config"; a
  * ponte leva para o jogo na hora). Mostra o cache de vendas e o freio da aba do jogo

@@ -1,5 +1,5 @@
 /*
- * Pokeidle Smart Market — lógica pura do painel de preços na tela "Novo anúncio"
+ * Smart Market — lógica pura do painel de preços na tela "Novo anúncio"
  *
  * Ordem das listas (mais parecidos primeiro), posição do painel ao lado da caixa do
  * jogo, moeda inicial e valor dos botões "usar". Sem DOM: roda no navegador

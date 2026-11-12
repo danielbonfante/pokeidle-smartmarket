@@ -1,5 +1,5 @@
 /*
- * Pokeidle Smart Market — motor de precificação
+ * Smart Market — motor de precificação
  *
  * Estima o preço de um Pokémon a partir de vendas parecidas da mesma espécie.
  * Cada venda recebe um peso pela semelhança (Nota, nível, potência, AoE/Z-Move)

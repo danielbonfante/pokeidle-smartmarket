@@ -1,5 +1,5 @@
 /*
- * Pokeidle Smart Market — painel de preços nas telas "Novo anúncio" e "Editar anúncio" do RMT
+ * Smart Market — painel de preços nas telas "Novo anúncio" e "Editar anúncio" do RMT
  *
  * Quando a folha de anúncio do jogo mostra a tela de preço (#cm-preco dentro de
  * .cm-folha), põe ao lado da caixa um painel de tenda com o preço estimado na moeda
@@ -220,7 +220,7 @@
         ${cartao('Poder (ranking)', bruto && isFinite(bruto.poder) ? '⚔ ' + bruto.poder : '—', '', 'Poder (⚔) do ranking "Pokemon forte": sobe com nível, refino e evolução. Não é o "Poder no PvE" da ficha oficial.')}
       </div>
       ${alvo.parcial ? '<div class="pp-an-avisos"><div class="pp-aviso">Dados lidos da tela: AoE, Z-Move e shiny não foram detectados.</div></div>' : ''}
-      <div class="pp-fi-rodape">ficha resumida · Pokeidle Smart Market</div>`;
+      <div class="pp-fi-rodape">ficha resumida · Smart Market</div>`;
     return el;
   }
 

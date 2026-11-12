@@ -1,5 +1,5 @@
 /*
- * Pokeidle Smart Market — sincronização incremental do histórico
+ * Smart Market — sincronização incremental do histórico
  *
  * Para uma espécie e uma moeda, pede as páginas do histórico do RMT da mais
  * recente para a mais antiga e para assim que encontra uma venda que já está

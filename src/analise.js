@@ -1,5 +1,5 @@
 /*
- * Pokeidle Smart Market — lógica da janela "Precificar" (análise de preço)
+ * Smart Market — lógica da janela "Precificar" (análise de preço)
  *
  * Pontos das vendas parecidas para a barra, escala da barra, detecção de dois grupos de
  * preço (como no Blastoise: ~20–27 e ~100–120, nada no meio) e a confiança medida de

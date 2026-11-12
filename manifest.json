@@ -1,6 +1,6 @@
 {
   "manifest_version": 3,
-  "name": "Pokeidle Smart Market",
+  "name": "Smart Market",
   "version": "1.1.0",
   "description": "Quanto vale seu Pokémon no Mercado do pokeidle.io: preço em Gemas e Coins na ficha, selos de pechincha e ajuda para anunciar.",
   "icons": {
@@ -10,7 +10,7 @@
     "128": "icons/icone-128.png"
   },
   "action": {
-    "default_title": "Pokeidle Smart Market",
+    "default_title": "Smart Market",
     "default_popup": "popup/popup.html",
     "default_icon": {
       "16": "icons/icone-16.png",

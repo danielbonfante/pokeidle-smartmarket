@@ -1,5 +1,5 @@
 /*
- * Pokeidle Smart Market — caçador de pechinchas na vitrine do RMT
+ * Smart Market — caçador de pechinchas na vitrine do RMT
  *
  * Quando o jogo recebe uma página de anúncios de Pokémon ({t:'market', aba:'vitrine'}),
  * guarda em memória só o preço, a moeda e os dados do Pokémon de cada anúncio (nada de
@@ -82,10 +82,10 @@
     const b = buscas.get(chaveEspecie(an));
     const botao = rotulo => `<b class="pp-vit-buscar" role="button" tabindex="0">${rotulo}</b>`;
     if (b && b.estado === 'buscando') {
-      return { cls: 'pp-vit-sem pp-vit-buscando', html: 'buscando vendas…', titulo: 'Pokeidle Smart Market: buscando as vendas desta espécie no histórico do RMT.' };
+      return { cls: 'pp-vit-sem pp-vit-buscando', html: 'buscando vendas…', titulo: 'Smart Market: buscando as vendas desta espécie no histórico do RMT.' };
     }
     if (b && b.estado === 'erro') {
-      return { cls: 'pp-vit-sem', html: `não deu para buscar · ${botao('tentar de novo')}`, titulo: 'Pokeidle Smart Market: ' + b.msg };
+      return { cls: 'pp-vit-sem', html: `não deu para buscar · ${botao('tentar de novo')}`, titulo: 'Smart Market: ' + b.msg };
     }
     const feita = !!(b && b.estado === 'feita');
     const n = an.vendasEspecie || 0;
@@ -96,23 +96,23 @@
       return {
         cls: 'pp-vit-sem',
         html: comBotao('poucas vendas com Nv e Nota parecidos'),
-        titulo: `Pokeidle Smart Market: há ${n} vendas de ${onde}, mas nenhuma com nível, Nota e potência parecidos com este — um preço justo aqui seria chute.` + maisBusca,
+        titulo: `Smart Market: há ${n} vendas de ${onde}, mas nenhuma com nível, Nota e potência parecidos com este — um preço justo aqui seria chute.` + maisBusca,
       };
     }
     if (n > 0) {
       return {
         cls: 'pp-vit-sem',
         html: comBotao('poucas vendas desta espécie'),
-        titulo: `Pokeidle Smart Market: só ${n === 1 ? '1 venda' : n + ' vendas'} de ${onde}; são precisas pelo menos 3 para um preço justo.` + maisBusca,
+        titulo: `Smart Market: só ${n === 1 ? '1 venda' : n + ' vendas'} de ${onde}; são precisas pelo menos 3 para um preço justo.` + maisBusca,
       };
     }
     if (feita) {
-      return { cls: 'pp-vit-sem', html: 'nenhuma venda desta espécie', titulo: `Pokeidle Smart Market: mesmo depois de buscar, nenhuma venda de ${onde}.` };
+      return { cls: 'pp-vit-sem', html: 'nenhuma venda desta espécie', titulo: `Smart Market: mesmo depois de buscar, nenhuma venda de ${onde}.` };
     }
     return {
       cls: 'pp-vit-sem',
       html: `sem preço justo · ${botao('buscar')}`,
-      titulo: 'Pokeidle Smart Market: ainda não há vendas desta espécie guardadas. Clique em "buscar" para trazer as vendas dela do histórico do RMT (uma busca, no ritmo de sempre).',
+      titulo: 'Smart Market: ainda não há vendas desta espécie guardadas. Clique em "buscar" para trazer as vendas dela do histórico do RMT (uma busca, no ritmo de sempre).',
     };
   }
 
@@ -133,7 +133,7 @@
     return {
       cls,
       html: `<b>${est}${rotulo} ${pct(dif)}</b><span>justo ${est}${fmt(res.precoJusto, an.moeda)}</span>`,
-      titulo: `Pokeidle Smart Market — preço justo estimado: ${fmt(res.precoJusto, an.moeda)} ` +
+      titulo: `Smart Market — preço justo estimado: ${fmt(res.precoJusto, an.moeda)} ` +
         `(Vender rápido ${fmt(res.venderRapido, an.moeda)} · Esperar ${fmt(res.esperar, an.moeda)}). ` +
         `Este anúncio está ${pct(dif)} em relação ao justo. Base: ${base}.`,
     };
@@ -255,7 +255,7 @@
 
   function agendar() {
     clearTimeout(agendado);
-    agendado = setTimeout(() => { aplicar().catch(e => console.warn('[Pokeidle Smart Market]', e)); }, 150);
+    agendado = setTimeout(() => { aplicar().catch(e => console.warn('[Smart Market]', e)); }, 150);
   }
 
   function ehNossa(no) {
@@ -307,7 +307,7 @@
       const fim = await Promise.allSettled(moedas.map(porMoeda));
       const falha = fim.find(f => f.status === 'rejected');
       // console.info: um aviso esperado (freio, conexão ocupada) não deve aparecer como erro da extensão
-      if (falha) console.info('[Pokeidle Smart Market] vitrine:', falha.reason && falha.reason.message);
+      if (falha) console.info('[Smart Market] vitrine:', falha.reason && falha.reason.message);
     } finally {
       sincronizando = false;
     }

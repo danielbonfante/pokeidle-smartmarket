@@ -1,8 +1,8 @@
-# Política de privacidade — Pokeidle Smart Market
+# Política de privacidade — Smart Market
 
 *Última atualização: 11 de novembro de 2026*
 
-A Pokeidle Smart Market é uma extensão do Chrome que mostra preços estimados dentro do jogo [pokeidle.io](https://pokeidle.io). Ela foi feita para funcionar inteira no seu navegador: **não tem servidor próprio, não envia seus dados para ninguém e não guarda o nick de nenhum jogador.**
+A Smart Market é uma extensão do Chrome que mostra preços estimados dentro do jogo [pokeidle.io](https://pokeidle.io). Ela foi feita para funcionar inteira no seu navegador: **não tem servidor próprio, não envia seus dados para ninguém e não guarda o nick de nenhum jogador.**
 
 Esta política explica o que a extensão lê, o que guarda, onde guarda e como apagar.
 
@@ -65,7 +65,7 @@ O popup da extensão tem o botão **Apoie o dev!**, que mostra um QR code e um l
 
 ## Relação com o pokeidle.io
 
-A Pokeidle Smart Market é um projeto independente, sem relação com os criadores do pokeidle.io. Os dados do jogo que passam pelo seu navegador estão sujeitos também às regras e à política de privacidade do próprio jogo.
+A Smart Market é um projeto independente, sem relação com os criadores do pokeidle.io. Os dados do jogo que passam pelo seu navegador estão sujeitos também às regras e à política de privacidade do próprio jogo.
 
 ## Mudanças nesta política
 

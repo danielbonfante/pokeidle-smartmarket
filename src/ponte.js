@@ -1,5 +1,5 @@
 /*
- * Pokeidle Smart Market — ponte entre o popup e o jogo (mundo ISOLATED)
+ * Smart Market — ponte entre o popup e o jogo (mundo ISOLATED)
  *
  * Os scripts da extensão rodam no MAIN world, que não tem chrome.*. Esta ponte roda no
  * mundo ISOLATED da mesma página: lê a configuração no chrome.storage e a manda para o

@@ -1,5 +1,5 @@
 /*
- * Pokeidle Smart Market — badge na ficha do Pokémon
+ * Smart Market — badge na ficha do Pokémon
  *
  * Observa o modal #ficha. Quando ele abre (ou troca de Pokémon), lê o id da
  * linha "Identidade #…", acha os dados completos do Pokémon no índice do
@@ -451,7 +451,7 @@
       ev.stopPropagation();
       if (window.PIPrecificar) window.PIPrecificar.abrir(alvoPreco);
     });
-    atualizar(badge, alvoPreco).catch(e => console.warn('[Pokeidle Smart Market]', e));
+    atualizar(badge, alvoPreco).catch(e => console.warn('[Smart Market]', e));
   }
 
   function iniciar() {
@@ -466,7 +466,7 @@
     }).observe(ficha, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] });
     agendar();
     if (window.PIConfig) window.PIConfig.aoMudar(agendar);
-    console.info('[Pokeidle Smart Market] ativo — created by dan_the_treiner');
+    console.info('[Smart Market] ativo — created by dan_the_treiner');
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);

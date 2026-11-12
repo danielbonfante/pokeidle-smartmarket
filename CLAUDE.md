@@ -1,34 +1,6 @@
-# Pokeidle Smart Market — contexto do projeto
+# Smart Market — contexto do projeto
 
-**Pokeidle Smart Market** (repositório `danielbonfante/pokeidle-smartmarket`; até 11/11/2026 se chamava Pokeidle Preço). Extensão do Chrome (MV3) que mostra na ficha do Pokémon do pokeidle.io o preço estimado em Gemas e Coins, calculado a partir das vendas do mercado da comunidade (**RMT**). Created by dan_the_treiner. Código aberto sob GPL-3.0 (ver `LICENSE` e `CONTRIBUTING.md`). É **só leitura**: não compra, não vende, não anuncia.
-
-Responda em português.
-
-## Decisões tomadas
-
-- **Dados próprios, direto do jogo.** Não usar os dados (`precos.json`) nem o código do site do briao (briaoale.github.io/precificador-pokemon). Ele foi só a inspiração e é creditado no README.
-- **Só leitura, sempre.** Nada de comprar, vender, anunciar, publicar ou automatizar ações no jogo. Nunca tocar em `#cm-publicar`; o "usar" do painel só preenche o campo de preço.
-- **Apoio por Pix, sem contrapartida.** O "Apoie o dev!" fica só no popup, no README, no texto da loja e no botão Sponsor do GitHub (`.github/FUNDING.yml`); nunca dentro das telas do jogo. Doar não libera nada, e na Chrome Web Store a conta é "não negociante" (decidido em 11/11/2026). Se a doação passar a liberar algo, ou houver anúncios ou cobrança, rever essa declaração e o `PRIVACY.md`. Usar a página `livepix.gg/danthetreiner`, nunca o link do widget de live.
-- **Privacidade:** nunca guardar nick de vendedor, comprador ou `caughtBy`. A função `normalizarVenda` descarta esses campos.
-- **Ritmo de pessoa:** uma consulta por vez, **1,5 s entre páginas e no máximo 12 por minuto**, a mesma busca no máximo a cada 10 min, e só quando o usuário abre uma ficha ou uma vitrine focada (uma espécie, ou só shiny/P5). Primeira busca: até 25 páginas por espécie e 15 por classe. Nunca varrer o mercado inteiro.
-- **Em 11/11/2026 o jogo mostrou "o servidor pediu para ir mais devagar"** depois de 40 páginas a cada 450 ms, com duas abas do jogo abertas na mesma conta. Por isso o ritmo ficou mais lento, e o `ws.js` pausa tudo por 3 min (e dobra o intervalo, guardado por 1 h no `localStorage` `pism-freio`) se receber, fora do chat, uma mensagem com "devagar"/"desacelera"/"flood". **A mensagem real do servidor é `{"t":"erro","msg":"…Devagar…"}`**. Outras extensões que acompanham o Mercado podem mandar `market.itens` + `market.listar` a cada poucos segundos (~40 mensagens/min) pela mesma conexão. Por isso o `ws.js` conta **tudo** o que sai pelo socket do jogo e só consulta quando o total do último minuto está abaixo de 45 (com ~60 o servidor respondeu `{"t":"erro","msg":"Devagar aí — muitas mensagens."}`, texto exato capturado em 11/11/2026; o aviso é registrado com `console.info`, porque `console.warn` aparece como "erro" em chrome://extensions); se ficar ocupado por 30 s, desiste e usa o cache. A vitrine só busca vendas com o Mercado aberto na tela, porque outras extensões também pedem vitrines em segundo plano. Ao testar, evitar duas abas do jogo abertas.
-
-## Protocolo do jogo (descoberto em 10–11/11/2026, versão 1.416.0)
-
-O jogo inteiro roda por um WebSocket JSON em `wss://pokeidle.io/`. Não existe API HTTP de mercado.
-
-**Histórico de vendas do RMT** (a "Tabela de preços", botão `#cm-historico-global`):
-
-```json
-→ {"t":"market.historicoGlobal","pagina":0,"seq":123,"tipo":"pokemon","moeda":"orb","busca":"Charizard"}
-← {"t":"market","aba":"historicoGlobal","pagina":0,"porPagina":30,"temMais":true,"seq":123,"linhas":[…]}
-```
-
-- `moeda`: `orb` = Gemas, `gold` = Coins (omitir = todas). `tipo`: `pokemon` ou omitir (itens + Pokémon).
-- `soShiny: 1` e `soP5: 1`: os filtros "Só shiny" e "Apenas P5" da Tabela (descobertos em 11/11/2026). Shiny em Gemas: 40 páginas cobrem ~6,6 dias (1.200 vendas).
-- `busca`: filtra pelo nome. Faz match parcial: "Charizard" traz também "Brave Charizard" e "Mega Charizard X/Y". Por isso o motor filtra depois por `speciesId`. Os campos `nome` e `speciesId` **não** filtram nada. Testado em 12/11/2026 (conta extra): aspas, `=` e `# Pokeidle Smart Market — contexto do projeto
-
-**Pokeidle Smart Market** (repositório `danielbonfante/pokeidle-smartmarket`; até 11/11/2026 se chamava Pokeidle Preço). Extensão do Chrome (MV3) que mostra na ficha do Pokémon do pokeidle.io o preço estimado em Gemas e Coins, calculado a partir das vendas do mercado da comunidade (**RMT**). Created by dan_the_treiner. Código aberto sob GPL-3.0 (ver `LICENSE` e `CONTRIBUTING.md`). É **só leitura**: não compra, não vende, não anuncia.
+**Smart Market** (repositório `danielbonfante/pokeidle-smartmarket`; até 11/11/2026 se chamava Pokeidle Preço e até 12/11/2026, Pokeidle Smart Market — o nome perdeu o "Pokeidle" para não parecer oficial: o pokeidle.io só aparece como "para o pokeidle.io", no resumo e nos textos, e o README e a loja dizem que é um projeto independente). Extensão do Chrome (MV3) que mostra na ficha do Pokémon do pokeidle.io o preço estimado em Gemas e Coins, calculado a partir das vendas do mercado da comunidade (**RMT**). Created by dan_the_treiner. Código aberto sob GPL-3.0 (ver `LICENSE` e `CONTRIBUTING.md`). É **só leitura**: não compra, não vende, não anuncia.
 
 Responda em português.
 
@@ -54,7 +26,7 @@ O jogo inteiro roda por um WebSocket JSON em `wss://pokeidle.io/`. Não existe A
 
 - `moeda`: `orb` = Gemas, `gold` = Coins (omitir = todas). `tipo`: `pokemon` ou omitir (itens + Pokémon).
 - `soShiny: 1` e `soP5: 1`: os filtros "Só shiny" e "Apenas P5" da Tabela (descobertos em 11/11/2026). Shiny em Gemas: 40 páginas cobrem ~6,6 dias (1.200 vendas).
-- `busca`: filtra pelo nome. Faz match parcial: "Charizard" traz também "Brave Charizard" e "Mega Charizard X/Y".  na busca não dão match exato (voltam vazio); `semOutland` e `especieId` (campos da vitrine) são ignorados no histórico. **A busca da família (`+scizor`) deixa de fora as variantes de Outland (#2001+)**: Scizor em Gemas, página 0 com 27 Scizor + 3 Scyther cobrindo 10,9 h (contra 6 Scizor + 24 Furious Scizor em 1,8 h com "Scizor"); 25 páginas cobrem os 30 dias inteiros. `+charizard`: 29 de 30 são Charizard (contra 18 com "Charizard", que traz Brave Charizard). Para forma base de espécie popular (ex.: Charmander), a família traz a evolução e pode piorar. Por isso o `sync.js` escolhe entre as duas.
+- `busca`: filtra pelo nome. Faz match parcial: "Charizard" traz também "Brave Charizard" e "Mega Charizard X/Y". Por isso o motor filtra depois por `speciesId`. Os campos `nome` e `speciesId` **não** filtram nada. Testado em 12/11/2026 (conta extra): aspas, `=` e `$` na busca não dão match exato (voltam vazio); `semOutland` e `especieId` (campos da vitrine) são ignorados no histórico. **A busca da família (`+scizor`) deixa de fora as variantes de Outland (#2001+)**: Scizor em Gemas, página 0 com 27 Scizor + 3 Scyther cobrindo 10,9 h (contra 6 Scizor + 24 Furious Scizor em 1,8 h com "Scizor"); 25 páginas cobrem os 30 dias inteiros. `+charizard`: 29 de 30 são Charizard (contra 18 com "Charizard", que traz Brave Charizard). Para forma base de espécie popular (ex.: Charmander), a família traz a evolução e pode piorar. Por isso o `sync.js` escolhe entre as duas.
 - Até **~40 páginas × 30 linhas**. Pedir uma página além disso devolve a última página com `temMais:false`.
 - Cobertura dessas 40 páginas: tudo junto ≈ 20 min; só Pokémon ≈ 3 h; Pokémon em Gemas ≈ 7,5 h; Pokémon + Gemas + `busca` ≈ de 1 dia (Furious Scizor) a 7+ dias (Charizard). O jogo define uma janela de 30 dias (`/shared/tabela-precos.mjs`: `JANELA_PRECOS_POKEMON_DIAS=30`, `MAX_LINHAS_CSV_PRECOS=5000`).
 - O `seq` volta igual na resposta. A extensão usa `seq` a partir de 7.000.000 e a interface do jogo **ignora** essas respostas (testado com a Tabela de preços aberta).

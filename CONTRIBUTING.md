@@ -1,6 +1,6 @@
 # Como contribuir
 
-Obrigado pelo interesse na Pokeidle Smart Market! Contribuições são bem-vindas: correções, ideias para o motor de preço, melhorias de interface e testes.
+Obrigado pelo interesse na Smart Market! Contribuições são bem-vindas: correções, ideias para o motor de preço, melhorias de interface e testes.
 
 ## Como propor uma mudança
 

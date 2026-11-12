@@ -1,4 +1,4 @@
-# Pokeidle Smart Market
+# Smart Market
 
 Extensão do Chrome para quem joga [pokeidle.io](https://pokeidle.io): mostra **quanto vale o seu Pokémon no Mercado da Comunidade (RMT)**, em 💎 Gemas e 🪙 Coins, calculado a partir das vendas reais do próprio jogo.
 

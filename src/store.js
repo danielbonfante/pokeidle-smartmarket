@@ -1,5 +1,5 @@
 /*
- * Pokeidle Smart Market — cache local de vendas (IndexedDB)
+ * Smart Market — cache local de vendas (IndexedDB)
  *
  * Cada venda é guardada pelo id da venda, sem nick de vendedor, comprador
  * ou de quem capturou. O cache cresce com o uso: toda espécie consultada
