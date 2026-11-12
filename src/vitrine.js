@@ -53,10 +53,7 @@
     return est.suficiente ? est : res;
   }
 
-  function pct(x) {
-    const n = Math.round(x * 100);
-    return (n > 0 ? '+' : n < 0 ? '−' : '±') + Math.abs(n) + '%';
-  }
+  const pct = x => window.PIUi.fmtDif(x);
 
   // ---------- "buscar": vendas de uma espécie sob demanda (clique no selo) ----------
   // A vitrine só busca sozinha quando a página é de uma espécie só; numa busca como "scizor"
@@ -66,8 +63,6 @@
   function chaveEspecie(an) {
     return (an.alvo.speciesId != null ? an.alvo.speciesId : an.alvo.nome) + '|' + an.moeda;
   }
-
-  const NOME_MOEDA = { orb: 'Gemas', gold: 'Coins' };
 
   /**
    * Selo sem preço. O texto depende de quantas vendas da espécie (nesta moeda, 30 dias) já estão
@@ -90,7 +85,7 @@
     }
     const feita = !!(b && b.estado === 'feita');
     const n = an.vendasEspecie || 0;
-    const onde = `${an.alvo.nome} em ${NOME_MOEDA[an.moeda] || an.moeda} nos últimos 30 dias`;
+    const onde = `${an.alvo.nome} em ${(window.PIUi.MOEDA[an.moeda] || { nome: an.moeda }).nome} nos últimos 30 dias`;
     const maisBusca = feita ? '' : ' Clique em "buscar" para conferir no histórico do RMT se há vendas novas (uma busca, no ritmo de sempre).';
     const comBotao = texto => feita ? texto : `${texto} · ${botao('buscar')}`;
     if (n >= 3) {
@@ -117,6 +112,13 @@
     };
   }
 
+  /** "115–140" ou "120–150 M": a unidade (k, M, B) aparece uma vez só quando as duas pontas têm a mesma. */
+  function faixaTexto(res, moeda) {
+    const a = window.PIUi.fmtPreco(res.venderRapido, moeda), b = window.PIUi.fmtPreco(res.esperar, moeda);
+    const ua = (a.match(/ [kMB]$/) || [''])[0], ub = (b.match(/ [kMB]$/) || [''])[0];
+    return (ua && ua === ub ? a.slice(0, -ua.length) : a) + '–' + b;
+  }
+
   function conteudoSelo(an, res) {
     const fmt = (x, m) => window.PIUi.fmtPreco(x, m);
     an.vendasEspecie = res ? res.vendasEspecie || 0 : 0; // guardado para o selo sem preço (também durante a busca)
@@ -133,7 +135,8 @@
       : `${res.vendasEspecie} vendas da espécie, confiança ${res.confianca}`;
     return {
       cls,
-      html: `<b>${est}${rotulo} ${pct(dif)}</b><span>justo ${est}${fmt(res.precoJusto, an.moeda)}</span>`,
+      // a faixa explica o rótulo: pechincha = até o Vender rápido; acima = passou do Esperar
+      html: `<b>${est}${rotulo} ${pct(dif)}</b><span>justo ${est}${fmt(res.precoJusto, an.moeda)} · faixa ${faixaTexto(res, an.moeda)}</span>`,
       titulo: `Smart Market — preço justo estimado: ${fmt(res.precoJusto, an.moeda)} ` +
         `(Vender rápido ${fmt(res.venderRapido, an.moeda)} · Esperar ${fmt(res.esperar, an.moeda)}). ` +
         `Este anúncio está ${pct(dif)} em relação ao justo. Base: ${base}.`,

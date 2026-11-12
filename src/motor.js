@@ -67,7 +67,7 @@
 
   function mesmaEspecie(alvo, v) {
     if (alvo.speciesId != null && v.speciesId != null) return alvo.speciesId === v.speciesId;
-    return (alvo.nome || '').toLowerCase() === (v.nome || '').toLowerCase();
+    return String(alvo.nome || '').toLowerCase() === String(v.nome || '').toLowerCase();
   }
 
   function pesoVenda(alvo, v, agora, cfg) {
@@ -303,7 +303,7 @@
     return f(Math.floor(x + 1e-9), 0);
   }
 
-  const api = { PADRAO, PADRAO_NOTA, FAIXA_MERCADO, COMISSAO, liquidoVendedor, formatarValor, normalizarVenda, normalizarAlvo, precificar, precificarPorNota, classeDe, arredondarPreco, pesoVenda, ehLendario, faixaMercado };
+  const api = { PADRAO, PADRAO_NOTA, FAIXA_MERCADO, COMISSAO, liquidoVendedor, formatarValor, normalizarVenda, normalizarAlvo, precificar, precificarPorNota, classeDe, mesmaEspecie, arredondarPreco, pesoVenda, ehLendario, faixaMercado };
   root.PIMotor = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

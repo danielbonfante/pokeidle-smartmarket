@@ -14,7 +14,7 @@
   const M = window.PIMotor;
   const LARGURA = 360; // os dois painéis (ficha à esquerda, preços à direita) têm a mesma largura
   const MAX_LINHAS = 8;
-  const MOEDA = { gold: { nome: 'Coins', icone: '🪙' }, orb: { nome: 'Gemas', icone: '💎' } };
+  const MOEDA = window.PIUi.MOEDA;
 
   let escolha = null; // { id, dados } do Pokémon escolhido no passo "Qual pokemon?"
   let edicao = null;  // { id, dados } do card de "Meus anúncios" cujo Editar foi clicado (ou { item: true })
@@ -84,11 +84,7 @@
   const fmt = (x, m) => window.PIUi.fmtPreco(x, m);
   const esc = s => window.PIUi.esc(s);
   const D = () => window.PIUi.DICA;
-
-  function pct(x) {
-    const n = Math.round(x * 100);
-    return (n > 0 ? '+' : n < 0 ? '−' : '±') + Math.abs(n) + '%';
-  }
+  const pct = x => window.PIUi.fmtDif(x);
 
   function resumoPokemon(p) {
     const extras = [p.shiny ? '✨' : '', p.aoe ? 'AoE' : '', p.zmove ? 'Z' : '', p.mega ? 'M' : ''].filter(Boolean).join(' ');

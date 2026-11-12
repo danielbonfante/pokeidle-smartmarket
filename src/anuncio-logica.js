@@ -25,10 +25,7 @@
     return M.pesoVenda(alvo, Object.assign({}, item, { em: t }), t, M.PADRAO);
   }
 
-  function mesmaEspecie(alvo, v) {
-    if (alvo.speciesId != null && v.speciesId != null) return alvo.speciesId === v.speciesId;
-    return String(alvo.nome || '').toLowerCase() === String(v.nome || '').toLowerCase();
-  }
+  const mesmaEspecie = M.mesmaEspecie;
 
   /** Anúncios abertos ({id, preco, moeda, alvo}) da moeda pedida, mais parecidos primeiro. */
   function ordenarAVenda(alvo, anuncios, moeda, agora) {

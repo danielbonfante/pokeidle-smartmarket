@@ -12,10 +12,7 @@
   const M = root.PIMotor || (typeof require === 'function' ? require('./motor.js') : null);
   const DIA = 24 * 60 * 60 * 1000;
 
-  function mesmaEspecie(alvo, v) {
-    if (alvo.speciesId != null && v.speciesId != null) return alvo.speciesId === v.speciesId;
-    return String(alvo.nome || '').toLowerCase() === String(v.nome || '').toLowerCase();
-  }
+  const mesmaEspecie = M.mesmaEspecie;
 
   /**
    * Vendas parecidas para desenhar na barra: mesma espécie, moeda, status shiny, últimos

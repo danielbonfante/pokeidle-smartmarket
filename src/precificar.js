@@ -13,7 +13,7 @@
 
   const A = window.PIAnalise;
   const M = window.PIMotor;
-  const MOEDA = { orb: { nome: 'Gemas', icone: '💎' }, gold: { nome: 'Coins', icone: '🪙' } };
+  const MOEDA = window.PIUi.MOEDA;
 
   let janela = null; // { el, alvo, moeda, geracao }
 

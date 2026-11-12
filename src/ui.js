@@ -15,6 +15,7 @@
     { id: 'orb', nome: 'Gemas', icone: '💎' },
     { id: 'gold', nome: 'Coins', icone: '🪙' },
   ];
+  const MOEDA = Object.fromEntries(MOEDAS.map(m => [m.id, m])); // MOEDA.orb.nome, MOEDA.gold.icone…
   const ROTULO_CONF = { alta: 'confiança alta', media: 'confiança média', baixa: 'confiança baixa', estimativa: '≈ estimativa' };
 
   // Textos dos tooltips (atributo title, como a própria ficha do jogo faz)
@@ -70,6 +71,11 @@
     const h = Math.round(min / 60);
     if (h < 48) return h + ' h';
     return Math.round(h / 24) + ' d';
+  }
+  /** Diferença relativa com sinal: 0,67 → "+67%", −0,31 → "−31%", 0 → "±0%". */
+  function fmtDif(x) {
+    const n = Math.round(x * 100);
+    return (n > 0 ? '+' : n < 0 ? '−' : '±') + Math.abs(n) + '%';
   }
   function esc(s) {
     return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
@@ -198,7 +204,7 @@
       // Sem preço: o texto diz o que falta, como o selo da vitrine. Com 3+ vendas da espécie,
       // o que falta são vendas parecidas (nível ou Nota muito diferentes), não vendas.
       const n = (res && res.vendasEspecie) || 0;
-      const onde = `desta espécie em ${(MOEDAS.find(m => m.id === moeda) || { nome: moeda }).nome} nos últimos 30 dias`;
+      const onde = `desta espécie em ${(MOEDA[moeda] || { nome: moeda }).nome} nos últimos 30 dias`;
       if (res && res.soGemas) {
         q2.textContent = 'só em Gemas';
         linha.title = DICA.soGemas;
@@ -476,5 +482,5 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);
   else iniciar();
 
-  window.PIUi = { fmtPreco, fmtNumero, fmtIdade, esc, calcular, DICA };
+  window.PIUi = { MOEDA, fmtPreco, fmtNumero, fmtIdade, fmtDif, esc, calcular, DICA };
 })();
