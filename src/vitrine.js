@@ -66,6 +66,18 @@
     return (an.alvo.speciesId != null ? an.alvo.speciesId : an.alvo.nome) + '|' + an.moeda;
   }
 
+  const NOME_MOEDA = { orb: 'Gemas', gold: 'Coins' };
+
+  /**
+   * Selo sem preço. O texto depende de quantas vendas da espécie (nesta moeda, 30 dias) já estão
+   * guardadas — an.vendasEspecie, do último cálculo:
+   *  - nenhuma: "sem preço justo · buscar" (antes da busca) / "nenhuma venda desta espécie" (depois);
+   *  - 1 ou 2: "poucas vendas desta espécie";
+   *  - 3 ou mais: "sem vendas parecidas" — a espécie vende, mas nenhuma venda tem nível, Nota ou
+   *    potência perto deste (ex.: Furious Scizor Nv 1.166, ou um P5 de Nota 4,995).
+   * Enquanto a busca desta sessão não foi feita, "buscar" continua oferecido: mais dias de
+   * histórico podem trazer vendas parecidas.
+   */
   function conteudoSemPreco(an) {
     const b = buscas.get(chaveEspecie(an));
     const botao = rotulo => `<b class="pp-vit-buscar" role="button" tabindex="0">${rotulo}</b>`;
@@ -75,8 +87,27 @@
     if (b && b.estado === 'erro') {
       return { cls: 'pp-vit-sem', html: `não deu para buscar · ${botao('tentar de novo')}`, titulo: 'Pokeidle Smart Market: ' + b.msg };
     }
-    if (b && b.estado === 'feita') {
-      return { cls: 'pp-vit-sem', html: 'poucas vendas desta espécie', titulo: 'Pokeidle Smart Market: mesmo depois de buscar, há poucas vendas parecidas desta espécie nesta moeda nos últimos 30 dias.' };
+    const feita = !!(b && b.estado === 'feita');
+    const n = an.vendasEspecie || 0;
+    const onde = `${an.alvo.nome} em ${NOME_MOEDA[an.moeda] || an.moeda} nos últimos 30 dias`;
+    const maisBusca = feita ? '' : ' Clique em "buscar" para trazer mais vendas do histórico do RMT (uma busca, no ritmo de sempre).';
+    const comBotao = texto => feita ? texto : `${texto} · ${botao('buscar')}`;
+    if (n >= 3) {
+      return {
+        cls: 'pp-vit-sem',
+        html: comBotao('sem vendas parecidas'),
+        titulo: `Pokeidle Smart Market: há ${n} vendas de ${onde}, mas nenhuma com nível, Nota e potência parecidos com este — um preço justo aqui seria chute.` + maisBusca,
+      };
+    }
+    if (n > 0) {
+      return {
+        cls: 'pp-vit-sem',
+        html: comBotao('poucas vendas desta espécie'),
+        titulo: `Pokeidle Smart Market: só ${n === 1 ? '1 venda' : n + ' vendas'} de ${onde}; são precisas pelo menos 3 para um preço justo.` + maisBusca,
+      };
+    }
+    if (feita) {
+      return { cls: 'pp-vit-sem', html: 'nenhuma venda desta espécie', titulo: `Pokeidle Smart Market: mesmo depois de buscar, nenhuma venda de ${onde}.` };
     }
     return {
       cls: 'pp-vit-sem',
@@ -87,6 +118,7 @@
 
   function conteudoSelo(an, res) {
     const fmt = (x, m) => window.PIUi.fmtPreco(x, m);
+    an.vendasEspecie = res ? res.vendasEspecie || 0 : 0; // guardado para o selo sem preço (também durante a busca)
     if (!res || !res.suficiente) return conteudoSemPreco(an);
     const dif = an.preco / res.precoJusto - 1;
     const est = res.estimativa ? '≈ ' : '';

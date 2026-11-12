@@ -9,6 +9,8 @@
   - #buscar: um Scizor comum sem vendas no cache ao lado dos Furious Scizor. O selo dele
     oferece "buscar"; a busca (stub) traz vendas depois de 300 ms.
   - #pausa: igual a #buscar, mas a busca é recusada pelo freio ("Devagar").
+  - #parecidas: igual a #buscar, mais um Furious Scizor Nv 1.166: a espécie tem vendas, mas nenhuma
+    parecida → "sem vendas parecidas · buscar" (e só "sem vendas parecidas" depois de buscar).
   Também redesenha os cards a cada 500 ms em #buscar e #pausa, como o jogo.
 -->
 <html lang="pt-BR"><head><meta charset="utf-8"><title>Teste — vitrine</title>
@@ -57,6 +59,9 @@
     ficha: { id: 7000 + i, speciesId: 212, nome: 'Furious Scizor', level: 100, nota: 3.5 + i * 0.02, potencia: 2, shiny: false, tmAoe: false, tmElemental: null } }));
   if (caso !== 'medir') linhas.push({ id: 900, tipo: 'pokemon', moeda: 'orb', preco: 14, pokemonId: 7900,
     ficha: { id: 7900, speciesId: 123, nome: 'Scizor', level: 100, nota: 3.502, potencia: 1, shiny: false, tmAoe: false, tmElemental: null } });
+  // #parecidas: um Furious Scizor Nv 1.166 (as vendas guardadas são Nv 100) → "sem vendas parecidas"
+  if (caso === 'parecidas') linhas.push({ id: 901, tipo: 'pokemon', moeda: 'orb', preco: 9000, pokemonId: 7901,
+    ficha: { id: 7901, speciesId: 212, nome: 'Furious Scizor', level: 1166, nota: 3.66, potencia: 2, shiny: false, tmAoe: false, tmElemental: null } });
   // O jogo redesenha a lista inteira: cards novos, sem os selos da extensão
   function desenhar() {
     document.getElementById('cm-lista').innerHTML = linhas.map(l =>
