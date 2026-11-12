@@ -85,6 +85,27 @@ test('detectarGrupos: preços próximos (um grupo só) não viram dois grupos', 
   assert.equal(A.detectarGrupos(A.pontosVendas(alvo, v, 'orb', AGORA)), null);
 });
 
+test('maiorSalto: com um grupo só, diz o maior vão (1,9×, abaixo dos 2,5× dos grupos)', () => {
+  const v = [];
+  for (let i = 0; i < 12; i++) v.push(venda({ preco: [20, 50, 80, 120, 150, 230][i % 6] }));
+  for (let i = 0; i < 6; i++) v.push(venda({ preco: [430, 890][i % 2] }));
+  const p = A.pontosVendas(alvo, v, 'orb', AGORA);
+  assert.equal(A.detectarGrupos(p), null);
+  const s = A.maiorSalto(p);
+  assert.equal(s.de, 230);
+  assert.equal(s.para, 430);
+  assert.ok(Math.abs(s.razao - 430 / 230) < 1e-9);
+});
+
+test('maiorSalto: uma venda isolada na ponta não conta; poucas vendas → null', () => {
+  const v = [];
+  for (let i = 0; i < 19; i++) v.push(venda({ preco: 50 + i }));
+  v.push(venda({ preco: 900 }));
+  const s = A.maiorSalto(A.pontosVendas(alvo, v, 'orb', AGORA));
+  assert.ok(s.para < 900, 'o salto até 900 tem só uma venda do lado de cima');
+  assert.equal(A.maiorSalto(A.pontosVendas(alvo, v.slice(0, 3), 'orb', AGORA)), null);
+});
+
 test('detectarGrupos: uma venda isolada não forma grupo (cada lado precisa de 20% do peso)', () => {
   const v = [];
   for (let i = 0; i < 19; i++) v.push(venda({ preco: 50 + i }));

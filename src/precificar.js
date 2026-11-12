@@ -90,7 +90,7 @@
     const grupos = A.detectarGrupos(pontos);
     const conf = A.confiancaEspecie(vendas.filter(v => !!v.shiny === !!alvo.shiny), moeda, agora);
     corpo.innerHTML = htmlPreco(alvo, moeda, res, pontos) + htmlVendas(alvo, res, pontos, moeda) +
-      htmlConfianca(conf, res) + htmlGrupos(alvo, res, grupos, moeda);
+      htmlConfianca(conf, res) + (grupos ? htmlGrupos(alvo, res, grupos, moeda) : htmlUmGrupo(A.maiorSalto(pontos), moeda));
   }
 
   // ---------- vendas que mais pesaram ----------
@@ -230,6 +230,17 @@
             ${linha('Refino médio', num(baixo.refinoMedio, 1), num(alto.refinoMedio, 1), '—')}
           </tbody>
         </table>
+      </div>`;
+  }
+
+  // Sem dois grupos: uma linha discreta dizendo que a janela conferiu, com o maior vão entre as vendas
+  function htmlUmGrupo(salto, moeda) {
+    if (!salto) return '';
+    const razao = num(salto.razao, 1).replace(/,0$/, '');
+    return `
+      <div class="pp-prec-bloco pp-prec-umgrupo">
+        <p><b>As vendas parecidas formam um grupo só.</b> O maior salto entre preços vizinhos vai de
+        <b>${fmt(salto.de, moeda)}</b> para <b>${fmt(salto.para, moeda)}</b> (${razao}×); a janela só separa em dois grupos a partir de 2,5×.</p>
       </div>`;
   }
 

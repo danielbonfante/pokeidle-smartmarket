@@ -78,8 +78,9 @@
    * Dois grupos de preço: o maior salto entre preços vizinhos, se for de pelo menos
    * razaoMin× (2,5) e cada lado tiver pelo menos fracaoMin (20%) do peso. Senão, null.
    */
-  function detectarGrupos(pontos, opcoes) {
-    const o = Object.assign({ razaoMin: 2.5, fracaoMin: 0.2 }, opcoes);
+  // O maior salto entre preços vizinhos com pelo menos fracaoMin do peso de cada lado (uma venda
+  // isolada na ponta não conta). null com menos de 4 vendas ou sem corte possível.
+  function acharSalto(pontos, fracaoMin) {
     const pts = (pontos || []).filter(p => p.preco > 0 && p.peso > 0).sort((a, b) => a.preco - b.preco);
     if (pts.length < 4) return null;
     const total = pts.reduce((s, p) => s + p.peso, 0);
@@ -88,11 +89,28 @@
       acum += pts[i].peso;
       const razao = pts[i + 1].preco / pts[i].preco;
       const esq = acum / total;
-      if (razao >= o.razaoMin && esq >= o.fracaoMin && 1 - esq >= o.fracaoMin && (!melhor || razao > melhor.razao)) {
-        melhor = { razao, corte: i + 1 };
+      if (esq >= fracaoMin && 1 - esq >= fracaoMin && (!melhor || razao > melhor.razao)) {
+        melhor = { razao, corte: i + 1, de: pts[i].preco, para: pts[i + 1].preco };
       }
     }
-    if (!melhor) return null;
+    return melhor && { pts, total, melhor };
+  }
+
+  /**
+   * O maior salto de preço entre as vendas parecidas, pela mesma regra dos grupos: { de, para,
+   * razao }. A janela mostra isso quando não há dois grupos ("um grupo só"), para dizer que conferiu.
+   */
+  function maiorSalto(pontos, opcoes) {
+    const o = Object.assign({ fracaoMin: 0.2 }, opcoes);
+    const s = acharSalto(pontos, o.fracaoMin);
+    return s ? { de: s.melhor.de, para: s.melhor.para, razao: s.melhor.razao } : null;
+  }
+
+  function detectarGrupos(pontos, opcoes) {
+    const o = Object.assign({ razaoMin: 2.5, fracaoMin: 0.2 }, opcoes);
+    const s = acharSalto(pontos, o.fracaoMin);
+    if (!s || s.melhor.razao < o.razaoMin) return null;
+    const { pts, total, melhor } = s;
     return {
       razao: melhor.razao,
       baixo: resumoGrupo(pts.slice(0, melhor.corte), total),
@@ -145,7 +163,7 @@
     return { total, acertos, taxa: acertos / total };
   }
 
-  const api = { pontosVendas, escalaBarra, detectarGrupos, grupoMaisParecido, noVao, confiancaEspecie };
+  const api = { pontosVendas, escalaBarra, detectarGrupos, maiorSalto, grupoMaisParecido, noVao, confiancaEspecie };
   root.PIAnalise = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

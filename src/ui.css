@@ -386,6 +386,9 @@
 .pp-prec-vendas .pp-prec-abaixo { color: #ffb38a; }
 .pp-prec-legenda { margin-top: 6px; font-size: 11px; color: #8f7cad; }
 .pp-prec-vermais { background: none; border: none; padding: 0; color: #f2c86b; font: inherit; text-decoration: underline; cursor: pointer; }
+.pp-prec-umgrupo { padding: 8px 14px; }
+.pp-prec-umgrupo p { color: #a993c9; }
+.pp-prec-umgrupo b { color: #d9c4ff; }
 .pp-prec-grupos { border: 1px dashed rgba(242, 200, 107, 0.6); }
 .pp-prec-grupos .pp-prec-titulo { color: #f2c86b; }
 .pp-prec-grupos p + p { margin-top: 6px; }
