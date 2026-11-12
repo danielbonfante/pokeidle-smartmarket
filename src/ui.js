@@ -325,35 +325,53 @@
     await recalcular();
     if (!vivo()) return;
 
-    // 2) Busca vendas novas no jogo, uma moeda de cada vez
+    // 2) Busca vendas novas no jogo, as duas moedas ao mesmo tempo. A fila do ws.js manda uma
+    //    consulta por vez, na ordem em que chegam, então as páginas saem intercaladas (Gemas, Coins,
+    //    Gemas…): o mesmo número de consultas e o mesmo ritmo, mas os dois preços aparecem logo
+    //    no começo, em vez de o Coins esperar o Gemas terminar.
     if (!window.PIWs.conectado()) {
       status.textContent = 'sem conexão com o jogo — usando só o cache';
       return;
     }
     const filtro = filtroDaClasse(alvo);
     const nomeClasse = alvo.shiny ? 'shiny' : 'P5';
-    try {
-      for (const m of MOEDAS) {
-        if (soGemas(alvo, m.id)) continue; // shiny em Coins não existe: nem consulta
-        status.textContent = `atualizando ${m.nome.toLowerCase()}…`;
-        let ultimoRender = 0;
-        const progresso = rotulo => ({ pagina }) => {
-          if (!vivo()) return;
-          status.textContent = `${rotulo}… página ${pagina}`;
-          if (Date.now() - ultimoRender > 1500) { ultimoRender = Date.now(); recalcular(); }
-        };
-        await window.PISync.sincronizar(alvo.nome, m.id, progresso(`atualizando ${m.nome.toLowerCase()}`));
+    const moedas = MOEDAS.filter(m => !soGemas(alvo, m.id)); // shiny em Coins não existe: nem consulta
+    const andamento = {};
+    const mostrarAndamento = () => {
+      if (!vivo()) return;
+      const partes = moedas.filter(m => andamento[m.id]).map(m => andamento[m.id]);
+      if (partes.length) status.textContent = 'atualizando ' + partes.join(' · ') + '…';
+    };
+    let ultimoRender = 0;
+    const progresso = (m, rotulo) => ({ pagina }) => {
+      if (!vivo()) return;
+      andamento[m.id] = `${rotulo} pág. ${pagina}`;
+      mostrarAndamento();
+      if (Date.now() - ultimoRender > 1500) { ultimoRender = Date.now(); recalcular(); }
+    };
+    const buscarMoeda = async m => {
+      const nome = m.nome.toLowerCase();
+      andamento[m.id] = nome;
+      mostrarAndamento();
+      await window.PISync.sincronizar(alvo.nome, m.id, progresso(m, nome));
+      if (!vivo()) return;
+      await recalcular();
+      if (!vivo()) return;
+      // Espécie sem vendas suficientes: busca as vendas de outros shiny/P5 para a estimativa pela Nota
+      const r = resultados[m.id];
+      if (filtro && !(r && r.suficiente && !r.estimativa)) {
+        await window.PISync.sincronizar('', m.id, progresso(m, `outros ${nomeClasse} em ${nome}`), filtro);
         if (!vivo()) return;
         await recalcular();
-        if (!vivo()) return;
-        // Espécie sem vendas suficientes: busca as vendas de outros shiny/P5 para a estimativa pela Nota
-        const r = resultados[m.id];
-        if (filtro && !(r && r.suficiente && !r.estimativa)) {
-          await window.PISync.sincronizar('', m.id, progresso(`buscando outros ${nomeClasse} em ${m.nome.toLowerCase()}`), filtro);
-          if (!vivo()) return;
-          await recalcular();
-        }
       }
+      delete andamento[m.id];
+      mostrarAndamento();
+    };
+    try {
+      const fim = await Promise.allSettled(moedas.map(buscarMoeda));
+      if (!vivo()) return;
+      const falha = fim.find(f => f.status === 'rejected');
+      if (falha) throw falha.reason;
       const total = MOEDAS.reduce((s, m) => s + ((resultados[m.id] && resultados[m.id].vendasEspecie) || 0), 0);
       const estim = MOEDAS.map(m => resultados[m.id]).find(r => r && r.estimativa);
       status.textContent = `${total} vendas da espécie nos últimos 30 dias` +

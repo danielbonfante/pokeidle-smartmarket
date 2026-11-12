@@ -38,9 +38,21 @@
   for (let i = 0; i < nCaro; i++) vendas.push(v({ preco: 100 + (i % 3) * 10, level: 375 + i * 3, nota: 3.58 + (i % 3) * 0.01, em: agora - (i + 1) * H }));
   // Coins: estáveis
   for (let i = 0; i < 30; i++) vendas.push(v({ moeda: 'gold', preco: 1.8e8 + (i % 5) * 1e7, level: 330 + i * 7, nota: 3.53 + (i % 6) * 0.02 }));
-  window.PIWs = { pokemon: () => ({ id: 97553169, speciesId: 9, nome: 'Blastoise', level: 395, nota: 3.598, quality: 1.8, potencia: 1, shiny: false, tmAoe: false, tmElemental: null, ivTotal: 130 }), conectado: () => false };
+  // #sync: finge uma busca no jogo (Gemas 4 páginas, Coins 3, uma página a cada 1,5 s alternando,
+  // como a fila do ws.js) para ver o andamento no quadro: "atualizando gemas pág. 2 · coins pág. 1…"
+  const comSync = location.hash === '#sync';
+  window.PIWs = { pokemon: () => ({ id: 97553169, speciesId: 9, nome: 'Blastoise', level: 395, nota: 3.598, quality: 1.8, potencia: 1, shiny: false, tmAoe: false, tmElemental: null, ivTotal: 130 }), conectado: () => comSync };
   window.PIStore = { vendasPorEspecie: async () => vendas, vendasPorClasse: async () => [] };
-  window.PISync = { sincronizar: async () => ({ pulou: true }) };
+  let filaFalsa = Promise.resolve();
+  window.PISync = { sincronizar: async (busca, moeda, aoProgresso) => {
+    if (!comSync) return { pulou: true };
+    for (let p = 1; p <= (moeda === 'orb' ? 4 : 3); p++) {
+      filaFalsa = filaFalsa.then(() => new Promise(r => setTimeout(r, 1500)));
+      await filaFalsa;
+      if (aoProgresso) aoProgresso({ pagina: p });
+    }
+    return { pulou: false };
+  } };
 </script>
 <script src="../../src/ui.js"></script>
 <script src="../../src/anuncio-logica.js"></script>
