@@ -433,8 +433,5 @@
 
   if (window.PIConfig) window.PIConfig.aoMudar(verificar);
 
-  window.PIPainelAnuncio = {
-    atualizarAgora: verificar,
-    _estado: () => painel ? { pokemonId: painel.alvo.id, moeda: painel.moeda, aba: painel.aba } : null,
-  };
+  window.PIPainelAnuncio = {}; // só marca que o painel já foi carregado
 })();

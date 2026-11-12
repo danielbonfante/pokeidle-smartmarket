@@ -4,8 +4,8 @@
  * Para uma espécie e uma moeda, pede as páginas do histórico do RMT da mais
  * recente para a mais antiga e para assim que encontra uma venda que já está
  * no cache (ou o jogo avisa que não há mais páginas, ou passa de 30 dias).
- * Na primeira vez uma espécie popular pode levar umas dezenas de páginas;
- * depois, normalmente 1 ou 2.
+ * Na primeira vez uma espécie popular pode levar até 25 páginas (15 para a
+ * classe shiny/P5); depois, normalmente 1 ou 2.
  */
 (function () {
   'use strict';

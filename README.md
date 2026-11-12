@@ -35,7 +35,7 @@ Abra a ficha de qualquer Pokémon. Aparece o quadro **Preço estimado**:
 - **líq**: quanto você recebe vendendo por aquele preço, já descontada a comissão do RMT (15% em Coins; em Gemas, 13% até 500, 10% até 5.000 e 7,5% acima).
 - **Confiança** (alta, média ou baixa): quantas vendas parecidas existem e quanto os preços variam.
 
-Na primeira vez que você abre uma espécie, a extensão busca o histórico dela, e o preço vai aparecendo enquanto carrega (uma espécie muito vendida leva perto de 1 minuto por moeda). Depois disso fica guardado e a atualização é rápida.
+Na primeira vez que você abre uma espécie, a extensão busca o histórico dela, e o preço aparece logo e vai se ajustando enquanto carrega. As consultas seguem um ritmo lento de propósito, então uma espécie muito vendida pode levar uns 4 minutos para baixar tudo, Gemas e Coins juntas. Depois disso fica guardado e a atualização leva poucos segundos. Vendas com mais de 30 dias, que já não entram no preço, são apagadas sozinhas uma vez por dia.
 
 Shiny só se vende em Gemas, então a linha de Coins mostra "só em Gemas". Shiny e P5 de espécies pouco vendidas ganham uma **≈ estimativa pela Nota**, com aviso, porque erra bastante. Só pode ir ao Mercado Pokémon com Nv 50+ e Nota 3,5+ (shiny, P5 e lendário podem com qualquer nível e Nota). Abaixo da Nota mínima, o quadro avisa que ele não tem preço de Mercado; abaixo do Nv 50, mostra o preço para quando ele chegar lá.
 
@@ -58,9 +58,9 @@ Na vitrine do Mercado da Comunidade, cada anúncio de Pokémon ganha um selo aba
 - **no preço**: entre "Vender rápido" e "Esperar";
 - **acima do justo +40%**, em vermelho: acima de "Esperar".
 
-A porcentagem compara o anúncio com o Preço justo. Borda tracejada quer dizer confiança baixa ou estimativa. Passe o mouse no selo para ver os detalhes. Se ainda não houver vendas guardadas da espécie, o selo mostra **"sem preço justo · buscar"**: um clique busca as vendas dela.
+A porcentagem compara o anúncio com o Preço justo; o rótulo compara com a faixa entre Vender rápido e Esperar. Por isso nem sempre andam juntos: quando as vendas parecidas custam quase o mesmo, a faixa é estreita e −9% já é pechincha; quando os preços variam muito, a faixa é larga e −31% ainda fica "no preço". Borda tracejada quer dizer confiança baixa ou estimativa. Passe o mouse no selo para ver o Vender rápido e o Esperar.
 
-Os selos usam as vendas já guardadas. Vendas novas só são buscadas quando a vitrine mostra uma espécie só (clicando na espécie ou buscando pelo nome) ou só shiny / só P5.
+Os selos usam as vendas já guardadas. Vendas novas são buscadas quando a vitrine mostra uma espécie só (clicando na espécie ou buscando pelo nome) ou só shiny / só P5. Se a espécie não tem vendas guardadas, ou tem poucas, o selo oferece **buscar**: um clique busca as vendas dela, no mesmo ritmo de sempre.
 
 ### Painel na tela de anúncio
 

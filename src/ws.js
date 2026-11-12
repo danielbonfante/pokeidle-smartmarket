@@ -32,7 +32,6 @@
   let seq = 7000000 + Math.floor(Math.random() * 100000); // faixa longe da usada pela UI do jogo
   const pendentes = new Map(); // seq -> {resolve, reject, timer}
   const pokemons = new Map();  // id -> objeto do jogo
-  const ouvintesSocket = [];
   const ouvintesVitrine = [];
   let esperaVitrine = null; // { especieId, resolve, reject, timer } da consulta de vitrine em andamento
 
@@ -117,7 +116,6 @@
       if (socket === ws) socket = null;
       for (const [s, p] of pendentes) { clearTimeout(p.timer); p.reject(new Error('conexão fechada')); pendentes.delete(s); }
     });
-    ouvintesSocket.forEach(fn => { try { fn(ws); } catch (e) {} });
   }
 
   function ehDoJogo(url) {
@@ -300,11 +298,9 @@
     pokemon: id => pokemons.get(Number(id)) || null,
     pokemonsIndexados: () => [...pokemons.values()],
     conectado: () => !!socket && socket.readyState === 1,
-    aoConectar: fn => { ouvintesSocket.push(fn); if (socket) fn(socket); },
     aoReceberVitrine: fn => { ouvintesVitrine.push(fn); },
     pausado: () => Date.now() < pausadoAte,
     ritmo: () => (soltarFreioVencido(), { intervalo, intervaloNormal: INTERVALO_MS, pausadoAte, freioAte: freadoEm ? freadoEm + FREIO_VALIDADE_MS : 0, tetoPorMinuto: TETO_POR_MINUTO, orcamentoConexao: ORCAMENTO_CONEXAO_MIN, enviosConexaoUltimoMinuto: enviosNoUltimoMinuto() }),
     _frear: frear,
-    _indice: pokemons,
   };
 })();

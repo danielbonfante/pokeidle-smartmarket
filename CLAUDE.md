@@ -86,10 +86,10 @@ Exceção: `ponte.js` roda no mundo ISOLATED (é o único com `chrome.*`). O pop
 
 O pokeidle.io é um jogo idle feito por fã, com regras próprias. As regras abaixo vêm da Pokepédia, a wiki que fica dentro do jogo (código em `/pokepedia.mjs`).
 
-- **Faixa mínima do Mercado da Comunidade:** só pode ser anunciado Pokémon com **Nv 50+ e Nota 3,5+**. Shiny, P5 e lendário/mítico podem ser anunciados com qualquer nível e Nota. O cache confirma: nenhuma das 7.117 vendas fica fora disso. Um Pokémon abaixo da faixa **não tem preço de RMT**. Nesse caso o badge deveria dizer isso em vez de "sem vendas".
+- **Faixa mínima do Mercado da Comunidade:** só pode ser anunciado Pokémon com **Nv 50+ e Nota 3,5+**. Shiny, P5 e lendário/mítico podem ser anunciados com qualquer nível e Nota. O cache confirma: nenhuma das 7.117 vendas fica fora disso. Um Pokémon abaixo da faixa **não tem preço de RMT**: o quadro avisa isso (`PIMotor.faixaMercado`) em vez de "sem vendas"; abaixo só do Nv 50, mostra o preço para quando ele chegar lá.
 - **Shiny só se vende por Gemas.** O cache tem zero shiny vendido em Coins.
 - **Nota (0–10)** mede a força de nascimento *dentro da espécie*: IV, qualidade, potência e shiny. O nível não muda a Nota. O refino sobe a Nota. Evoluir ou megaevoluir sempre sobe a Nota, no mínimo +0,1 por etapa. 10 = P5 + shiny + IV máximo. Faixas: 3–4 Razoável, 4–5 Bom, 5–6 Forte, 6–7 Poderoso, 7–8 Mítico, 8–9 Lendário, 9–10 Divino.
-- **Lendário e mítico não têm Nota** ("INESTIMÁVEL"/GLITCH na ficha), porque o ×4 passa do topo da régua. O motor pesa por Nota, então precisa tratar esses Pokémon à parte. O formato do campo `nota` deles nas vendas ainda não foi verificado.
+- **Lendário e mítico não têm Nota** ("INESTIMÁVEL"/GLITCH na ficha), porque o ×4 passa do topo da régua. O motor pesa por Nota, mas não há vendas de lendário para precificar (ver pendência 7); se um dia aparecerem, conferir o formato do campo `nota` delas.
 - **Multiplicadores de stats:** potência P1 ×1, P2 ×1,05, P3 ×1,1, P4 ×1,25, P5 ×2. Shiny ×3. Lendário ×4. Eles se multiplicam entre si. Chance de cada potência: P1 74,5%, P2 20%, P3 5%, P4 0,5%, P5 0,005%. Chance de shiny: 1/24.000.
 - **Qualidade** (0,8–1,8) é sorteada em faixas. Acima de 1,7 é "Lendária" (<1%). Não existe 1,6–1,7, exceto no inicial, que nasce com 1,6 e IV 27×6 cravados.
 - **Busca da família:** `"+houndour"` na busca traz a família inteira (Houndour, Houndoom, Mega Houndoom). Isso vale também no `busca` do `market.historicoGlobal` e serve para a pendência 3.

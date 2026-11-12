@@ -1,10 +1,11 @@
 /*
- * Smart Market — badge na ficha do Pokémon
+ * Smart Market — quadro de preço na ficha do Pokémon
  *
  * Observa o modal #ficha. Quando ele abre (ou troca de Pokémon), lê o id da
  * linha "Identidade #…", acha os dados completos do Pokémon no índice do
  * WebSocket (ou, na falta deles, lê o que dá da própria ficha) e mostra o
- * preço estimado em Gemas e em Coins logo abaixo dos botões.
+ * preço estimado em Gemas e em Coins na largura inteira, logo depois do bloco
+ * com os dados e a imagem do Pokémon (.fi-heroi).
  */
 (function () {
   'use strict';
@@ -475,5 +476,5 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);
   else iniciar();
 
-  window.PIUi = { atualizarAgora: aoMudarFicha, fmtPreco, fmtNumero, fmtIdade, esc, calcular, DICA };
+  window.PIUi = { fmtPreco, fmtNumero, fmtIdade, esc, calcular, DICA };
 })();

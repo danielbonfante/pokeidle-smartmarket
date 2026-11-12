@@ -7,8 +7,9 @@
  * anúncio está abaixo ou acima dele.
  *
  * O cálculo usa o cache de vendas. Só busca vendas novas no jogo quando a vitrine
- * mostra uma espécie só, ou só shiny / só P5 — com o mesmo ritmo do resto da extensão
- * (450 ms entre páginas, a mesma busca no máximo a cada 10 min). Nunca varre o mercado.
+ * mostra uma espécie só, ou só shiny / só P5, ou quando o usuário clica em "buscar" num
+ * selo — pela fila do ws.js, no mesmo ritmo do resto da extensão (1,5 s entre páginas,
+ * no máximo 12 por minuto, a mesma busca no máximo a cada 10 min). Nunca varre o mercado.
  */
 (function () {
   'use strict';
@@ -329,5 +330,5 @@
 
   if (window.PIConfig) window.PIConfig.aoMudar(agendar);
 
-  window.PIVitrine = { _anuncios: anuncios, atualizarAgora: aplicar, anunciosDaEspecie };
+  window.PIVitrine = { anunciosDaEspecie };
 })();

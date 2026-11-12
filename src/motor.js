@@ -271,7 +271,6 @@
     // Pokémon em Gemas: por faixa, como imposto de renda
     orbFaixas: [{ ate: 500, taxa: 0.13 }, { ate: 5000, taxa: 0.10 }, { ate: Infinity, taxa: 0.075 }],
   };
-  const PENSAO_DIA_COINS = 100000; // diária do Pokémon anunciado, paga à vista ao publicar
 
   /** Quanto o vendedor recebe por um Pokémon vendido por `preco` na `moeda`, depois da comissão. */
   function liquidoVendedor(preco, moeda) {
@@ -304,7 +303,7 @@
     return f(Math.floor(x + 1e-9), 0);
   }
 
-  const api = { PADRAO, PADRAO_NOTA, FAIXA_MERCADO, COMISSAO, PENSAO_DIA_COINS, liquidoVendedor, formatarValor, normalizarVenda, normalizarAlvo, precificar, precificarPorNota, classeDe, arredondarPreco, pesoVenda, ehLendario, faixaMercado };
+  const api = { PADRAO, PADRAO_NOTA, FAIXA_MERCADO, COMISSAO, liquidoVendedor, formatarValor, normalizarVenda, normalizarAlvo, precificar, precificarPorNota, classeDe, arredondarPreco, pesoVenda, ehLendario, faixaMercado };
   root.PIMotor = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

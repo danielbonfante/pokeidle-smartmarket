@@ -72,7 +72,6 @@
   root.PIConfig = {
     PADRAO,
     ligado: chave => atual[chave] !== false,
-    atual: () => Object.assign({}, atual),
     aoMudar: fn => { ouvintes.push(fn); },
   };
 

@@ -116,7 +116,7 @@ Para ver a extensão funcionando é preciso uma conta gratuita no pokeidle.io (h
 2. Abra o Mercado da Comunidade e clique numa espécie: cada anúncio ganha um selo (pechincha / no preço / acima do justo).
 3. Em "+ Anunciar" → "Um pokemon", escolha um Pokémon: aparece o painel de preços ao lado. Não é preciso publicar nada.
 4. Clique no ícone da extensão para ligar/desligar cada parte e ver o cache.
-Na primeira vez, a extensão leva até 1 minuto para baixar o histórico de uma espécie.
+Na primeira vez, o preço aparece logo e vai se ajustando enquanto a extensão baixa o histórico da espécie, o que pode levar alguns minutos numa espécie muito vendida (as consultas seguem um ritmo lento de propósito).
 ```
 
 ## Aba "Distribuição"
