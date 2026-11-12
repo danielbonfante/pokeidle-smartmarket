@@ -73,7 +73,7 @@
    * guardadas — an.vendasEspecie, do último cálculo:
    *  - nenhuma: "sem preço justo · buscar" (antes da busca) / "nenhuma venda desta espécie" (depois);
    *  - 1 ou 2: "poucas vendas desta espécie";
-   *  - 3 ou mais: "poucas vendas com nível e Nota parecidos" — a espécie vende, mas nenhuma venda tem nível, Nota ou
+   *  - 3 ou mais: "poucas vendas com Nv e Nota parecidos" — a espécie vende, mas nenhuma venda tem nível, Nota ou
    *    potência perto deste (ex.: Furious Scizor Nv 1.166, ou um P5 de Nota 4,995).
    * Enquanto a busca desta sessão não foi feita, "buscar" continua oferecido: mais dias de
    * histórico podem trazer vendas parecidas.
@@ -95,7 +95,7 @@
     if (n >= 3) {
       return {
         cls: 'pp-vit-sem',
-        html: comBotao('poucas vendas com nível e Nota parecidos'),
+        html: comBotao('poucas vendas com Nv e Nota parecidos'),
         titulo: `Pokeidle Smart Market: há ${n} vendas de ${onde}, mas nenhuma com nível, Nota e potência parecidos com este — um preço justo aqui seria chute.` + maisBusca,
       };
     }
