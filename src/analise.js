@@ -1,5 +1,6 @@
 /*
  * Smart Market — lógica da janela "Precificar" (análise de preço)
+ * © 2026 dan_the_treiner — uso pessoal; proibido redistribuir, modificar para publicar ou vender (ver LICENSE).
  *
  * Pontos das vendas parecidas para a barra, escala da barra, detecção de dois grupos de
  * preço (como no Blastoise: ~20–27 e ~100–120, nada no meio) e a confiança medida de

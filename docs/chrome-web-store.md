@@ -49,7 +49,7 @@ SÓ LEITURA E SEM COLETA DE DADOS
 • Não tem servidor próprio e não envia seus dados para lugar nenhum. As vendas ficam guardadas só no seu navegador, sem o nick de nenhum jogador.
 • Pelo ícone da extensão você liga e desliga cada parte e limpa o cache.
 
-Código aberto (GPL-3.0): github.com/danielbonfante/pokeidle-smartmarket
+Código visível para conferência: github.com/danielbonfante/pokeidle-smartmarket
 
 Projeto independente, sem relação com os criadores do pokeidle.io. Os preços são estimativas e não garantem nada.
 

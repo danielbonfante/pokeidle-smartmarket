@@ -1,5 +1,6 @@
 /*
  * Smart Market — sincronização incremental do histórico
+ * © 2026 dan_the_treiner — uso pessoal; proibido redistribuir, modificar para publicar ou vender (ver LICENSE).
  *
  * Para uma espécie e uma moeda, pede as páginas do histórico do RMT da mais
  * recente para a mais antiga e para assim que encontra uma venda que já está

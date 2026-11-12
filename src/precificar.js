@@ -1,5 +1,6 @@
 /*
  * Smart Market — janela "Precificar" (análise de preço do Pokémon)
+ * © 2026 dan_the_treiner — uso pessoal; proibido redistribuir, modificar para publicar ou vender (ver LICENSE).
  *
  * Aberta pelo botão "Precificar" do quadro de preço da ficha. Mostra o Preço justo em
  * destaque com uma barra onde aparecem as vendas parecidas, frases em português claro,

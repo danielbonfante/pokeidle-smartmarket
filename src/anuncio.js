@@ -1,5 +1,6 @@
 /*
  * Smart Market — painel de preços nas telas "Novo anúncio" e "Editar anúncio" do RMT
+ * © 2026 dan_the_treiner — uso pessoal; proibido redistribuir, modificar para publicar ou vender (ver LICENSE).
  *
  * Quando a folha de anúncio do jogo mostra a tela de preço (#cm-preco dentro de
  * .cm-folha), põe ao lado da caixa um painel de tenda com o preço estimado na moeda

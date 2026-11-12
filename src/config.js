@@ -1,5 +1,6 @@
 /*
  * Smart Market — configuração do popup, no lado do jogo (MAIN world)
+ * © 2026 dan_the_treiner — uso pessoal; proibido redistribuir, modificar para publicar ou vender (ver LICENSE).
  *
  * O MAIN world não tem chrome.*. Quem lê o chrome.storage é a ponte (src/ponte.js, mundo
  * ISOLATED), que manda a configuração para cá por window.postMessage. Os pedidos do popup

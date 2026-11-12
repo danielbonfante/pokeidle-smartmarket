@@ -1,5 +1,6 @@
 /*
  * Smart Market — lógica pura do painel de preços na tela "Novo anúncio"
+ * © 2026 dan_the_treiner — uso pessoal; proibido redistribuir, modificar para publicar ou vender (ver LICENSE).
  *
  * Ordem das listas (mais parecidos primeiro), posição do painel ao lado da caixa do
  * jogo, moeda inicial e valor dos botões "usar". Sem DOM: roda no navegador

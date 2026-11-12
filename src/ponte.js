@@ -1,5 +1,6 @@
 /*
  * Smart Market — ponte entre o popup e o jogo (mundo ISOLATED)
+ * © 2026 dan_the_treiner — uso pessoal; proibido redistribuir, modificar para publicar ou vender (ver LICENSE).
  *
  * Os scripts da extensão rodam no MAIN world, que não tem chrome.*. Esta ponte roda no
  * mundo ISOLATED da mesma página: lê a configuração no chrome.storage e a manda para o

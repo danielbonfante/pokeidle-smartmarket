@@ -1,5 +1,6 @@
 /*
  * Smart Market — caçador de pechinchas na vitrine do RMT
+ * © 2026 dan_the_treiner — uso pessoal; proibido redistribuir, modificar para publicar ou vender (ver LICENSE).
  *
  * Quando o jogo recebe uma página de anúncios de Pokémon ({t:'market', aba:'vitrine'}),
  * guarda em memória só o preço, a moeda e os dados do Pokémon de cada anúncio (nada de

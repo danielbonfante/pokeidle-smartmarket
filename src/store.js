@@ -1,5 +1,6 @@
 /*
  * Smart Market — cache local de vendas (IndexedDB)
+ * © 2026 dan_the_treiner — uso pessoal; proibido redistribuir, modificar para publicar ou vender (ver LICENSE).
  *
  * Cada venda é guardada pelo id da venda, sem nick de vendedor, comprador
  * ou de quem capturou. Toda espécie consultada soma vendas novas; as que

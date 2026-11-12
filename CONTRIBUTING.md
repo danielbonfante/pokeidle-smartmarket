@@ -15,7 +15,7 @@ Pull requests que quebrem qualquer uma destas regras serão recusados, mesmo que
 - **Só leitura.** A extensão não compra, não vende, não anuncia, não publica e não automatiza nenhuma ação no jogo. Ela nunca clica em `#cm-publicar` nem manda mensagens de compra, venda ou anúncio pelo WebSocket. O botão "usar" do painel só preenche o campo de preço; quem publica é sempre o jogador.
 - **Privacidade.** Nunca guardar nicks: vendedor, comprador, quem capturou (`caughtBy`), apelido. A `normalizarVenda` (`src/motor.js`) e o índice do `ws.js` descartam esses campos; mantenha assim. Nada sai do navegador além das consultas ao próprio jogo: sem servidores externos, telemetria ou analytics.
 - **Ritmo de pessoa.** As consultas seguem o ritmo do `ws.js`: uma por vez, 1,5 s entre elas, no máximo 12 por minuto, orçamento de 45 mensagens por minuto na conexão inteira e o freio quando o servidor pede calma. Não diminua esses limites nem faça varreduras do mercado inteiro. O servidor tem anti-flood e um abuso pode prejudicar a conta de quem usa a extensão.
-- **Dados e código próprios.** Não copie dados nem código de outros projetos sem licença compatível com a GPL-3.0. O site do briao (Precificador de Pokémon) é só inspiração: não use os dados (`precos.json`) nem o código dele.
+- **Dados e código próprios.** Não copie dados nem código de outros projetos. O site do briao (Precificador de Pokémon) é só inspiração: não use os dados (`precos.json`) nem o código dele.
 - **Sem dependências obrigatórias.** O projeto é JavaScript puro, carregado direto pelo Chrome, sem etapa de build. Os testes usam só o Node.
 
 ## Testes
@@ -33,4 +33,6 @@ Pull requests que quebrem qualquer uma destas regras serão recusados, mesmo que
 
 ## Licença
 
-Ao contribuir, você concorda que a sua contribuição será distribuída sob a [GPL-3.0](LICENSE), a mesma licença do projeto.
+O código é visível, mas não é livre para copiar: veja a [LICENSE](LICENSE). O fork serve só para mandar o pull request para cá; publicar o fork como outra extensão não é permitido.
+
+Ao contribuir, você confirma que a contribuição é sua e permite que o autor a use, modifique e distribua como parte da Smart Market, sob a licença do projeto ou outra que ele escolher. A sua contribuição fica creditada no histórico.

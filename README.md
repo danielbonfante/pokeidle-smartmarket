@@ -123,7 +123,7 @@ A extensão não tem servidor, não envia dados para fora do seu navegador e nã
 
 Para repetir com uma planilha exportada pelo jogo: `node tests/backtest-csv.js planilha.csv`. Testes: `node --test tests/*.test.js`.
 
-**Contribuir.** Contribuições são bem-vindas. Leia o [CONTRIBUTING.md](CONTRIBUTING.md) antes: a extensão é só leitura, não guarda nicks e segue um ritmo de consultas que não pode ser acelerado. Mudanças entram por pull request, com revisão do mantenedor.
+**Contribuir.** Contribuições são bem-vindas (veja a [licença](#licença)). Leia o [CONTRIBUTING.md](CONTRIBUTING.md) antes: a extensão é só leitura, não guarda nicks e segue um ritmo de consultas que não pode ser acelerado. Mudanças entram por pull request, com revisão do mantenedor.
 
 **Créditos.** Ideia inspirada no [Precificador de Pokémon](https://briaoale.github.io/precificador-pokemon/) do briao. Esta extensão não usa os dados nem o código dele: coleta as vendas direto do jogo e tem um motor próprio.
 
@@ -133,4 +133,6 @@ A extensão é gratuita e continua igual para todo mundo. Se ela te ajudou a ven
 
 ## Licença
 
-[GPL-3.0](LICENSE). Você pode usar, estudar, mudar e redistribuir; quem distribuir uma versão modificada precisa mantê-la sob a mesma licença, com o código aberto e os créditos.
+**Código visível, todos os direitos reservados** ([LICENSE](LICENSE)). O código fica público para qualquer pessoa conferir que a extensão só lê e não guarda nicks. Você pode ler, usar de graça, mudar no seu próprio computador para uso pessoal e mandar contribuições. **Não pode** publicar cópias ou versões modificadas (em lojas de extensões ou em qualquer outro lugar), vender, oferecer uma versão "PRO" nem usar o código em outro projeto sem autorização por escrito.
+
+As versões até a 1.1.0 foram publicadas sob a GPL-3.0; a licença atual vale a partir de 12/11/2026.

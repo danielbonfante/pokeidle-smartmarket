@@ -1,5 +1,6 @@
 /*
  * Smart Market — ponte com o WebSocket do jogo
+ * © 2026 dan_the_treiner — uso pessoal; proibido redistribuir, modificar para publicar ou vender (ver LICENSE).
  *
  * Roda no "MAIN world" em document_start: embrulha o construtor do WebSocket
  * para guardar a conexão do jogo, indexar os Pokémon que passam nas mensagens

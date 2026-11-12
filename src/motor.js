@@ -1,5 +1,6 @@
 /*
  * Smart Market — motor de precificação
+ * © 2026 dan_the_treiner — uso pessoal; proibido redistribuir, modificar para publicar ou vender (ver LICENSE).
  *
  * Estima o preço de um Pokémon a partir de vendas parecidas da mesma espécie.
  * Cada venda recebe um peso pela semelhança (Nota, nível, potência, AoE/Z-Move)

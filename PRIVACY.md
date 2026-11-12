@@ -75,4 +75,4 @@ Se a extensão passar a tratar algum dado de outra forma, esta página será atu
 
 Dúvidas ou pedidos: abra uma *issue* em [github.com/danielbonfante/pokeidle-smartmarket/issues](https://github.com/danielbonfante/pokeidle-smartmarket/issues).
 
-O código da extensão é aberto (licença GPL-3.0): qualquer pessoa pode conferir que ela faz o que esta política diz.
+O código da extensão é público no GitHub: qualquer pessoa pode conferir que ela faz o que esta política diz.

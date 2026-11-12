@@ -1,5 +1,6 @@
 /*
  * Smart Market — popup do ícone da extensão
+ * © 2026 dan_the_treiner — uso pessoal; proibido redistribuir, modificar para publicar ou vender (ver LICENSE).
  *
  * Liga e desliga o quadro, os selos e o painel (chrome.storage.local, chave "config"; a
  * ponte leva para o jogo na hora). Mostra o cache de vendas e o freio da aba do jogo

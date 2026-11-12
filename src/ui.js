@@ -1,5 +1,6 @@
 /*
  * Smart Market — quadro de preço na ficha do Pokémon
+ * © 2026 dan_the_treiner — uso pessoal; proibido redistribuir, modificar para publicar ou vender (ver LICENSE).
  *
  * Observa o modal #ficha. Quando ele abre (ou troca de Pokémon), lê o id da
  * linha "Identidade #…", acha os dados completos do Pokémon no índice do
