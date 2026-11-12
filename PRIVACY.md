@@ -38,7 +38,7 @@ Essas consultas saem pela conexão que o jogo já abriu, num ritmo limitado (uma
 
 Tudo fica **no seu computador**, no próprio navegador:
 
-1. **Cache de vendas do Mercado** (IndexedDB do site pokeidle.io, banco `pokeidle-preco`). Para cada venda: o número da venda, a data, a moeda, o preço e os dados do Pokémon vendido (espécie, nome da espécie, nível, Nota, IV somado, qualidade, potência, shiny, TM AoE, Z-Move, mega e refino). Também guarda, para cada busca feita, até onde o histórico já foi baixado e quando, e, para cada espécie, se a busca usa só o nome ou a família (com a data da escolha). **Não guarda nicks de vendedor, comprador ou de quem capturou o Pokémon.**
+1. **Cache de vendas do Mercado** (IndexedDB do site pokeidle.io, banco `pokeidle-preco`). Para cada venda: o número da venda, a data, a moeda, o preço e os dados do Pokémon vendido (espécie, nome da espécie, nível, Nota, IV somado, qualidade, potência, shiny, TM AoE, Z-Move, mega e refino). Também guarda, para cada busca feita, até onde o histórico já foi baixado e quando, e, para cada espécie, se a busca usa só o nome ou a família (com a data da escolha). As vendas com mais de 30 dias, que já não entram no preço, são apagadas sozinhas uma vez por dia. **Não guarda nicks de vendedor, comprador ou de quem capturou o Pokémon.**
 2. **Estado do freio** (localStorage do site pokeidle.io, chave `pism-freio`): se o servidor pediu para ir mais devagar, o intervalo atual entre consultas e até quando vale a pausa. Expira em 1 hora.
 3. **Suas preferências** (armazenamento da extensão, `chrome.storage.local`, chave `config`): se o quadro de preço, os selos da vitrine e o painel de anúncio estão ligados ou desligados.
 
