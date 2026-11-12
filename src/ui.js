@@ -367,19 +367,22 @@
       const nome = m.nome.toLowerCase();
       andamento[m.id] = nome;
       mostrarAndamento();
-      await window.PISync.sincronizar(alvo.nome, m.id, progresso(m, nome));
-      if (!vivo()) return;
-      await recalcular();
-      if (!vivo()) return;
-      // Espécie sem vendas suficientes: busca as vendas de outros shiny/P5 para a estimativa pela Nota
-      const r = resultados[m.id];
-      if (filtro && !(r && r.suficiente && !r.estimativa)) {
-        await window.PISync.sincronizar('', m.id, progresso(m, `outros ${nomeClasse} em ${nome}`), filtro);
+      try {
+        await window.PISync.sincronizar(alvo.nome, m.id, progresso(m, nome));
         if (!vivo()) return;
         await recalcular();
+        if (!vivo()) return;
+        // Espécie sem vendas suficientes: busca as vendas de outros shiny/P5 para a estimativa pela Nota
+        const r = resultados[m.id];
+        if (filtro && !(r && r.suficiente && !r.estimativa)) {
+          await window.PISync.sincronizar('', m.id, progresso(m, `outros ${nomeClasse} em ${nome}`), filtro);
+          if (!vivo()) return;
+          await recalcular();
+        }
+      } finally { // também quando a moeda falha: o andamento dela sai da tela
+        delete andamento[m.id];
+        mostrarAndamento();
       }
-      delete andamento[m.id];
-      mostrarAndamento();
     };
     try {
       const fim = await Promise.allSettled(moedas.map(buscarMoeda));

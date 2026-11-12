@@ -75,8 +75,8 @@
    *  - 1 ou 2: "poucas vendas desta espécie";
    *  - 3 ou mais: "poucas vendas com Nv e Nota parecidos" — a espécie vende, mas nenhuma venda tem nível, Nota ou
    *    potência perto deste (ex.: Furious Scizor Nv 1.166, ou um P5 de Nota 4,995).
-   * Enquanto a busca desta sessão não foi feita, "buscar" continua oferecido: mais dias de
-   * histórico podem trazer vendas parecidas.
+   * Enquanto a busca desta sessão não foi feita, "buscar" continua oferecido: vendas novas no
+   * histórico podem trazer uma parecida.
    */
   function conteudoSemPreco(an) {
     const b = buscas.get(chaveEspecie(an));
@@ -90,7 +90,7 @@
     const feita = !!(b && b.estado === 'feita');
     const n = an.vendasEspecie || 0;
     const onde = `${an.alvo.nome} em ${NOME_MOEDA[an.moeda] || an.moeda} nos últimos 30 dias`;
-    const maisBusca = feita ? '' : ' Clique em "buscar" para trazer mais vendas do histórico do RMT (uma busca, no ritmo de sempre).';
+    const maisBusca = feita ? '' : ' Clique em "buscar" para conferir no histórico do RMT se há vendas novas (uma busca, no ritmo de sempre).';
     const comBotao = texto => feita ? texto : `${texto} · ${botao('buscar')}`;
     if (n >= 3) {
       return {
@@ -207,11 +207,14 @@
     return falta;
   }
 
-  /** Troca na hora o selo de todos os anúncios de uma espécie pelo estado da busca. */
+  /** Troca na hora o selo dos anúncios da espécie que estão sem preço pelo estado da busca
+   *  (os que já têm preço continuam com ele até o recálculo). */
   function marcarEspecie(chave) {
     for (const an of anuncios.values()) {
       if (chaveEspecie(an) !== chave) continue;
       const base = an.id + '|' + an.preco + '|' + an.moeda;
+      const atual = selosProntos.get(base);
+      if (atual && !/(^| )pp-vit-sem( |$)/.test(atual.c.cls)) continue;
       selosProntos.set(base, { versao, c: conteudoSemPreco(an) });
     }
     const lista = document.getElementById('cm-lista');
@@ -227,9 +230,8 @@
     try {
       await window.PISync.sincronizar(an.alvo.nome, an.moeda);
       buscas.set(chave, { estado: 'feita' });
-      // recalcula com as vendas novas (os selos atuais ficam na tela até o cálculo terminar)
-      for (const a of anuncios.values()) if (chaveEspecie(a) === chave) selosProntos.delete(a.id + '|' + a.preco + '|' + a.moeda);
-      marcarEspecie(chave);
+      // recalcula com as vendas novas; os selos atuais ("buscando vendas…") ficam na tela até o
+      // cálculo terminar, sem passar por um texto calculado com a contagem antiga
       versao++;
       agendar();
     } catch (e) {

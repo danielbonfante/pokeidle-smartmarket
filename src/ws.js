@@ -217,10 +217,17 @@
   }
 
   /** Põe um envio na fila: intervalo, teto por minuto, orçamento da conexão e pausa do freio. */
+  // Quando uma consulta desiste porque a conexão está ocupada, as que já estavam na fila desistem
+  // junto, sem esperar mais 30 s cada (ex.: Gemas e Coins pedidas ao mesmo tempo).
+  let desistiuEm = 0;
+  const erroOcupada = () => new Error('a conexão com o jogo está ocupada por outras extensões; tentando mais tarde');
+
   function agendar(executar) {
+    const pedidoEm = Date.now();
     const tarefa = fila.then(async () => {
       soltarFreioVencido();
       if (Date.now() < pausadoAte) throw erroPausa();
+      if (pedidoEm <= desistiuEm) throw erroOcupada();
       const espera = ultimaEm + intervalo - Date.now();
       if (espera > 0) await new Promise(r => setTimeout(r, espera));
       // teto por minuto: espera a consulta mais antiga da janela sair dela
@@ -233,7 +240,8 @@
       const inicioEspera = Date.now();
       while (enviosNoUltimoMinuto() >= ORCAMENTO_CONEXAO_MIN) {
         if (Date.now() - inicioEspera > ESPERA_CONEXAO_MAX_MS) {
-          throw new Error('a conexão com o jogo está ocupada por outras extensões; tentando mais tarde');
+          desistiuEm = Date.now();
+          throw erroOcupada();
         }
         await new Promise(r => setTimeout(r, 1000));
       }

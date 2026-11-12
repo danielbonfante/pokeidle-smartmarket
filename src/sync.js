@@ -20,7 +20,7 @@
   // filtro: { soShiny, soP5 } — as vendas de uma classe inteira, para a estimativa pela Nota
   function chaveDe(busca, moeda, filtro) {
     const f = (filtro && filtro.soShiny ? '|shiny' : '') + (filtro && filtro.soP5 ? '|p5' : '');
-    return moeda + '|' + String(busca || '').toLowerCase() + f;
+    return moeda + '|' + String(busca || '').trim().toLowerCase() + f;
   }
 
   // primeira: a resposta da página 0 já pedida na escolha da busca (não pede de novo)
@@ -63,13 +63,18 @@
   // da família ("+scizor") deixa as variantes de Outland de fora (12/11/2026: 27 de 30 vendas eram
   // Scizor, contra 6 de 30; 25 páginas cobriram os 30 dias). Mas a família de uma forma base traz as
   // evoluções ("+charmander" traria os Charizard). Por isso, na primeira vez, compara a página 0 das
-  // duas e fica com a que traz mais vendas da própria espécie; a escolha vale 7 dias.
+  // duas e fica com a que traz mais vendas da própria espécie; a escolha vale 7 dias. No empate, fica
+  // com a que cobre mais tempo (menos vendas de outras espécies no caminho); empate nisso também, a
+  // normal. Se nenhuma das duas trouxe a espécie, a escolha é um chute e vale só 1 dia.
   const ESCOLHA_VALIDADE_MS = 7 * DIA;
+  const ESCOLHA_SEM_EVIDENCIA_MS = DIA;
   const escolhendo = new Map();
 
   const ehNomeSimples = busca => !!busca && !/^[+#]|\+$/.test(busca.trim());
-  const daEspecie = (j, nome) => (Array.isArray(j && j.linhas) ? j.linhas : [])
+  const linhasDe = j => (Array.isArray(j && j.linhas) ? j.linhas : []);
+  const daEspecie = (j, nome) => linhasDe(j)
     .filter(l => l && l.ficha && String(l.ficha.nome || '').toLowerCase() === nome).length;
+  const maisAntiga = j => { const l = linhasDe(j); return l.length ? Number(l[l.length - 1].em) || 0 : 0; };
 
   function escolherBusca(nome, moeda) {
     const n = nome.trim().toLowerCase();
@@ -77,13 +82,19 @@
     const p = (async () => {
       const chave = 'escolha|' + n;
       const salva = await window.PIStore.lerSync(chave);
-      if (salva && Date.now() - salva.em < ESCOLHA_VALIDADE_MS) return { busca: salva.busca };
+      if (salva && Date.now() - salva.em < (salva.validade || ESCOLHA_VALIDADE_MS)) return { busca: salva.busca };
       const familia = '+' + n;
       const jNome = await window.PIWs.consultarHistorico({ pagina: 0, moeda, busca: nome });
       const jFam = await window.PIWs.consultarHistorico({ pagina: 0, moeda, busca: familia });
-      const usaFamilia = daEspecie(jFam, n) > daEspecie(jNome, n);
+      // as vendas das duas páginas já vieram: guarda todas (a busca escolhida pode nem rodar agora,
+      // se foi sincronizada há menos de 10 min)
+      const vendas = linhasDe(jNome).concat(linhasDe(jFam)).map(window.PIMotor.normalizarVenda).filter(Boolean);
+      if (vendas.length) await window.PIStore.salvarVendas(vendas);
+      const nNome = daEspecie(jNome, n), nFam = daEspecie(jFam, n);
+      const usaFamilia = nFam > nNome || (nFam === nNome && maisAntiga(jFam) > 0 && maisAntiga(jFam) < maisAntiga(jNome));
       const busca = usaFamilia ? familia : nome;
-      await window.PIStore.gravarSync({ chave, busca, em: Date.now() });
+      const validade = nNome || nFam ? ESCOLHA_VALIDADE_MS : ESCOLHA_SEM_EVIDENCIA_MS;
+      await window.PIStore.gravarSync({ chave, busca, em: Date.now(), validade });
       return { busca, primeira: usaFamilia ? jFam : jNome, moeda };
     })();
     escolhendo.set(n, p);

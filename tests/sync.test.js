@@ -10,7 +10,7 @@ const SRC = path.join(__dirname, '..', 'src');
 
 /**
  * paginasPorMoeda: páginas que o servidor tem para cada busca.
- * nomesDaBusca(busca): os nomes das 2 vendas de cada página (padrão: 2 Blastoise).
+ * nomesDaBusca(busca): as 2 vendas de cada página, pelo nome ou por { nome, em } (padrão: 2 Blastoise, agora).
  * sync: registros já gravados no store de sync (ex.: a escolha da busca).
  */
 function montar(paginasPorMoeda, { nomesDaBusca = () => ['Blastoise', 'Blastoise'], sync: inicial = [] } = {}) {
@@ -26,7 +26,7 @@ function montar(paginasPorMoeda, { nomesDaBusca = () => ['Blastoise', 'Blastoise
       enviados.push(j);
       setTimeout(() => receber({ t: 'market', aba: 'historicoGlobal', seq: j.seq, pagina: j.pagina,
         temMais: j.pagina < paginasPorMoeda - 1,
-        linhas: nomesDaBusca(j.busca || '').map(nome => ({ id: id--, tipo: 'pokemon', moeda: j.moeda, bruto: 100, em: Date.now(),
+        linhas: nomesDaBusca(j.busca || '').map(x => typeof x === 'string' ? { nome: x, em: Date.now() } : x).map(({ nome, em }) => ({ id: id--, tipo: 'pokemon', moeda: j.moeda, bruto: 100, em,
           ficha: { id: 1, speciesId: 9, nome, level: 100, nota: 3.6, potencia: 1 } })) }), 5);
     }
   }
@@ -45,7 +45,8 @@ function montar(paginasPorMoeda, { nomesDaBusca = () => ['Blastoise', 'Blastoise
   return { window, enviados, historico, sync, salvas };
 }
 
-const escolhaSalva = (nome, busca) => ({ chave: 'escolha|' + nome.toLowerCase(), busca, em: Date.now() });
+const DIA = 24 * 3600e3;
+const escolhaSalva = (nome, busca, extra) => Object.assign({ chave: 'escolha|' + nome.toLowerCase(), busca, em: Date.now() }, extra);
 
 test('duas moedas ao mesmo tempo: a fila intercala as páginas (Gemas, Coins, Gemas…), uma por vez', async () => {
   const { window, historico } = montar(3, { sync: [escolhaSalva('Blastoise', 'Blastoise')] });
@@ -63,6 +64,8 @@ test('escolha da busca: "Scizor" traz o Furious Scizor, "+scizor" não → usa a
   assert.equal(sync.get('escolha|scizor').busca, '+scizor');
   assert.ok(sync.get('orb|+scizor').maxId > 0, 'o controle de sync fica na busca escolhida');
   assert.ok(salvas.some(v => v.nome === 'Scizor'), 'as vendas da página 0 escolhida foram guardadas');
+  assert.ok(salvas.some(v => v.nome === 'Furious Scizor'), 'as da página perdedora também (já vieram)');
+  assert.equal(sync.get('escolha|scizor').validade, 7 * DIA);
 });
 
 test('escolha da busca: forma base ("+charmander" traria os Charizard) → fica com a busca normal', async () => {
@@ -72,13 +75,46 @@ test('escolha da busca: forma base ("+charmander" traria os Charizard) → fica 
   assert.equal(sync.get('escolha|charmander').busca, 'Charmander');
 });
 
-test('escolha da busca: empate fica com a busca normal; escolha guardada não é refeita', async () => {
+test('escolha da busca: escolha guardada não é refeita; vencida (7 dias) é refeita', async () => {
   const { window, historico } = montar(1, { sync: [escolhaSalva('Scizor', '+scizor')] });
   await window.PISync.sincronizar('Scizor', 'orb');
   assert.deepEqual(historico(), ['orb:+scizor:0']);
-  const b = montar(1);
-  await b.window.PISync.sincronizar('Blastoise', 'orb');
-  assert.equal(b.sync.get('escolha|blastoise').busca, 'Blastoise');
+  const b = montar(1, { sync: [escolhaSalva('Scizor', '+scizor', { em: Date.now() - 8 * DIA })] });
+  await b.window.PISync.sincronizar('Scizor', 'orb');
+  assert.deepEqual(b.historico(), ['orb:Scizor:0', 'orb:+scizor:0']);
+});
+
+test('escolha da busca: empate com as mesmas datas fica com a busca normal', async () => {
+  const { window, sync } = montar(1);
+  await window.PISync.sincronizar('Blastoise', 'orb');
+  assert.equal(sync.get('escolha|blastoise').busca, 'Blastoise');
+});
+
+test('escolha da busca: nenhuma das duas traz a espécie → a que cobre mais tempo, valendo só 1 dia', async () => {
+  const agora = Date.now();
+  const { window, sync } = montar(1, { nomesDaBusca: b => (b === '+scizor'
+    ? [{ nome: 'Scyther', em: agora }, { nome: 'Scyther', em: agora - 5 * DIA }]
+    : [{ nome: 'Furious Scizor', em: agora }, { nome: 'Furious Scizor', em: agora - 3600e3 }]) });
+  await window.PISync.sincronizar('Scizor', 'orb');
+  const e = sync.get('escolha|scizor');
+  assert.equal(e.busca, '+scizor');
+  assert.equal(e.validade, DIA);
+  // depois de 1 dia, compara de novo
+  const b = montar(1, { sync: [escolhaSalva('Scizor', '+scizor', { em: agora - 25 * 3600e3, validade: DIA })] });
+  await b.window.PISync.sincronizar('Scizor', 'orb');
+  assert.deepEqual(b.historico(), ['orb:Scizor:0', 'orb:+scizor:0']);
+});
+
+test('escolha da busca: se a comparação falha, as duas moedas falham e a próxima chamada compara de novo', async () => {
+  const { window, historico, sync } = montar(1);
+  const original = window.PIWs.consultarHistorico;
+  window.PIWs.consultarHistorico = async () => { throw new Error('sem conexão com o jogo'); };
+  const fim = await Promise.allSettled(['orb', 'gold'].map(m => window.PISync.sincronizar('Blastoise', m)));
+  assert.deepEqual(fim.map(f => f.status), ['rejected', 'rejected']);
+  assert.equal(sync.get('escolha|blastoise'), undefined);
+  window.PIWs.consultarHistorico = original;
+  await window.PISync.sincronizar('Blastoise', 'orb');
+  assert.deepEqual(historico(), ['orb:Blastoise:0', 'orb:+blastoise:0']);
 });
 
 test('escolha da busca: as duas moedas juntas fazem uma comparação só', async () => {

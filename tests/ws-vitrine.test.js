@@ -9,7 +9,7 @@ const path = require('path');
 const SRC = path.join(__dirname, '..', 'src');
 
 /** Carrega ws.js (e vitrine.js, se pedido) num contexto novo, com um socket falso já aberto. */
-function montar({ comVitrine = false } = {}) {
+function montar({ comVitrine = false, relogio = null } = {}) {
   const ouvintes = [];
   const enviados = [];
   let responder = null; // (msg, receber) => void, para simular o servidor
@@ -21,7 +21,7 @@ function montar({ comVitrine = false } = {}) {
   const window = { WebSocket: FakeWS };
   const document = { getElementById: () => ({ getClientRects: () => [1] }), addEventListener() {} };
   const logs = { warn: [], info: [] };
-  const ctx = vm.createContext({ window, document, location: { href: 'https://pokeidle.io/app' }, URL, setTimeout, clearTimeout, console: { warn: (...a) => logs.warn.push(a.join(' ')), info: (...a) => logs.info.push(a.join(' ')), log() {} } });
+  const ctx = vm.createContext({ window, document, location: { href: 'https://pokeidle.io/app' }, URL, setTimeout, clearTimeout, ...(relogio ? { Date: relogio } : {}), console: { warn: (...a) => logs.warn.push(a.join(' ')), info: (...a) => logs.info.push(a.join(' ')), log() {} } });
   vm.runInContext(fs.readFileSync(path.join(SRC, 'ws.js'), 'utf8'), ctx);
   if (comVitrine) {
     vm.runInContext(fs.readFileSync(path.join(SRC, 'motor.js'), 'utf8'), ctx);
@@ -165,4 +165,17 @@ test('ritmo: mostra o intervalo normal e até quando vale o freio (para o popup)
   assert.equal(depois.intervalo, 3000);
   assert.ok(depois.freioAte > Date.now() + 59 * 60000, 'o freio vale por 1 h');
   assert.ok(depois.pausadoAte > Date.now());
+});
+
+test('ritmo: quando uma consulta desiste pela conexão ocupada, as que já estavam na fila desistem junto', async () => {
+  // relógio 20× mais rápido: os 30 s de espera pela conexão passam em ~1,5 s
+  const inicio = Date.now();
+  class Rapido extends Date { static now() { return inicio + (Date.now() - inicio) * 20; } }
+  const { window, ws } = montar({ relogio: Rapido });
+  for (let i = 0; i < 45; i++) ws.send(JSON.stringify({ t: 'market.itens' }));
+  const quando = [];
+  const pedir = p => window.PIWs.consultarHistorico({ pagina: p }).then(() => 'ok', e => (quando.push(Date.now()), e.message));
+  const res = await Promise.all([pedir(0), pedir(1)]);
+  assert.ok(res.every(m => /ocupada/.test(m)), JSON.stringify(res));
+  assert.ok(quando[1] - quando[0] < 300, 'a segunda esperou mais ' + (quando[1] - quando[0]) + ' ms');
 });
