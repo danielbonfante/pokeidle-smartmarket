@@ -31,7 +31,7 @@
   // Gemas: grupo barato e grupo caro (o caro com mais AoE, nível e refino)
   for (let i = 0; i < 18; i++) vendas.push(v({ preco: 20 + (i % 8), level: 300 + i * 6, nota: 3.53 + (i % 6) * 0.02 }));
   for (let i = 0; i < 14; i++) vendas.push(v({ preco: 100 + (i % 3) * 10, level: 380 + i * 12, nota: 3.55 + (i % 5) * 0.02, aoe: i < 3, refino: 3 }));
-  // #caro: vendas caras recentes e parecidas com o seu, para o grupo caro virar o "★ mais parecido"
+  // #caro: vendas caras recentes e parecidas com esta ficha, para o grupo caro virar o "★ mais parecido"
   // (#caro=N muda quantas entram; com 7 a 11 os dois grupos ficam quase empatados e nenhum ganha a ★).
   // O texto do "justo no vão" é conferido com PIPrecificar._htmlGrupos e um resultado montado à mão.
   const nCaro = /^#caro/.test(location.hash) ? Number((location.hash.match(/caro=(\d+)/) || [])[1] || 12) : 0;

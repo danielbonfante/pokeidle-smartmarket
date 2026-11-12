@@ -28,10 +28,10 @@
       estimativa: 'Estimativa — não há vendas suficientes desta espécie; o preço vem de outras espécies com Nota parecida. Use só como ordem de grandeza.',
     },
     ver: 'Mostra as vendas da mesma espécie que mais pesaram no cálculo.',
-    nv: 'Nível do Pokémon vendido. Vendas com nível parecido com o do seu pesam mais.',
+    nv: 'Nível do Pokémon vendido. Vendas com nível parecido com o deste Pokémon pesam mais.',
     nota: 'Nota de 0 a 10 do Pokémon vendido (IV, qualidade, potência e shiny, dentro da espécie). É o que mais pesa na comparação.',
     pot: 'Potência do Pokémon vendido (P1, P2, P3…). Potência maior aumenta os atributos.',
-    extras: 'Extras do Pokémon vendido: ✨ = shiny · AoE = tem TM AoE · Z = tem Z-Move · M = é Mega. Vendas com AoE, Z-Move ou Mega diferentes dos do seu pesam menos. Shiny só é comparado com shiny (e só vende em Gemas).',
+    extras: 'Extras do Pokémon vendido: ✨ = shiny · AoE = tem TM AoE · Z = tem Z-Move · M = é Mega. Vendas com AoE, Z-Move ou Mega diferentes dos deste Pokémon pesam menos. Shiny só é comparado com shiny (e só vende em Gemas).',
     preco: 'Quanto o comprador pagou no total, em Gemas 💎 ou Coins 🪙.',
     ha: 'Há quanto tempo foi a venda. Vendas recentes pesam mais: uma de 5 dias atrás vale metade de uma de hoje.',
     liquidoGemas: 'Você recebe — o que sobra para o vendedor depois da comissão do RMT, se vender por cada um dos preços acima. Pokémon em Gemas paga por faixa: 13% até 500, 10% de 500 a 5.000 e 7,5% acima disso (10.000 Gemas → você recebe 9.110). A pensão do anúncio, 100 mil Coins por dia, é paga à parte, na hora de publicar.',
@@ -41,8 +41,8 @@
     soGemas: 'Regra do Mercado da Comunidade: Pokémon shiny só pode ser anunciado em Gemas.',
     especie: 'Espécie do Pokémon vendido. Na estimativa pela Nota entram vendas de outras espécies.',
     usar: 'Preenche o campo "Preço por unidade" do jogo com este valor. Quem publica o anúncio é você.',
-    avenda: 'Anúncios abertos agora desta espécie, nesta moeda, os mais parecidos com o seu primeiro. A porcentagem compara com o Preço justo.',
-    vendidos: 'Vendas desta espécie nos últimos 30 dias, nesta moeda, as mais parecidas com o seu primeiro.',
+    avenda: 'Anúncios abertos agora desta espécie, nesta moeda, os mais parecidos com este Pokémon primeiro. A porcentagem compara com o Preço justo.',
+    vendidos: 'Vendas desta espécie nos últimos 30 dias, nesta moeda, as mais parecidas com este Pokémon primeiro.',
     travado: 'o jogo só deixa mudar o preço a cada 30 min',
     precificar: 'Abre a análise completa: o preço justo com as vendas parecidas na barra, a confiança medida nesta espécie e os grupos de preço.',
   };
@@ -214,7 +214,7 @@
   }
 
   function comparar(seu) {
-    return typeof seu === 'number' && isFinite(seu) ? ` (o seu: ${seu})` : '';
+    return typeof seu === 'number' && isFinite(seu) ? ` (este: ${seu})` : '';
   }
 
   function extrasTexto(o) {
@@ -226,9 +226,9 @@
     const data = new Date(v.em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
     const t = {
       nv: `Nível ${v.level}${comparar(alvo.level)}`,
-      nota: `Nota ${fmtNumero(v.nota, 3)} de 10${(isFinite(alvo.nota) ? ` (o seu: ${fmtNumero(alvo.nota, 3)})` : '')}`,
+      nota: `Nota ${fmtNumero(v.nota, 3)} de 10${(isFinite(alvo.nota) ? ` (este: ${fmtNumero(alvo.nota, 3)})` : '')}`,
       pot: `Potência ${v.potencia}${comparar(alvo.potencia)}`,
-      extras: `Extras: ${extrasTexto(v)} (o seu: ${alvo.parcial ? 'não detectado' : extrasTexto(alvo)})`,
+      extras: `Extras: ${extrasTexto(v)} (este: ${alvo.parcial ? 'não detectado' : extrasTexto(alvo)})`,
       preco: `Vendido por ${fmtPreco(v.preco, m.id)} ${m.nome}`,
       ha: `Vendido em ${data}`,
     };

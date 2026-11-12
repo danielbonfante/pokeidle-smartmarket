@@ -102,7 +102,7 @@
     if (!res || !res.suficiente || res.estimativa || !pontos.length) return '';
     const linhas = pontos.map((p, i) => `
       <tr${i >= VISIVEIS ? ' class="pp-prec-extra"' : ''}>
-        <td><span class="pp-prec-peso" title="parecida ${pct(p.peso)} com o seu"><i style="width:${pct(p.peso)}"></i></span></td>
+        <td><span class="pp-prec-peso" title="parecida ${pct(p.peso)} com esta ficha"><i style="width:${pct(p.peso)}"></i></span></td>
         <td class="pp-prec-valor">${fmt(p.preco, moeda)}</td>
         <td${comparar(p.level, alvo.level, alvo.level * 0.1)}>${p.level}</td>
         <td>P${p.potencia}</td>
@@ -114,8 +114,8 @@
       </tr>`).join('');
     const seu = `
       <tr class="pp-prec-seu">
-        <td>o seu</td>
-        <td class="pp-prec-valor" title="o Preço justo calculado para o seu"><small>justo</small> ${fmt(res.precoJusto, moeda)}</td>
+        <td>esta ficha</td>
+        <td class="pp-prec-valor" title="o Preço justo calculado para esta ficha"><small>justo</small> ${fmt(res.precoJusto, moeda)}</td>
         <td>${alvo.level}</td>
         <td>${isFinite(alvo.potencia) && alvo.potencia ? 'P' + alvo.potencia : '—'}</td>
         <td>${alvo.ivTotal || '—'}</td>
@@ -129,12 +129,12 @@
     return `
       <div class="pp-prec-bloco pp-prec-vendas">
         <div class="pp-prec-titulo">Vendas que mais pesaram no preço</div>
-        <p><b>O que conta:</b> pesa mais a <b>Nota</b> — ela já resume IV, Qualidade e Potência, por isso esses três não contam sozinhos. Depois vem o <b>nível</b>. Uma venda com AoE, Z-Move ou Mega diferente do seu conta só 30%, e uma venda de 5 dias atrás conta metade de uma de hoje.</p>
+        <p><b>O que conta:</b> pesa mais a <b>Nota</b> — ela já resume IV, Qualidade e Potência, por isso esses três não contam sozinhos. Depois vem o <b>nível</b>. Uma venda com AoE, Z-Move ou Mega diferente desta ficha conta só 30%, e uma venda de 5 dias atrás conta metade de uma de hoje.</p>
         <table>
           <thead><tr><th>Parecida</th><th>Preço</th><th>Nv</th><th>Pot.</th><th>IV</th><th>Qual.</th><th>Nota</th><th>Extras</th><th>Há</th></tr></thead>
           <tbody>${seu}${linhas}</tbody>
         </table>
-        <div class="pp-prec-legenda"><span class="pp-prec-acima">acima do seu</span> · <span class="pp-prec-abaixo">abaixo do seu</span> (Nota e nível)${mais ? ' · ' + mais : ''}</div>
+        <div class="pp-prec-legenda"><span class="pp-prec-acima">acima desta ficha</span> · <span class="pp-prec-abaixo">abaixo desta ficha</span> (Nota e nível)${mais ? ' · ' + mais : ''}</div>
       </div>`;
   }
 
@@ -159,7 +159,7 @@
     const faixa = `left:${(pos(res.venderRapido) * 100).toFixed(2)}%;width:${((pos(res.esperar) - pos(res.venderRapido)) * 100).toFixed(2)}%`;
     const base = res.estimativa
       ? `≈ Estimativa pela Nota: sem vendas suficientes desta espécie, o preço vem de ${res.vendasClasse} vendas de outras espécies com Nota e nível parecidos. Erra bastante.`
-      : `Baseado em ${res.vendasEspecie} vendas desta espécie em ${MOEDA[moeda].nome} nos últimos 30 dias; as mais parecidas com o seu (Nota, nível, potência, extras) pesam mais — cerca de ${num(res.nEfetivo, 0)} contam de verdade.`;
+      : `Baseado em ${res.vendasEspecie} vendas desta espécie em ${MOEDA[moeda].nome} nos últimos 30 dias; as mais parecidas com este Pokémon (Nota, nível, potência, extras) pesam mais — cerca de ${num(res.nEfetivo, 0)} contam de verdade.`;
     return `
       <div class="pp-prec-bloco">
         <div class="pp-prec-justo">
@@ -167,7 +167,7 @@
           <b>${est}${fmt(res.precoJusto, moeda)} <small>${MOEDA[moeda].icone}</small></b>
           <em>você recebe ${M.formatarValor(M.liquidoVendedor(window.PIAnuncioLogica ? window.PIAnuncioLogica.valorUsar(res.precoJusto) : res.precoJusto, moeda), moeda)} depois da comissão</em>
         </div>
-        <div class="pp-prec-barra" title="Cada ponto é uma venda parecida; quanto maior e mais forte, mais parecida com o seu.">
+        <div class="pp-prec-barra" title="Cada ponto é uma venda parecida; quanto maior e mais forte, mais parecida com este Pokémon.">
           <div class="pp-prec-trilho"></div>
           <div class="pp-prec-faixa" style="${faixa}"></div>
           ${pontosHtml}
@@ -206,21 +206,21 @@
     const p = x => pct(x);
     const mp = A.grupoMaisParecido(grupos);
     const nomeGrupo = lado => (lado === 'alto' ? 'caro' : 'barato');
-    const cab = lado => `Grupo ${nomeGrupo(lado)}${mp && mp.lado === lado ? ' <span class="pp-prec-parecido" title="o grupo com mais peso: as vendas dele se parecem mais com o seu Pokémon (Nota, nível, potência, extras)">★ mais parecido</span>' : ''}`;
+    const cab = lado => `Grupo ${nomeGrupo(lado)}${mp && mp.lado === lado ? ' <span class="pp-prec-parecido" title="o grupo com mais peso: as vendas dele se parecem mais com este Pokémon (Nota, nível, potência, extras)">★ mais parecido</span>' : ''}`;
     const est = res && res.estimativa ? '≈ ' : '';
     const seuPreco = res && res.suficiente ? `<small>justo</small> ${est}${fmt(res.precoJusto, moeda)}` : '—';
     const parecido = mp
-      ? `Pelas vendas, o seu se parece mais com o <b>grupo ${nomeGrupo(mp.lado)}</b> (${p(mp.fracao)} do peso).`
-      : 'O seu fica no meio dos dois: nenhum grupo se parece claramente mais com ele.';
+      ? `Pelas vendas, este Pokémon se parece mais com o <b>grupo ${nomeGrupo(mp.lado)}</b> (${p(mp.fracao)} do peso).`
+      : 'Este Pokémon fica no meio dos dois: nenhum grupo se parece claramente mais com ele.';
     // Medido na planilha de 11/11/2026: com o justo no vão, ele ficou a até 25% do pago em ~1 de cada 6 vendas
     const avisoVao = vao ? ' <b>O Preço justo cai no vão entre eles</b>, e nesse caso ele erra mais: nos testes, acertou só cerca de 1 em cada 6 vendas.' : '';
     return `
       <div class="pp-prec-bloco pp-prec-grupos">
         <div class="pp-prec-titulo">⚠ As vendas parecidas se dividem em dois grupos</div>
         <p>Um grupo saiu por <b>${fmt(baixo.min, moeda)}–${fmt(baixo.max, moeda)}</b> (${p(baixo.fracao)} do peso) e outro por <b>${fmt(alto.min, moeda)}–${fmt(alto.max, moeda)}</b> (${p(alto.fracao)}), com pouca coisa no meio.${avisoVao}</p>
-        <p class="pp-prec-acao">Para <b>vender logo</b>, anuncie perto do preço do grupo barato (<b>${fmt(baixo.preco, moeda)}</b>); se puder <b>esperar</b> um comprador, perto do grupo caro (<b>${fmt(alto.preco, moeda)}</b>). ${parecido} Compare o seu Pokémon com cada grupo:</p>
+        <p class="pp-prec-acao">Para <b>vender logo</b>, anuncie perto do preço do grupo barato (<b>${fmt(baixo.preco, moeda)}</b>); se puder <b>esperar</b> um comprador, perto do grupo caro (<b>${fmt(alto.preco, moeda)}</b>). ${parecido} Compare este Pokémon com cada grupo:</p>
         <table>
-          <thead><tr><th></th><th>${cab('baixo')}</th><th>${cab('alto')}</th><th>O seu</th></tr></thead>
+          <thead><tr><th></th><th>${cab('baixo')}</th><th>${cab('alto')}</th><th>Esta ficha</th></tr></thead>
           <tbody>
             ${linha('Preço do grupo', fmt(baixo.preco, moeda), fmt(alto.preco, moeda), seuPreco, 'pp-prec-preco-grupo')}
             ${linha('Nível médio', num(baixo.nivelMedio, 0), num(alto.nivelMedio, 0), alvo.level)}
