@@ -15,7 +15,7 @@ Pull requests que quebrem qualquer uma destas regras serão recusados, mesmo que
 - **Só leitura.** A extensão não compra, não vende, não anuncia, não publica e não automatiza nenhuma ação no jogo. Ela nunca clica em `#cm-publicar` nem manda mensagens de compra, venda ou anúncio pelo WebSocket. O botão "usar" do painel só preenche o campo de preço; quem publica é sempre o jogador.
 - **Privacidade.** Nunca guardar nicks: vendedor, comprador, quem capturou (`caughtBy`), apelido. A `normalizarVenda` (`src/motor.js`) e o índice do `ws.js` descartam esses campos; mantenha assim. Nada sai do navegador além das consultas ao próprio jogo: sem servidores externos, telemetria ou analytics.
 - **Ritmo de pessoa.** As consultas seguem o ritmo do `ws.js`: uma por vez, 1,5 s entre elas, no máximo 12 por minuto, orçamento de 45 mensagens por minuto na conexão inteira e o freio quando o servidor pede calma. Não diminua esses limites nem faça varreduras do mercado inteiro. O servidor tem anti-flood e um abuso pode prejudicar a conta de quem usa a extensão.
-- **Dados e código próprios.** Não copie dados nem código de outros projetos. O site do briao (Precificador de Pokémon) é só inspiração: não use os dados (`precos.json`) nem o código dele.
+- **Dados e código próprios.** A extensão coleta as vendas direto do jogo e tem um motor de preço próprio. Não traga dados nem código de outros projetos, inclusive do Precificador de Pokémon do briao: ele inspirou a ideia, mas a extensão não usa nada dele.
 - **Sem dependências obrigatórias.** O projeto é JavaScript puro, carregado direto pelo Chrome, sem etapa de build. Os testes usam só o Node.
 
 ## Testes
