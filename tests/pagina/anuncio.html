@@ -12,9 +12,6 @@
 <link rel="stylesheet" href="../../src/ui.css">
 <script src="cores-jogo.js"></script>
 <style>
-  /* ?animado: a caixa entra deslizando, como no jogo (o painel tem de terminar alinhado com ela) */
-  @keyframes entrar { from { transform: translateY(120px); opacity: 0.3; } to { transform: none; opacity: 1; } }
-  html.animado .cm-folha-caixa { animation: entrar 0.6s ease-out; }
   body { margin: 0; background: #120a12; color: #eee; font-family: system-ui, sans-serif; width: 1920px; height: 889px; }
   .modal-caixa { position: absolute; left: 300px; top: 36px; width: 1320px; height: 818px; background: #2a1520; }
   .cm-folha { position: absolute; inset: 0; background: rgba(0,0,0,.55); }
@@ -40,7 +37,6 @@
 <script>
   // ---------- dados de exemplo ----------
   const caso = location.hash.slice(1) || 'ok';
-  if (/[?&]animado\b/.test(location.search)) document.documentElement.classList.add('animado');
   const agora = Date.now(), H = 3600e3;
   const shiny = caso === 'shiny';
   const alvoJogo = { id: 111927090, speciesId: 212, nome: 'Furious Scizor', level: 100, nota: 4.61, quality: 1.2, potencia: 2, shiny, tmAoe: false, tmElemental: null, ivTotal: 120, tipos: ['bug', 'steel'], poder: 131 };
@@ -106,13 +102,7 @@
       '<div id="resumo">VOCÊ RECEBE <b id="recebe">107.100.000</b></div><button id="cm-publicar" class="cm-publicar" type="button">Publicar anúncio</button></div>';
     document.getElementById('cm-publicar').addEventListener('click', () => { window.__cliquesPublicar++; });
   }
-  // ?animado: a caixa entra deslizando de novo a cada tela, como no jogo
-  function reanimar() {
-    const cx = document.querySelector('#folha .cm-folha-caixa');
-    cx.style.animation = 'none'; void cx.offsetHeight; cx.style.animation = '';
-  }
   function telaPreco() {
-    reanimar();
     corpo.innerHTML = '<div class="dlg-palco dlg-feira compacta"><div>Furious Scizor</div><div>Nv 100</div></div>' +
       '<div class="cm-form"><label>Preço por unidade</label><br><input id="cm-preco" type="number" value="1" min="2">' +
       '<div><button type="button" class="cm-moeda ' + (shiny ? '' : 'on') + '" data-moeda="gold"' + (shiny ? ' disabled' : '') + '>Coins</button>' +
@@ -142,7 +132,6 @@
     const folha = document.getElementById('folha');
     folha.style.display = '';
     folha.querySelector('.cm-folha-caixa').style.height = '779px';
-    reanimar();
     const travado = caso === 'editar-travado';
     corpo.innerHTML = '<div class="dlg-palco dlg-feira compacta"><span class="dlg-ator-nome">' + (item ? 'Darkness Stone' : 'Furious Scizor') + '</span>' +
       (item ? '' : '<span class="dlg-ator-sub">Nv 100</span>') + '<span class="dlg-placa-dias">1 dia</span></div>' +
