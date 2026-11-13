@@ -138,6 +138,7 @@
     painel.palcoFicha = criarFichaPalco(alvo, brutoDoAnuncio(folha));
     colocarFichaNoPalco();
     posicionar();
+    acompanharCaixa();
     painel.obsMoeda = new MutationObserver(() => {
       const on = folha.querySelector('.cm-moeda.on');
       const m = L.moedaPainel(alvo, on ? on.getAttribute('data-moeda') : painel.moeda);
@@ -163,6 +164,28 @@
     painel.el.remove();
     if (painel.palcoFicha) painel.palcoFicha.remove();
     painel = null;
+  }
+
+  /**
+   * A folha do jogo abre com animação (a caixa desliza até o lugar). O painel fica fixo na página e
+   * tirava a posição no meio do caminho: começava mais baixo que a caixa e passava da tela (visto em
+   * 13/11/2026 no Novo anúncio e no Editar). Nos primeiros 1,5 s ele acompanha a caixa a cada quadro;
+   * depois, o fim de qualquer animação/transição também realinha (ver o ouvinte no fim do arquivo).
+   */
+  function acompanharCaixa() {
+    const p = painel, ate = Date.now() + 1500;
+    let ultima = '';
+    const passo = () => {
+      if (painel !== p) return;
+      const caixa = p.folha.querySelector('.cm-folha-caixa');
+      if (caixa) {
+        const r = caixa.getBoundingClientRect();
+        const chave = [r.left, r.top, r.width, r.height].map(Math.round).join(',');
+        if (chave !== ultima) { ultima = chave; posicionar(); }
+      }
+      if (Date.now() < ate) requestAnimationFrame(passo);
+    };
+    requestAnimationFrame(passo);
   }
 
   function posicionar() {
@@ -506,6 +529,8 @@
   }).observe(document.documentElement, { childList: true, subtree: true });
 
   if (window.PIConfig) window.PIConfig.aoMudar(verificar);
+  // a caixa do jogo terminou de deslizar/crescer: o painel (fixo na página) realinha com ela
+  ['animationend', 'transitionend'].forEach(t => document.addEventListener(t, () => { if (painel) posicionar(); }, true));
 
   window.PIPainelAnuncio = {}; // só marca que o painel já foi carregado
 })();
