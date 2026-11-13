@@ -39,6 +39,7 @@
       ],
       "js": [
         "src/config.js",
+        "src/dinheiro.js",
         "src/ws.js",
         "src/motor.js",
         "src/store.js",

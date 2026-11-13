@@ -36,6 +36,9 @@ NA FICHA DO POKÉMON
 NO MERCADO
 • Cada anúncio de Pokémon ganha um selo: desconto, no preço ou acima do justo, com a porcentagem em relação ao Preço justo e a faixa de preço das vendas parecidas.
 
+EM DINHEIRO
+• As Gemas também aparecem em dólar (e, se você quiser, em real), pela cotação de compra e de saque do próprio jogo.
+
 NA HORA DE ANUNCIAR
 • Um painel ao lado da tela de anúncio com os preços, os anúncios parecidos à venda agora e os que já foram vendidos.
 • Um botão "usar" preenche o campo de preço. Quem publica é sempre você.

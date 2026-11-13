@@ -44,6 +44,19 @@
     <p class="nota" id="nota-chaves">Vale na hora, em todas as abas do jogo.</p>
   </section>
 
+  <section>
+    <h2>Gemas em dinheiro</h2>
+    <div class="caixa dinheiro">
+      <div class="modos" role="radiogroup" aria-label="Mostrar as Gemas em dinheiro">
+        <label><input type="radio" name="dinheiro" value="nada"> Não mostrar</label>
+        <label><input type="radio" name="dinheiro" value="usd"> Dólar</label>
+        <label><input type="radio" name="dinheiro" value="usd-brl"> Dólar e real</label>
+      </div>
+      <label class="cotacao" id="cotacao-area">1 USDT = R$ <input type="number" id="cotacao-brl" min="1" max="20" step="0.01" inputmode="decimal"></label>
+      <p class="nota">Pela cotação do próprio jogo (Depósito e Saque do RMT): na vitrine, quanto custa comprar; na ficha e no anúncio, quanto você recebe sacando. O real usa a cotação acima: a extensão não consulta site nenhum, atualize quando quiser.</p>
+    </div>
+  </section>
+
   <section id="jogo">
     <h2>Cache de vendas</h2>
     <div id="cache" class="caixa">carregando…</div>

@@ -457,3 +457,12 @@
 .pp-palco-ficha .pp-fi-cartao span { display: inline; font-size: 10px; font-weight: 700; letter-spacing: 0; text-transform: none; }
 .pp-palco-ficha .pp-fi-cartao b { font-size: 12.5px; }
 .pp-pf-rodape { font-size: 11px; color: #e8d7ff; gap: 6px; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.6); }
+
+/* Gemas em dinheiro (src/dinheiro.js): linhas US$ e R$ embaixo do líq das Gemas no quadro, e o texto
+   pequeno no painel do anúncio, nos selos da vitrine e na janela Precificar */
+.pp-liq.pp-dinheiro-linha { color: #8fd6a8; margin-top: -3px; }
+.pp-liq.pp-dinheiro-linha i[hidden] { display: inline; visibility: hidden; }
+.pp-dinheiro[hidden] { display: none; }
+.pp-an-dinheiro { display: block; font-size: 10px; color: #8fd6a8; cursor: help; }
+.pp-vit .pp-vit-dinheiro { color: #8fd6a8; font-size: 9.5px; }
+.pp-prec-justo em .pp-dinheiro { color: #8fd6a8; font-style: normal; }

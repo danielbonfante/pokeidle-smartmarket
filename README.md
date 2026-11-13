@@ -75,11 +75,21 @@ Trocou a moeda na tela do jogo, o painel troca junto.
 
 O mesmo painel aparece ao **editar** um anúncio de Pokémon (Mercado → **Meus anúncios** → **Editar**). Ali a aba À venda mostra os anúncios que você já viu na vitrine, e, se o jogo ainda não deixar mudar o preço (30 min depois da última mudança), os botões "usar" ficam desativados.
 
+### Gemas em dinheiro
+
+Valores em Gemas assustam quem não sabe quanto valem. A extensão mostra o equivalente em **dólar (US$)** e, se você quiser, em **real (R$)**, pela cotação do próprio jogo (telas **Depósito** e **Saque** do Mercado):
+
+- na **vitrine**, quanto custa comprar o anúncio (cotação de compra, 0,0100 USDT por Gema em 13/11/2026);
+- na **ficha**, no **painel de anúncio** e na **Precificar**, quanto você recebe sacando o líquido (cotação de saque, 0,0090).
+
+Se o jogo mudar a cotação, a extensão percebe quando você abre a tela de Depósito ou de Saque. O real usa a cotação que você digita no ícone da extensão (padrão R$ 5,50): ela não consulta nenhum site de câmbio.
+
 ### Ícone da extensão
 
 Clique no ícone da extensão (o diamante rosa com etiqueta) na barra do Chrome:
 
 - **liga e desliga** o quadro da ficha, os selos do Mercado e o painel de anúncio (vale na hora, em todas as abas do jogo);
+- escolhe se as **Gemas aparecem em dinheiro**: nada, dólar, ou dólar e real (com a cotação do real que você digitar);
 - mostra quantas vendas estão guardadas e permite **limpar o cache**;
 - mostra o **freio**: se as consultas estão no ritmo normal, mais devagar ou pausadas porque o jogo pediu calma;
 - tem o botão **Apoie o dev!**, com o QR do Pix.

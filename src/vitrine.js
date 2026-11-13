@@ -121,6 +121,13 @@
     };
   }
 
+  /** Anúncio em Gemas: quanto custa comprar, em dinheiro (cotação de compra do jogo; ver dinheiro.js). */
+  function dinheiroDoAnuncio(an) {
+    if (an.moeda !== 'orb' || !window.PIDinheiro) return '';
+    const t = window.PIDinheiro.texto(an.preco, 'compra', 'ambos');
+    return t ? `<span class="pp-vit-dinheiro" title="${window.PIUi.esc(window.PIUi.DICA.dinheiroCompra)}">${t}</span>` : '';
+  }
+
   /** "115–140" ou "120–150 M": a unidade (k, M, B) aparece uma vez só quando as duas pontas têm a mesma. */
   function faixaTexto(res, moeda) {
     const a = window.PIUi.fmtPreco(res.venderRapido, moeda), b = window.PIUi.fmtPreco(res.esperar, moeda);
@@ -145,7 +152,8 @@
     return {
       cls,
       // a faixa explica o rótulo: desconto = até o Vender rápido; acima = passou do Esperar
-      html: `<b>${est}${rotulo} ${pct(dif)}</b><span>justo ${est}${fmt(res.precoJusto, an.moeda)} · faixa ${faixaTexto(res, an.moeda)}</span>`,
+      html: `<b>${est}${rotulo} ${pct(dif)}</b><span>justo ${est}${fmt(res.precoJusto, an.moeda)} · faixa ${faixaTexto(res, an.moeda)}</span>` +
+        dinheiroDoAnuncio(an),
       titulo: `Smart Market — preço justo estimado: ${fmt(res.precoJusto, an.moeda)} ` +
         `(Vender rápido ${fmt(res.venderRapido, an.moeda)} · Esperar ${fmt(res.esperar, an.moeda)}). ` +
         `Este anúncio está ${pct(dif)} em relação ao justo. Base: ${base}.`,
@@ -353,6 +361,8 @@
   }
 
   if (window.PIConfig) window.PIConfig.aoMudar(agendar);
+  // dólar/real mudou no popup, ou a cotação foi lida no jogo: os selos em Gemas são refeitos
+  if (window.PIDinheiro) window.PIDinheiro.aoMudar(() => { versao++; agendar(); });
 
   window.PIVitrine = { anunciosDaEspecie };
 })();

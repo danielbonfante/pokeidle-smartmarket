@@ -26,9 +26,17 @@ function montar(extra) {
   return { window, enviados, daPonte };
 }
 
-test('mesclar: tudo ligado por padrão; só aceita as chaves conhecidas e booleanas', () => {
-  assert.deepEqual(C.mesclar(undefined), { quadro: true, selos: true, painel: true });
-  assert.deepEqual(C.mesclar({ selos: false, painel: 'nao', outra: false }), { quadro: true, selos: false, painel: true });
+test('mesclar: tudo ligado por padrão; só aceita as chaves conhecidas e valores válidos', () => {
+  const padrao = { quadro: true, selos: true, painel: true, dinheiro: 'usd', cotacaoBrl: 5.5 };
+  assert.deepEqual(C.mesclar(undefined), padrao);
+  assert.deepEqual(C.mesclar({ selos: false, painel: 'nao', outra: false }), Object.assign({}, padrao, { selos: false }));
+  // dinheiro: só os três modos; cotação do real entre R$ 1 e R$ 20, com 2 casas
+  assert.equal(C.mesclar({ dinheiro: 'usd-brl' }).dinheiro, 'usd-brl');
+  assert.equal(C.mesclar({ dinheiro: 'euro' }).dinheiro, 'usd');
+  assert.equal(C.mesclar({ cotacaoBrl: '5.437' }).cotacaoBrl, 5.44);
+  assert.equal(C.mesclar({ cotacaoBrl: 0.5 }).cotacaoBrl, 5.5);
+  assert.equal(C.mesclar({ cotacaoBrl: '' }).cotacaoBrl, 5.5);
+  assert.equal(C.mesclar({ cotacaoBrl: true }).cotacaoBrl, 5.5);
 });
 
 test('MAIN pede a configuração ao carregar e aplica a que a ponte manda', () => {

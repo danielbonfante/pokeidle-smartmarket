@@ -415,6 +415,7 @@
         <span class="pp-an-rot" title="${esc(dica)}">${rot}</span>
         <b class="${cls}">${cls === 'pp-q2' ? est : ''}${fmt(x, moeda)}</b>
         <span class="pp-an-liq" title="${esc(moeda === 'orb' ? D().liquidoGemas : D().liquidoCoins)}">líq ${M.formatarValor(M.liquidoVendedor(v, moeda), moeda)}</span>
+        ${moeda === 'orb' ? `<span class="pp-an-dinheiro pp-dinheiro" data-tipo="saque" data-parte="ambos" data-gemas="${M.liquidoVendedor(v, moeda)}" title="${esc(D().dinheiroSaque)}"></span>` : ''}
         <button type="button" class="pp-usar" data-valor="${v}" title="${esc(travado ? D().travado : D().usar)}"${travado ? ' disabled' : ''}>usar ${fmt(v, moeda)}</button>
       </div>`;
     };
@@ -422,6 +423,7 @@
       col('Preço justo', D().precoJusto, res.precoJusto, 'pp-q2') +
       col('Esperar', D().esperar, res.esperar, 'pp-q3');
     box.classList.toggle('pp-estimativa', !!res.estimativa);
+    if (window.PIDinheiro) window.PIDinheiro.pintar(box);
   }
 
   function desenharLista() {

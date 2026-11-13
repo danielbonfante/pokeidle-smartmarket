@@ -9,7 +9,7 @@
  */
 (function () {
   'use strict';
-  const PADRAO = { quadro: true, selos: true, painel: true };
+  const PADRAO = { quadro: true, selos: true, painel: true, dinheiro: 'usd', cotacaoBrl: 5.5 };
   const ESPERA_MS = 5000;
 
   function paraMain(msg) {

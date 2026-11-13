@@ -8,7 +8,7 @@
  */
 (function () {
   'use strict';
-  const PADRAO = { quadro: true, selos: true, painel: true };
+  const PADRAO = { quadro: true, selos: true, painel: true, dinheiro: 'usd', cotacaoBrl: 5.5 };
   const $ = s => document.querySelector(s);
   const fmtNum = n => Number(n || 0).toLocaleString('pt-BR');
   const fmtData = ms => new Date(ms).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
@@ -34,6 +34,27 @@
         chrome.storage.local.set({ config });
       });
     });
+    // Gemas em dinheiro: o modo e a cotação do real (o campo só aparece com "Dólar e real")
+    const cotacao = $('#cotacao-brl');
+    const mostrarCotacao = () => { $('#cotacao-area').hidden = config.dinheiro !== 'usd-brl'; };
+    document.querySelectorAll('input[name="dinheiro"]').forEach(r => {
+      r.checked = r.value === config.dinheiro;
+      r.addEventListener('change', () => {
+        if (!r.checked) return;
+        config.dinheiro = r.value;
+        mostrarCotacao();
+        chrome.storage.local.set({ config });
+      });
+    });
+    cotacao.value = Number(config.cotacaoBrl).toFixed(2);
+    cotacao.addEventListener('change', () => {
+      const v = Number(String(cotacao.value).replace(',', '.'));
+      if (!(v >= 1 && v <= 20)) { cotacao.value = Number(config.cotacaoBrl).toFixed(2); return; } // fora do razoável: volta
+      config.cotacaoBrl = Math.round(v * 100) / 100;
+      cotacao.value = config.cotacaoBrl.toFixed(2);
+      chrome.storage.local.set({ config });
+    });
+    mostrarCotacao();
   }
 
   // ---------- aba do jogo ----------

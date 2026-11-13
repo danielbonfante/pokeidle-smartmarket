@@ -97,3 +97,11 @@ header > div { flex: 1; min-width: 0; }
 footer { padding: 8px 14px 10px; border-top: 1px solid rgba(255, 255, 255, 0.06); margin-top: 6px; }
 footer p { margin: 0; font-size: 11px; color: var(--suave); }
 footer .versao { margin-top: 2px; font-size: 10px; color: #8f7cad; }
+
+/* Gemas em dinheiro */
+.dinheiro .modos { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-bottom: 6px; }
+.dinheiro .modos label { display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--titulo); }
+.dinheiro .modos input { accent-color: #7a4fc0; margin: 0; }
+.dinheiro .cotacao { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; color: var(--titulo); }
+.dinheiro .cotacao[hidden] { display: none; }
+.dinheiro .cotacao input { width: 70px; padding: 3px 6px; border-radius: 6px; border: 1px solid rgba(181, 140, 255, 0.4); background: rgba(10, 4, 10, 0.6); color: #fff; font: inherit; }

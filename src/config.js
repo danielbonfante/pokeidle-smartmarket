@@ -10,16 +10,23 @@
 (function (root) {
   'use strict';
 
-  const PADRAO = { quadro: true, selos: true, painel: true };
+  // dinheiro: como mostrar as Gemas em dinheiro ('nada' | 'usd' | 'usd-brl'); cotacaoBrl: R$ por
+  // USDT, digitada no popup (a extensão não consulta site nenhum). Ver src/dinheiro.js.
+  const PADRAO = { quadro: true, selos: true, painel: true, dinheiro: 'usd', cotacaoBrl: 5.5 };
+  const MODOS_DINHEIRO = ['nada', 'usd', 'usd-brl'];
 
-  /** Configuração com os padrões, só com as chaves conhecidas e valores booleanos. */
+  /** Configuração com os padrões, só com as chaves conhecidas e valores válidos. */
   function mesclar(c) {
     const r = Object.assign({}, PADRAO);
-    if (c && typeof c === 'object') for (const k in PADRAO) if (typeof c[k] === 'boolean') r[k] = c[k];
+    if (!c || typeof c !== 'object') return r;
+    for (const k of ['quadro', 'selos', 'painel']) if (typeof c[k] === 'boolean') r[k] = c[k];
+    if (MODOS_DINHEIRO.includes(c.dinheiro)) r.dinheiro = c.dinheiro;
+    const brl = Number(c.cotacaoBrl);
+    if (typeof c.cotacaoBrl !== 'boolean' && c.cotacaoBrl !== '' && c.cotacaoBrl != null && brl >= 1 && brl <= 20) r.cotacaoBrl = Math.round(brl * 100) / 100;
     return r;
   }
 
-  const pura = { PADRAO, mesclar };
+  const pura = { PADRAO, MODOS_DINHEIRO, mesclar };
   if (typeof module !== 'undefined' && module.exports) { module.exports = pura; return; }
   if (root.PIConfig) return;
 
@@ -73,6 +80,7 @@
   root.PIConfig = {
     PADRAO,
     ligado: chave => atual[chave] !== false,
+    valor: chave => atual[chave],
     aoMudar: fn => { ouvintes.push(fn); },
   };
 

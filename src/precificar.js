@@ -102,6 +102,7 @@
     const conf = A.confiancaEspecie(vendas.filter(v => !!v.shiny === !!alvo.shiny), moeda, agora);
     corpo.innerHTML = htmlPreco(alvo, moeda, res, pontos) + htmlVendas(alvo, res, pontos, moeda) +
       htmlConfianca(conf, res) + (grupos ? htmlGrupos(alvo, res, grupos, moeda) : htmlUmGrupo(A.maiorSalto(pontos), moeda));
+    if (window.PIDinheiro) window.PIDinheiro.pintar(corpo);
   }
 
   // ---------- vendas que mais pesaram ----------
@@ -155,6 +156,7 @@
         : `Poucas vendas desta espécie em ${MOEDA[moeda].nome} nos últimos 30 dias para estimar o preço.`}</div></div>`;
     }
     const est = res.estimativa ? '≈ ' : '';
+    const liquidoJusto = M.liquidoVendedor(window.PIAnuncioLogica ? window.PIAnuncioLogica.valorUsar(res.precoJusto) : res.precoJusto, moeda);
     const valores = pontos.map(p => p.preco).concat([res.venderRapido, res.precoJusto, res.esperar]);
     const pos = A.escalaBarra(valores);
     const pontosHtml = pontos.slice().reverse().map(p => {
@@ -176,7 +178,7 @@
         <div class="pp-prec-justo">
           <span>Preço justo</span>
           <b>${est}${fmt(res.precoJusto, moeda)} <small>${MOEDA[moeda].icone}</small></b>
-          <em>você recebe ${M.formatarValor(M.liquidoVendedor(window.PIAnuncioLogica ? window.PIAnuncioLogica.valorUsar(res.precoJusto) : res.precoJusto, moeda), moeda)} depois da comissão</em>
+          <em>você recebe ${M.formatarValor(liquidoJusto, moeda)} depois da comissão${moeda === 'orb' ? ` <span class="pp-dinheiro" data-tipo="saque" data-parte="ambos" data-gemas="${liquidoJusto}" title="${esc(window.PIUi.DICA.dinheiroSaque)}"></span>` : ''}</em>
         </div>
         <div class="pp-prec-barra" title="Cada ponto é uma venda parecida; quanto maior e mais forte, mais parecida com este Pokémon.">
           <div class="pp-prec-trilho"></div>

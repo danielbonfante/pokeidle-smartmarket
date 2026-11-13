@@ -50,6 +50,8 @@
     vendidos: 'Vendas desta espécie nos últimos 30 dias, nesta moeda, as mais parecidas com este Pokémon primeiro.',
     travado: 'o jogo só deixa mudar o preço a cada 30 min',
     precificar: 'Abre a análise completa: o preço justo com as vendas parecidas na barra, a confiança medida nesta espécie e os grupos de preço.',
+    dinheiroSaque: 'Quanto você recebe em dinheiro: as Gemas líquidas (depois da comissão) na cotação de saque do jogo (Saque — Gemas para USDT; 0,0090 USDT por Gema em 13/11/2026). O real usa a cotação do popup. Escolha dólar, real ou nada no ícone da extensão.',
+    dinheiroCompra: 'Quanto custa em dinheiro comprar este anúncio: o preço em Gemas na cotação de compra do jogo (Depósito — comprar Gemas; 0,0100 USDT por Gema em 13/11/2026). O real usa a cotação do popup.',
     tabelaFora: 'A extensão calcula o preço com o histórico de vendas do Mercado (a Tabela de preços do jogo), e ele parou de responder. Enquanto isso, ela usa só as vendas já guardadas, não apaga as antigas e tenta de novo a cada hora.',
     carregando: 'Buscando as vendas novas desta espécie no histórico do Mercado, uma página por vez, no ritmo de sempre. O preço aparece quando a busca terminar, já com todas as vendas.',
   };
@@ -197,7 +199,7 @@
         </div>
         <div class="pp-liq" data-moeda="${m.id}" hidden title="${esc(m.id === 'orb' ? DICA.liquidoGemas : DICA.liquidoCoins)}">
           <span>líq</span><i class="pp-l1"></i><i class="pp-l2"></i><i class="pp-l3"></i>
-        </div>`).join('')}
+        </div>${m.id === 'orb' ? linhasDinheiro() : ''}`).join('')}
       <div class="pp-status">consultando vendas…</div>
       <div class="pp-comps" hidden></div>
       ${faixa && faixa.faltaNivel ? `<div class="pp-aviso" title="${esc(DICA.faixa)}">Só pode ser anunciado no Mercado a partir do Nv ${FAIXA.nivelMin} (este está no Nv ${alvo.level}). O preço acima vale para quando ele chegar lá.</div>` : ''}
@@ -229,6 +231,24 @@
     return el;
   }
 
+  /** Gemas em dinheiro, embaixo do líq: quanto você recebe sacando, em US$ e (se escolhido) R$. */
+  function linhasDinheiro() {
+    const linha = (rot, parte) => `<div class="pp-liq pp-dinheiro-linha" data-moeda="orb" hidden title="${esc(DICA.dinheiroSaque)}">
+          <span>${rot}</span>${[1, 2, 3].map(i => `<i class="pp-dinheiro pp-d${i}" data-tipo="saque" data-parte="${parte}"></i>`).join('')}
+        </div>`;
+    return linha('US$', 'usd') + linha('R$', 'brl');
+  }
+
+  /** Põe nas linhas de dinheiro as Gemas líquidas de cada coluna (ou nada) e repinta. */
+  function renderDinheiro(badge, liquidos) {
+    if (!window.PIDinheiro) return;
+    badge.querySelectorAll('.pp-dinheiro-linha .pp-dinheiro').forEach(el => {
+      const i = Number(el.className.match(/pp-d(\d)/)[1]) - 1;
+      el.dataset.gemas = liquidos ? liquidos[i] : '';
+    });
+    window.PIDinheiro.pintar(badge);
+  }
+
   function renderMoeda(badge, moeda, res) {
     const linha = badge.querySelector(`.pp-linha[data-moeda="${moeda}"]`);
     if (!linha) return;
@@ -243,6 +263,10 @@
         liq.querySelector('.pp-l1').textContent = l(res.venderRapido);
         liq.querySelector('.pp-l2').textContent = (res.estimativa ? '≈ ' : '') + l(res.precoJusto);
         liq.querySelector('.pp-l3').textContent = l(res.esperar);
+      }
+      if (moeda === 'orb') {
+        const g = x => window.PIMotor.liquidoVendedor(window.PIMotor.arredondarPreco(x), moeda);
+        renderDinheiro(badge, ok ? [g(res.venderRapido), g(res.precoJusto), g(res.esperar)] : null);
       }
     }
     if (!res || !res.suficiente) {
@@ -386,6 +410,7 @@
     q2.innerHTML = `<span class="pp-girando" aria-hidden="true"></span> carregando${pagina ? ' · pág. ' + pagina : ''}`;
     const liq = badge.querySelector(`.pp-liq[data-moeda="${moeda}"]`);
     if (liq) liq.hidden = true;
+    if (moeda === 'orb') renderDinheiro(badge, null);
   }
 
   async function atualizar(badge, alvo) {
