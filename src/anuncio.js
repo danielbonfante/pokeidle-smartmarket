@@ -108,6 +108,10 @@
       <div class="pp-an-lista"></div>
       <div class="pp-an-avisos"></div>`;
     window.PIUi.arrastavel(el, [el.querySelector('.pp-toldo'), el.querySelector('.pp-an-topo')]);
+    // O painel fica direto na página (fora da janela do Mercado, que cortava o painel arrastado
+    // para fora dela). Os cliques nele não chegam ao jogo, para o jogo não achar que foi um clique
+    // "fora" da janela e fechá-la. (Os ouvintes do próprio painel, registrados antes, rodam normalmente.)
+    ['pointerdown', 'mousedown', 'mouseup', 'click', 'touchstart'].forEach(t => el.addEventListener(t, ev => ev.stopPropagation()));
     el.addEventListener('click', ev => {
       const aba = ev.target.closest('[data-aba]');
       if (aba) { ev.stopPropagation(); painel.aba = aba.getAttribute('data-aba'); desenharLista(); return; }
@@ -130,7 +134,7 @@
       listarDoJogo: window.PIWs.ultimoListarDoJogo ? window.PIWs.ultimoListarDoJogo() : null,
       consultas: [],        // promessas das consultas de vitrine feitas por este painel
     };
-    folha.appendChild(painel.el);
+    document.body.appendChild(painel.el);
     painel.palcoFicha = criarFichaPalco(alvo, brutoDoAnuncio(folha));
     colocarFichaNoPalco();
     posicionar();
@@ -141,6 +145,7 @@
     });
     painel.obsMoeda.observe(folha, { attributes: true, subtree: true, attributeFilter: ['class'] });
     window.addEventListener('resize', posicionar);
+    window.addEventListener('scroll', posicionar, true); // a folha pode rolar dentro da janela do Mercado
     atualizar();
   }
 
@@ -154,6 +159,7 @@
     painel.geracao++;
     if (painel.obsMoeda) painel.obsMoeda.disconnect();
     window.removeEventListener('resize', posicionar);
+    window.removeEventListener('scroll', posicionar, true);
     painel.el.remove();
     if (painel.palcoFicha) painel.palcoFicha.remove();
     painel = null;
@@ -164,8 +170,9 @@
     const caixa = painel.folha.querySelector('.cm-folha-caixa');
     if (!caixa) return;
     const rc = caixa.getBoundingClientRect();
-    const rf = painel.folha.getBoundingClientRect();
-    const p = L.posicaoPainel(rc, rf, LARGURA);
+    // posição fixa na tela: o limite é a janela do navegador, não a folha do jogo
+    const tela = { left: 0, top: 0, right: window.innerWidth, bottom: window.innerHeight };
+    const p = L.posicaoPainel(rc, tela, LARGURA);
     // mesma altura da caixa do jogo quando fica ao lado; embaixo, só limita a altura
     const altura = p.modo === 'abaixo' ? { height: '', maxHeight: rc.height + 'px' } : { height: rc.height + 'px', maxHeight: '' };
     Object.assign(painel.el.style, { left: p.left + 'px', top: p.top + 'px', width: LARGURA + 'px' }, altura);
@@ -483,6 +490,8 @@
     if (ligado && !painel && input && visivel && ehPokemon) montar(folha, input);
     // o jogo pode redesenhar o palco (troca de moeda, digitação): a ficha volta para o palco novo
     if (painel && painel.palcoFicha && !painel.palcoFicha.isConnected) colocarFichaNoPalco();
+    // o painel está na página, não dentro da folha: acompanha a caixa do jogo se ela se mexer
+    if (painel) posicionar();
   }
 
   new MutationObserver(muts => {

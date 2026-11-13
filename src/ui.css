@@ -153,8 +153,8 @@
 
 /* ---------- Painel de preços na tela "Novo anúncio" (tenda ao lado da caixa do jogo) ---------- */
 .pp-anuncio {
-  position: absolute;
-  z-index: 5;
+  position: fixed; /* direto na página: arrastado para fora da janela do Mercado, não é cortado */
+  z-index: 2147482000;
   box-sizing: border-box;
   display: flex;
   flex-direction: column;
