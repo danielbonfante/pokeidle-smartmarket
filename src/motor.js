@@ -28,8 +28,12 @@
   function normalizarVenda(linha) {
     const f = linha && linha.ficha;
     if (!f || linha.tipo !== 'pokemon') return null;
+    // número do Pokémon vendido (desde 13/11/2026): mostra quando uma venda é do mesmo Pokémon que
+    // está na tela (revenda). Vendas guardadas antes disso não têm; somem do cache em até 30 dias.
+    const pokemonId = Number(linha.pokemonId || f.id) || null;
     return {
       id: linha.id,
+      pokemonId,
       em: linha.em,
       moeda: linha.moeda, // 'orb' = Gemas, 'gold' = Coins
       preco: Number(linha.bruto),
@@ -64,6 +68,11 @@
       zmove: !!(p.tmElemental ?? p.zmove),
       mega: p.mega ?? /^mega\s/i.test(p.nome || ''),
     };
+  }
+
+  /** A venda é deste mesmo Pokémon (revenda)? Precisa do número do Pokémon na venda (guardado desde 13/11/2026). */
+  function mesmoPokemon(alvo, v) {
+    return !!(alvo && v && v.pokemonId && alvo.id && Number(v.pokemonId) === Number(alvo.id));
   }
 
   function mesmaEspecie(alvo, v) {
@@ -137,13 +146,30 @@
   function resultado(pesadas, vendasEspecie, cfg) {
     // Trabalha em log: preços variam por ordens de grandeza
     const pares = pesadas.map(p => ({ x: Math.log(p.v.preco), w: p.w })).sort((a, b) => a.x - b.x);
-    const q1 = Math.exp(quantilPonderado(pares, 0.25));
+    let q1 = Math.exp(quantilPonderado(pares, 0.25));
     const q2 = Math.exp(quantilPonderado(pares, 0.5));
-    const q3 = Math.exp(quantilPonderado(pares, 0.75));
+    let q3 = Math.exp(quantilPonderado(pares, 0.75));
 
     const somaW = pesadas.reduce((s, p) => s + p.w, 0);
     const somaW2 = pesadas.reduce((s, p) => s + p.w * p.w, 0);
     const nEfetivo = (somaW * somaW) / somaW2;
+
+    // Faixa honesta quando poucas vendas dominam (nEfetivo < 3). O peso concentrado numa venda
+    // fechava a faixa em volta dela: na planilha de 11/11/2026, com nEfetivo < 2 o pago caía dentro
+    // da faixa só 15% das vezes (deveria ser ~50%), e o selo dava "+59%" com uma certeza que não
+    // existia (o Mega Dragonite revendido de 13/11/2026). A faixa passa a ter pelo menos a largura
+    // das vendas parecidas com o peso achatado (raiz), vezes 3/nEfetivo (até 3×): 15% → 39% (< 2) e
+    // 32% → 48% (2–3); com nEfetivo ≥ 3 nada muda, e o Preço justo nunca muda.
+    let faixaAlargada = false;
+    if (nEfetivo < 3) {
+      const achatados = pesadas.map(p => ({ x: Math.log(p.v.preco), w: Math.sqrt(p.w) })).sort((a, b) => a.x - b.x);
+      const fator = Math.min(3, Math.max(1, 3 / nEfetivo));
+      const meia = fator * (quantilPonderado(achatados, 0.75) - quantilPonderado(achatados, 0.25)) / 2;
+      const l2 = Math.log(q2);
+      const n1 = Math.min(q1, Math.exp(l2 - meia)), n3 = Math.max(q3, Math.exp(l2 + meia));
+      faixaAlargada = n1 < q1 * 0.999 || n3 > q3 * 1.001;
+      q1 = n1; q3 = n3;
+    }
     const dispersao = q2 ? (q3 - q1) / q2 : Infinity;
 
     let confianca = 'baixa';
@@ -165,6 +191,7 @@
       vendasEspecie,
       dispersao,
       confianca,
+      faixaAlargada, // poucas vendas parecidas: Vender rápido/Esperar foram afastados do justo
       comparaveis,
     };
   }
@@ -264,7 +291,7 @@
     return f(Math.floor(x + 1e-9), 0);
   }
 
-  const api = { PADRAO, FAIXA_MERCADO, COMISSAO, liquidoVendedor, formatarValor, normalizarVenda, normalizarAlvo, precificar, classeDe, mesmaEspecie, arredondarPreco, pesoVenda, ehLendario, faixaMercado };
+  const api = { PADRAO, FAIXA_MERCADO, COMISSAO, liquidoVendedor, formatarValor, normalizarVenda, normalizarAlvo, precificar, classeDe, mesmaEspecie, mesmoPokemon, arredondarPreco, pesoVenda, ehLendario, faixaMercado };
   root.PIMotor = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

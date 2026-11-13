@@ -33,7 +33,8 @@ Abra a ficha de qualquer Pokémon. Aparece o quadro **Preço estimado**:
 - **Preço justo**: o meio das vendas parecidas.
 - **Esperar**: só 1 em cada 4 saiu por mais. Dá para pedir se você puder esperar um comprador.
 - **líq**: quanto você recebe vendendo por aquele preço, já descontada a comissão do RMT (15% em Coins; em Gemas, 13% até 500, 10% até 5.000 e 7,5% acima).
-- **Confiança** (alta, média ou baixa): quantas vendas parecidas existem e quanto os preços variam.
+- **Confiança** (alta, média ou baixa): quantas vendas parecidas existem e quanto os preços variam. Com poucas vendas parecidas, Vender rápido e Esperar ficam mais afastados do justo, para mostrar a incerteza.
+- **Revenda:** se este mesmo Pokémon já foi vendido nos últimos 30 dias, o quadro diz por quanto e quando ("Este mesmo Pokémon já foi vendido por…"), e a venda aparece marcada como **este mesmo Pokémon** na lista de vendas, na Precificar e no painel de anúncio.
 
 Na primeira vez que você abre uma espécie, a extensão busca o histórico dela. Enquanto busca, o quadro mostra "carregando" com a página em que está, e o preço só aparece quando a busca termina, já com todas as vendas. As consultas seguem um ritmo lento de propósito, então uma espécie muito vendida pode levar uns 4 minutos para baixar tudo, Gemas e Coins juntas. Depois disso fica guardado e a atualização leva poucos segundos. Vendas com mais de 30 dias, que já não entram no preço, são apagadas sozinhas uma vez por dia.
 

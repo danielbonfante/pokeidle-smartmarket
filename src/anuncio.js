@@ -431,7 +431,11 @@
     if (painel.aba === 'vendidos') {
       const vs = painel.vendidos.slice(0, MAX_LINHAS);
       lista.innerHTML = vs.length
-        ? '<table>' + vs.map(v => `<tr><td title="${esc(D().nota)}">${esc(resumoPokemon(v))}</td><td title="${esc(D().preco)}">${MOEDA[moeda].icone} ${fmt(v.preco, moeda)}</td><td title="${esc(D().ha)}">${window.PIUi.fmtIdade(v.em)}</td></tr>`).join('') + '</table>'
+        ? '<table>' + vs.map(v => {
+          // venda deste mesmo Pokémon (ex.: você comprou e está revendendo)
+          const mesmo = M.mesmoPokemon(painel.alvo, v);
+          return `<tr${mesmo ? ` class="pp-mesmo" title="${esc(D().mesmoPokemon)}"` : ''}><td title="${esc(D().nota)}">${mesmo ? '<span class="pp-mesmo-tag">este mesmo Pokémon</span> ' : ''}${esc(resumoPokemon(v))}</td><td title="${esc(D().preco)}">${MOEDA[moeda].icone} ${fmt(v.preco, moeda)}</td><td title="${esc(D().ha)}">${window.PIUi.fmtIdade(v.em)}</td></tr>`;
+        }).join('') + '</table>'
         : `<div class="pp-an-vazio">Nenhuma venda desta espécie em ${MOEDA[moeda].nome} nos últimos 30 dias.</div>`;
       return;
     }

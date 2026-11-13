@@ -47,6 +47,7 @@
     vendidos: 'Vendas desta espécie nos últimos 30 dias, nesta moeda, as mais parecidas com este Pokémon primeiro.',
     travado: 'o jogo só deixa mudar o preço a cada 30 min',
     precificar: 'Abre a análise completa: o preço justo com as vendas parecidas na barra, a confiança medida nesta espécie e os grupos de preço.',
+    mesmoPokemon: 'Esta venda é deste mesmo Pokémon: ele já foi vendido antes e agora está de novo à venda (revenda). Pelo número do Pokémon, não pela semelhança.',
     dinheiroSaque: 'Quanto você recebe em dinheiro: as Gemas líquidas (depois da comissão) na cotação de saque do jogo (Saque — Gemas para USDT; 0,0090 USDT por Gema em 13/11/2026). O real usa a cotação do popup. Escolha dólar, real ou nada no ícone da extensão.',
     dinheiroCompra: 'Quanto custa em dinheiro comprar este anúncio: o preço em Gemas na cotação de compra do jogo (Depósito — comprar Gemas; 0,0100 USDT por Gema em 13/11/2026). O real usa a cotação do popup.',
     tabelaFora: 'A extensão calcula o preço com o histórico de vendas do Mercado (a Tabela de preços do jogo), e ele parou de responder. Enquanto isso, ela usa só as vendas já guardadas, não apaga as antigas e tenta de novo a cada hora.',
@@ -198,6 +199,7 @@
         <div class="pp-liq" data-moeda="${m.id}" hidden title="${esc(m.id === 'orb' ? DICA.liquidoGemas : DICA.liquidoCoins)}">
           <span>líq</span><i class="pp-l1"></i><i class="pp-l2"></i><i class="pp-l3"></i>
         </div>${m.id === 'orb' ? linhasDinheiro() : ''}`).join('')}
+      <div class="pp-revenda" hidden title="${esc(DICA.mesmoPokemon)}"></div>
       <div class="pp-status">consultando vendas…</div>
       <div class="pp-comps" hidden></div>
       ${faixa && faixa.faltaNivel ? `<div class="pp-aviso" title="${esc(DICA.faixa)}">Só pode ser anunciado no Mercado a partir do Nv ${FAIXA.nivelMin} (este está no Nv ${alvo.level}). O preço acima vale para quando ele chegar lá.</div>` : ''}
@@ -296,7 +298,8 @@
     q1.textContent = fmtPreco(res.venderRapido, moeda);
     q2.textContent = fmtPreco(res.precoJusto, moeda);
     q3.textContent = fmtPreco(res.esperar, moeda);
-    linha.title = `${res.vendasEspecie} vendas da espécie, ~${fmtNumero(res.nEfetivo, 1)} parecidas`;
+    linha.title = `${res.vendasEspecie} vendas da espécie, ~${fmtNumero(res.nEfetivo, 1)} parecidas` +
+      (res.faixaAlargada ? ' — poucas parecidas: Vender rápido e Esperar foram afastados do justo para mostrar a incerteza' : '');
   }
 
   function comparar(seu) {
@@ -318,11 +321,12 @@
       preco: `Vendido por ${fmtPreco(v.preco, m.id)} ${m.nome}`,
       ha: `Vendido em ${data}`,
     };
-    return `<tr>
+    const mesmo = window.PIMotor.mesmoPokemon(alvo, v);
+    return `<tr${mesmo ? ` class="pp-mesmo" title="${esc(DICA.mesmoPokemon)}"` : ''}>
       <td title="${esc(t.nv)}">${v.level}</td>
       <td title="${esc(t.nota)}">${fmtNumero(v.nota, 3)}</td>
       <td title="${esc(t.pot)}">${v.potencia}</td>
-      <td title="${esc(t.extras)}">${extras}</td>
+      <td title="${esc(t.extras)}">${mesmo ? '<span class="pp-mesmo-tag">este mesmo Pokémon</span> ' : ''}${extras}</td>
       <td title="${esc(t.preco)}">${m.icone} ${fmtPreco(v.preco, m.id)}</td>
       <td title="${esc(t.ha)}">${fmtIdade(v.em)}</td></tr>`;
   }
@@ -350,6 +354,25 @@
           <th title="${esc(DICA.extras)}">Extras</th><th title="${esc(DICA.preco)}">Preço</th><th title="${esc(DICA.ha)}">Há</th>
         </tr></thead><tbody>${linhas.map(({ m, v }) => linhaVenda(m, v, alvo)).join('')}</tbody></table>`
       : '<p>Nenhuma venda desta espécie no período.</p>';
+  }
+
+  /**
+   * Revenda: este mesmo Pokémon já aparece nas vendas guardadas (pelo número dele)? Mostra a mais
+   * recente: "Este mesmo Pokémon já foi vendido por 45.000 há 4 d, no Nv 2.282".
+   */
+  async function renderRevenda(badge, alvo) {
+    const el = badge.querySelector('.pp-revenda');
+    if (!el) return;
+    const vendas = await window.PIStore.vendasPorEspecie(alvo.speciesId, alvo.nome).catch(() => []);
+    const dele = vendas.filter(v => window.PIMotor.mesmoPokemon(alvo, v)).sort((a, b) => b.em - a.em);
+    el.hidden = !dele.length;
+    if (!dele.length) return;
+    const v = dele[0], m = MOEDA[v.moeda] || MOEDAS[0];
+    // na lista "vendas" a venda dele aparece sempre, marcada, mesmo fora das 5 que mais pesaram
+    const corpo = badge.querySelector('.pp-comps tbody');
+    if (corpo && !corpo.querySelector('tr.pp-mesmo')) corpo.insertAdjacentHTML('beforeend', linhaVenda(m, v, alvo));
+    el.innerHTML = `<b>Este mesmo Pokémon</b> já foi vendido por ${m.icone} ${esc(fmtPreco(v.preco, v.moeda))} há ${esc(fmtIdade(v.em))}, no Nv ${esc(fmtNumero(v.level, 0))}` +
+      (dele.length > 1 ? ` (e mais ${dele.length - 1} ${dele.length > 2 ? 'vezes' : 'vez'} nos últimos 30 dias)` : '') + '.';
   }
 
   // Shiny só se vende por Gemas (regra do Mercado da Comunidade)
@@ -403,6 +426,7 @@
       // confiança e vendas só das moedas que já terminaram
       const prontos = Object.fromEntries(MOEDAS.filter(m => !carregando.has(m.id)).map(m => [m.id, resultados[m.id]]));
       renderResumo(badge, prontos, alvo);
+      await renderRevenda(badge, alvo);
     };
 
     // 1) Sem conexão: mostra o cache e pronto

@@ -34,6 +34,7 @@
       preco: v.preco, peso: w / wMax, em: v.em, level: v.level, nota: v.nota, potencia: v.potencia,
       ivTotal: Number(v.ivTotal) || 0, quality: Number(v.quality) || 0,
       aoe: !!v.aoe, zmove: !!v.zmove, mega: !!v.mega, refino: Number(v.refino) || 0,
+      mesmo: M.mesmoPokemon(alvo, v), // venda deste mesmo Pokémon (revenda)
     }));
   }
 

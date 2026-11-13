@@ -116,7 +116,7 @@
 .pp-vit-caro { border-color: rgba(255, 143, 143, 0.6); }
 .pp-vit-caro b { color: #ff8f8f; }
 .pp-vit-sem { color: #8c7aa8; border-style: dotted; }
-/* Confiança baixa ou estimativa pela Nota: borda tracejada e um pouco apagado */
+/* Confiança baixa: borda tracejada e um pouco apagado */
 .pp-vit-incerto { border-style: dashed; opacity: 0.85; }
 
 /* Linha "você recebe" (líquido depois da comissão), embaixo de cada moeda */
@@ -526,3 +526,10 @@
 .pp-badge.pp-fora::after { top: -9px; }
 /* a etiqueta do canto não pode cobrir os botões do topo do quadro (Precificar, vendas) */
 .pp-badge .pp-topo { padding-right: 22px; }
+
+/* Revenda: venda deste mesmo Pokémon (pelo número dele) na lista e a linha "já foi vendido" no quadro */
+.pp-mesmo-tag { display: inline-block; padding: 0 5px; border-radius: 4px; background: var(--rx-rosa, #ffa7d7); color: #2b0f22; font-size: 9.5px; font-weight: 800; white-space: nowrap; }
+tr.pp-mesmo td { background: color-mix(in srgb, var(--rx-rosa, #ffa7d7) 14%, transparent); }
+.pp-revenda { margin-top: 4px; font-size: 11px; color: var(--sobre-mad, #fff6ef); cursor: help; }
+.pp-revenda[hidden] { display: none; }
+.pp-revenda b { color: var(--rx-rosa, #ffa7d7); }

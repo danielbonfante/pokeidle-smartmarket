@@ -39,6 +39,9 @@
   // O texto do "justo no vão" é conferido com PIPrecificar._htmlGrupos e um resultado montado à mão.
   const nCaro = /^#caro/.test(location.hash) ? Number((location.hash.match(/caro=(\d+)/) || [])[1] || 12) : 0;
   for (let i = 0; i < nCaro; i++) vendas.push(v({ preco: 100 + (i % 3) * 10, level: 375 + i * 3, nota: 3.58 + (i % 3) * 0.01, em: agora - (i + 1) * H }));
+  // #revenda: uma venda deste mesmo Blastoise (o número dele), 4 dias atrás: "este mesmo Pokémon" na lista
+  // e a linha "Este mesmo Pokémon já foi vendido…" no quadro
+  if (location.hash === '#revenda') vendas.push(v({ preco: 26, level: 390, nota: 3.597, pokemonId: 97553169, em: agora - 96 * H }));
   // Coins: estáveis
   for (let i = 0; i < 30; i++) vendas.push(v({ moeda: 'gold', preco: 1.8e8 + (i % 5) * 1e7, level: 330 + i * 7, nota: 3.53 + (i % 6) * 0.02 }));
   // #sync: finge uma busca no jogo (Gemas 4 páginas, Coins 3, uma página a cada 1,5 s alternando,

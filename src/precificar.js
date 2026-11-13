@@ -110,10 +110,12 @@
   const extras = x => [x.aoe ? 'AoE' : '', x.zmove ? 'Z' : '', x.mega ? 'Mega' : ''].filter(Boolean).join(' · ') || '—';
   const comparar = (v, seu, folga) => !isFinite(seu) || !isFinite(v) ? '' : v > seu + folga ? ' class="pp-prec-acima"' : v < seu - folga ? ' class="pp-prec-abaixo"' : '';
 
+  const DICA_MESMO = 'Esta venda é deste mesmo Pokémon: ele já foi vendido antes e agora está de novo à venda (revenda). Pelo número do Pokémon, não pela semelhança.';
+
   function htmlVendas(alvo, res, pontos, moeda) {
     if (!res || !res.suficiente || !pontos.length) return '';
     const linhas = pontos.map((p, i) => `
-      <tr${i >= VISIVEIS ? ' class="pp-prec-extra"' : ''}>
+      <tr class="${i >= VISIVEIS ? 'pp-prec-extra' : ''}${p.mesmo ? ' pp-mesmo' : ''}"${p.mesmo ? ` title="${esc(DICA_MESMO)}"` : ''}>
         <td><span class="pp-prec-peso" title="parecida ${pct(p.peso)} com esta ficha"><i style="width:${pct(p.peso)}"></i></span></td>
         <td class="pp-prec-valor">${fmt(p.preco, moeda)}</td>
         <td${comparar(p.level, alvo.level, alvo.level * 0.1)}>${p.level}</td>
@@ -121,7 +123,7 @@
         <td>${p.ivTotal || '—'}</td>
         <td>${p.quality ? num(p.quality, 3) : '—'}</td>
         <td${comparar(p.nota, alvo.nota, 0.02)}><b>${num(p.nota, 3)}</b></td>
-        <td>${extras(p)}</td>
+        <td>${p.mesmo ? '<span class="pp-mesmo-tag">este mesmo Pokémon</span> ' : ''}${extras(p)}</td>
         <td>${window.PIUi.fmtIdade(p.em)}</td>
       </tr>`).join('');
     const seu = `
@@ -186,7 +188,9 @@
           ${marca(res.esperar, 'pp-prec-q3', 'Esperar')}
         </div>
         <ul class="pp-prec-frases">
-          <li>Metade das vendas parecidas saiu entre <b>${fmt(res.venderRapido, moeda)}</b> e <b>${fmt(res.esperar, moeda)}</b>.</li>
+          <li>${res.faixaAlargada
+            ? `Há poucas vendas parecidas (cerca de ${num(res.nEfetivo, 1)}), então a faixa foi alargada para mostrar a incerteza: entre <b>${fmt(res.venderRapido, moeda)}</b> e <b>${fmt(res.esperar, moeda)}</b>.`
+            : `Metade das vendas parecidas saiu entre <b>${fmt(res.venderRapido, moeda)}</b> e <b>${fmt(res.esperar, moeda)}</b>.`}</li>
           <li><b>Vender rápido:</b> 1 em cada 4 vendas parecidas saiu por menos que isso — anunciar aqui tende a vender logo.</li>
           <li><b>Esperar:</b> só 1 em cada 4 saiu por mais — dá para pedir se você puder esperar um comprador.</li>
           <li class="pp-prec-base">${esc(base)}</li>
