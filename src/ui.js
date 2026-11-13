@@ -491,12 +491,17 @@
     inserirQuadro(ficha, acoes, badge);
     // Abaixo do Nv 50, precifica como se já estivesse no nível mínimo do Mercado
     const alvoPreco = faixa.faltaNivel ? Object.assign({}, alvo, { level: FAIXA.nivelMin }) : alvo;
+    // A janela Precificar segue a mesma regra do quadro: aberta no meio da busca, espera ela
+    // terminar antes de calcular (pedido do Daniel, 13/11/2026)
+    let buscaTerminou = false;
+    const busca = atualizar(badge, alvoPreco)
+      .catch(e => console.warn('[Smart Market]', e))
+      .finally(() => { buscaTerminou = true; });
     const botaoPrecificar = badge.querySelector('.pp-precificar');
     if (botaoPrecificar) botaoPrecificar.addEventListener('click', ev => {
       ev.stopPropagation();
-      if (window.PIPrecificar) window.PIPrecificar.abrir(alvoPreco);
+      if (window.PIPrecificar) window.PIPrecificar.abrir(alvoPreco, buscaTerminou ? null : busca);
     });
-    atualizar(badge, alvoPreco).catch(e => console.warn('[Smart Market]', e));
   }
 
   function iniciar() {

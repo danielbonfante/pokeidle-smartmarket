@@ -24,7 +24,8 @@
   const pct = x => Math.round(x * 100) + '%';
 
   // ---------- abrir / fechar ----------
-  function abrir(alvo) {
+  /** esperar: a busca de vendas do quadro da ficha, se ainda está rodando; a análise espera ela. */
+  function abrir(alvo, esperar) {
     fechar();
     const el = document.createElement('div');
     el.className = 'pp-prec-fundo';
@@ -55,7 +56,7 @@
       if (b && !b.disabled) { janela.moeda = b.getAttribute('data-moeda'); desenhar(); }
     });
     document.body.appendChild(el);
-    janela = { el, alvo, moeda: 'orb', geracao: 0 }; // abre em Gemas (shiny só vende em Gemas)
+    janela = { el, alvo, moeda: 'orb', geracao: 0, esperar: esperar || null }; // abre em Gemas (shiny só vende em Gemas)
     document.addEventListener('keydown', aoTeclar, true);
     desenhar();
   }
@@ -79,6 +80,13 @@
     const { alvo, moeda } = j;
     j.el.querySelectorAll('[data-moeda]').forEach(b => b.classList.toggle('on', b.getAttribute('data-moeda') === moeda));
     const corpo = j.el.querySelector('.pp-prec-corpo');
+    // Como no quadro: nada de análise com metade das vendas enquanto a busca roda
+    if (j.esperar) {
+      corpo.innerHTML = `<div class="pp-an-vazio" title="${esc(window.PIUi.DICA.carregando)}"><span class="pp-girando" aria-hidden="true"></span> carregando vendas… a análise aparece quando a busca terminar.</div>`;
+      await j.esperar;
+      if (janela !== j || j.geracao !== g) return;
+      j.esperar = null;
+    }
     corpo.innerHTML = '<div class="pp-an-vazio">calculando…</div>';
 
     const [res, vendas] = await Promise.all([
