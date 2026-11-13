@@ -86,6 +86,47 @@
     return String(s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   }
 
+  // ---------- painéis arrastáveis ----------
+  /**
+   * Deixa um painel da extensão arrastável pelas alças (o toldo e a barra de título), para dar
+   * para ver o que está atrás (pedido do Daniel, 13/11/2026). O arrasto vira um translate, somado
+   * à posição que o painel já tem: quem posiciona o painel continua posicionando, e ele leva junto
+   * o deslocamento. A posição volta ao padrão quando o painel é criado de novo. Botões dentro da
+   * alça continuam clicáveis. A barra de título não sai da tela.
+   */
+  function arrastavel(el, alcas) {
+    let ini = null, dx = 0, dy = 0;
+    const limitar = (v, min, max) => Math.min(Math.max(v, min), max);
+    for (const alca of alcas.filter(Boolean)) {
+      alca.classList.add('pp-alca');
+      alca.title = alca.title || 'Arraste para mover';
+      alca.addEventListener('pointerdown', ev => {
+        if (ev.button !== 0 || ev.target.closest('button, a, input, select, label')) return;
+        ini = { x: ev.clientX - dx, y: ev.clientY - dy };
+        try { alca.setPointerCapture(ev.pointerId); } catch (e) { /* sem captura: o arrasto segue pela alça */ }
+        ev.preventDefault();
+        ev.stopPropagation();
+        el.classList.add('pp-arrastando');
+      });
+      alca.addEventListener('pointermove', ev => {
+        if (!ini) return;
+        const r = el.getBoundingClientRect();
+        const base = { left: r.left - dx, top: r.top - dy }; // onde o painel estaria sem o arrasto
+        dx = limitar(ev.clientX - ini.x, 60 - base.left - r.width, window.innerWidth - 60 - base.left);
+        dy = limitar(ev.clientY - ini.y, -base.top, window.innerHeight - 30 - base.top);
+        el.style.transform = `translate(${Math.round(dx)}px, ${Math.round(dy)}px)`;
+      });
+      const soltar = ev => {
+        if (!ini) return;
+        ini = null;
+        el.classList.remove('pp-arrastando');
+        try { alca.releasePointerCapture(ev.pointerId); } catch (e) { /* já solta */ }
+      };
+      alca.addEventListener('pointerup', soltar);
+      alca.addEventListener('pointercancel', soltar);
+    }
+  }
+
   // ---------- leitura da ficha ----------
   function numeroPt(txt) {
     if (txt == null) return NaN;
@@ -542,5 +583,5 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);
   else iniciar();
 
-  window.PIUi = { MOEDA, fmtPreco, fmtNumero, fmtIdade, fmtDif, esc, calcular, DICA };
+  window.PIUi = { MOEDA, fmtPreco, fmtNumero, fmtIdade, fmtDif, esc, calcular, arrastavel, DICA };
 })();

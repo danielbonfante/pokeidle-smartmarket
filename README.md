@@ -68,6 +68,7 @@ Ao anunciar um Pokémon (Mercado → **+ Anunciar** → **Um pokemon** → escol
 
 - **Vender rápido / Preço justo / Esperar** na moeda escolhida, com o **líq** e um botão **usar** que preenche o campo de preço. Quem publica é sempre você.
 - À esquerda, uma **ficha resumida** do seu Pokémon.
+- Dá para **arrastar** o painel pela barra de cima, para ver o que está atrás (a janela Precificar também).
 - As abas **À venda** (anúncios abertos agora da mesma espécie) e **Vendidos** (vendas dos últimos 30 dias), com os mais parecidos com o seu primeiro.
 
 Trocou a moeda na tela do jogo, o painel troca junto.

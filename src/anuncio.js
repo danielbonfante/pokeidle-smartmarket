@@ -107,6 +107,7 @@
       </div>
       <div class="pp-an-lista"></div>
       <div class="pp-an-avisos"></div>`;
+    window.PIUi.arrastavel(el, [el.querySelector('.pp-toldo'), el.querySelector('.pp-an-topo')]);
     el.addEventListener('click', ev => {
       const aba = ev.target.closest('[data-aba]');
       if (aba) { ev.stopPropagation(); painel.aba = aba.getAttribute('data-aba'); desenharLista(); return; }

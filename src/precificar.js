@@ -56,6 +56,8 @@
       if (b && !b.disabled) { janela.moeda = b.getAttribute('data-moeda'); desenhar(); }
     });
     document.body.appendChild(el);
+    const caixa = el.querySelector('.pp-prec');
+    window.PIUi.arrastavel(caixa, [caixa.querySelector('.pp-toldo'), caixa.querySelector('.pp-prec-topo')]);
     janela = { el, alvo, moeda: 'orb', geracao: 0, esperar: esperar || null }; // abre em Gemas (shiny só vende em Gemas)
     document.addEventListener('keydown', aoTeclar, true);
     desenhar();
