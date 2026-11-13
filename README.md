@@ -12,7 +12,7 @@ Extensão do Chrome para quem joga [pokeidle.io](https://pokeidle.io): mostra **
 
 ## Instalar
 
-**Pela Chrome Web Store:** em breve.
+**Pela Chrome Web Store (recomendado):** [Smart Market na Chrome Web Store](https://chromewebstore.google.com/detail/smart-market/lhfeijlnlbglakplddjgbaopgcdfkcmm). Clique em **Usar no Chrome**; as atualizações chegam sozinhas.
 
 **Pelo código (modo desenvolvedor):**
 

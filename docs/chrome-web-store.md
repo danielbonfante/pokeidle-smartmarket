@@ -7,7 +7,7 @@ Tudo o que o painel de desenvolvedor da Chrome Web Store pede, pronto para copia
 O ZIP enviado à loja leva só o que a extensão usa, com o `manifest.json` na raiz. No terminal, na pasta do projeto:
 
 ```powershell
-tar.exe -a -c -f dist\pokeidle-smartmarket-1.1.0.zip manifest.json src popup icons LICENSE
+tar.exe -a -c -f dist\pokeidle-smartmarket-1.1.1.zip manifest.json src popup icons LICENSE
 ```
 
 Use o `tar` (vem com o Windows 10/11), não o `Compress-Archive`: o do Windows PowerShell 5.1 grava os caminhos com `\` (`src\ws.js`), e a loja pode não reconhecer as pastas. A cada versão nova, suba o `version` do `manifest.json` antes de empacotar e troque o número no nome do arquivo. A pasta `dist/` fica fora do git.
@@ -34,7 +34,7 @@ NA FICHA DO POKÉMON
 • Botão Precificar: as vendas parecidas numa barra, a tabela das vendas que mais pesaram no preço (comparando nível, Potência, IV, Qualidade e Nota com o seu) e quantas vezes a estimativa acertou nas últimas vendas da espécie.
 
 NO MERCADO
-• Cada anúncio de Pokémon ganha um selo: pechincha, no preço ou acima do justo, com a porcentagem em relação ao Preço justo.
+• Cada anúncio de Pokémon ganha um selo: pechincha, no preço ou acima do justo, com a porcentagem em relação ao Preço justo e a faixa de preço das vendas parecidas.
 
 NA HORA DE ANUNCIAR
 • Um painel ao lado da tela de anúncio com os preços, os anúncios parecidos à venda agora e os que já foram vendidos.
