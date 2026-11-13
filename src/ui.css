@@ -33,20 +33,6 @@
 .pp-conf-alta { color: #7ee2a8; }
 .pp-conf-media { color: #f2c86b; }
 .pp-conf-baixa { color: #ff8f8f; }
-.pp-conf-estimativa { color: #f2c86b; border-style: dashed; }
-/* Estimativa pela Nota: números em itálico e mais apagados, para não parecer preço firme */
-.pp-linha.pp-estimativa b { font-style: italic; opacity: 0.85; }
-.pp-estim-aviso {
-  margin-top: 4px;
-  padding: 4px 6px;
-  border-radius: 6px;
-  border: 1px dashed rgba(242, 200, 107, 0.6);
-  background: rgba(242, 200, 107, 0.08);
-  color: #f2c86b;
-  font-size: 10px;
-  cursor: help;
-}
-.pp-comps td.pp-esp { text-align: left; max-width: 90px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .pp-ver {
   margin-left: auto;
   font: inherit;
@@ -195,7 +181,6 @@
 .pp-an-col b.pp-q1 { color: #ffb38a; }
 .pp-an-col b.pp-q2 { color: #fff; font-size: 13px; }
 .pp-an-col b.pp-q3 { color: #9fd8ff; }
-.pp-an-preco.pp-estimativa b { font-style: italic; opacity: 0.85; }
 .pp-an-liq { font-size: 9px; color: #8f7cad; cursor: help; }
 .pp-usar {
   margin-top: 3px;
@@ -466,5 +451,78 @@
 .pp-an-dinheiro { display: block; font-size: 10px; color: #8fd6a8; cursor: help; }
 .pp-vit .pp-vit-dinheiro { color: #8fd6a8; font-size: 9.5px; }
 .pp-prec-justo em .pp-dinheiro { color: #8fd6a8; font-style: normal; }
-/* "estimado" no selo da vitrine: preço pela Nota (shiny/P5 sem vendas da espécie) */
-.pp-vit b .pp-vit-est { font-style: normal; font-weight: 700; color: #f2c86b; }
+
+/* ==========================================================================================
+   Cards com a cara do jogo (item 9, 13/11/2026, opção "anel + etiqueta" escolhida pelo Daniel)
+   Fundo, bordas e texto usam as variáveis de cor do próprio jogo (estilo.css: --mad, --vao,
+   --mad-linha, --sobre-mad…), que o modo noturno (html.night-mode) troca: os cards acompanham o
+   tema sozinhos. A marca da extensão: um anel rosa por dentro da borda (a mesma ideia do anel
+   dourado que o jogo põe nos cards shiny) e a etiqueta pixelada (o ícone) no canto de cima.
+   Os valores depois da vírgula são os do modo normal, para quando as variáveis não existirem.
+   ========================================================================================== */
+.pp-badge, .pp-anuncio, .pp-prec, .pp-vit { position: relative; }
+
+/* quadro da ficha: o mesmo card do "Stats atuais" (.fi-cartao) */
+.pp-badge {
+  border: 0;
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--vao, #33202b) 42%, var(--mad, #bd6951));
+  box-shadow: inset 0 0 0 2px var(--mad-linha, #480e1e), inset 0 0 0 4px color-mix(in srgb, var(--rx-rosa, #ffa7d7) 70%, transparent), 0 1px 0 var(--mad-luz2, #e7a86d);
+  color: var(--sobre-mad, #fff6ef);
+  padding: 10px 12px 10px;
+}
+.pp-badge .pp-titulo { color: var(--sobre-mad, #fff6ef); }
+.pp-badge .pp-rotulos, .pp-badge .pp-status, .pp-badge .pp-liq, .pp-badge .pp-comps th, .pp-badge .pp-comps p,
+.pp-badge .pp-linha.pp-vazia b, .pp-badge .pp-fora-msg { color: var(--sobre-mad-dim, #f5cdb9); }
+.pp-badge .pp-comps td { border-top-color: color-mix(in srgb, var(--mad-linha, #480e1e) 55%, transparent); }
+.pp-badge .pp-ver { border-color: var(--rx-esc, #8d49b8); background: color-mix(in srgb, var(--rx, #ba5ad1) 45%, transparent); color: var(--sobre-mad, #fff6ef); }
+.pp-badge .pp-liq.pp-dinheiro-linha { color: #b8f0c8; }
+/* fichas com o visual escuro por tipo do Pokémon (.gxf): o mesmo que o jogo faz com os cards dela */
+.gxf .pp-badge {
+  background: color-mix(in srgb, var(--rgx-fi3, #120303) 72%, transparent);
+  box-shadow: inset 0 0 0 2px var(--rgx-linha, #3a0a06), inset 0 0 0 4px color-mix(in srgb, var(--rx-rosa, #ffa7d7) 70%, transparent);
+}
+
+/* painel do anúncio e janela Precificar: a madeira da caixa do Mercado (.cm-folha-caixa) */
+.pp-anuncio, .pp-prec {
+  overflow: visible; /* a etiqueta sai pelo canto; quem rola é a lista/o corpo */
+  border: 0;
+  background: var(--mad, #bd6951);
+  color: var(--sobre-mad, #fff6ef);
+  box-shadow: inset 0 0 0 2px var(--mad-linha, #480e1e), inset 0 0 0 4px var(--rx-rosa, #ffa7d7), inset 0 0 0 6px var(--mad, #bd6951), 0 4px 0 var(--mad-base, #722c3f), 0 14px 36px rgba(0, 0, 0, 0.55);
+}
+.pp-anuncio .pp-toldo, .pp-prec .pp-toldo { border-radius: 8px 8px 0 0; margin: 2px 2px 0; }
+.pp-an-topo b, .pp-prec-topo b { color: var(--sobre-mad, #fff6ef); }
+.pp-an-sub, .pp-prec-sub, .pp-an-base { color: var(--sobre-mad-dim, #f5cdb9); }
+.pp-an-preco, .pp-an-lista, .pp-an-abas button.on, .pp-prec-bloco { background: var(--vao, #33202b); }
+.pp-an-abas button { background: color-mix(in srgb, var(--vao, #33202b) 60%, var(--mad, #bd6951)); color: var(--sobre-mad-dim, #f5cdb9); }
+.pp-an-avisos .pp-aviso { background: var(--vao, #33202b); padding: 4px 6px; border-radius: 6px; }
+.pp-prec-moedas button, .pp-prec-fechar { background: var(--vao, #33202b); border-color: var(--mad-linha, #480e1e); color: var(--sobre-mad-dim, #f5cdb9); }
+.pp-prec-moedas button.on { background: var(--rx-esc, #8d49b8); color: #fff; }
+.pp-prec-rodape { color: var(--sobre-mad-dim, #f5cdb9); }
+
+/* selo da vitrine: o "vão" do card do jogo, com o anel rosa no lugar da borda (a cor do rótulo e o
+   fundo verde do desconto continuam dizendo o que é; a borda tracejada continua marcando a incerteza) */
+.pp-vit { background: var(--vao, #33202b); border-color: var(--rx-rosa, #ffa7d7); }
+.pp-vit-pechincha { background: color-mix(in srgb, #2c7a36 45%, var(--vao, #33202b)); border-color: var(--rx-rosa, #ffa7d7); }
+.pp-vit-caro { border-color: var(--rx-rosa, #ffa7d7); }
+.pp-vit span { color: var(--sobre-mad-dim, #f5cdb9); }
+
+/* a etiqueta pixelada: o ícone da extensão, como um adesivo no canto de cima */
+.pp-badge::after, .pp-anuncio::after, .pp-prec::after, .pp-vit::after {
+  content: '';
+  position: absolute;
+  top: -9px;
+  right: -7px;
+  width: 32px;
+  height: 32px;
+  background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAAu0lEQVR4nO3VvQ2DMBAFYNpM4SFQFmANusxDHyl7ZAQkWIAxUiB6R1g6ikMPzpgfH3DSqyz8Pl2Bk+SencZ+GtvnegAqHmZvyGJA+jA2JAgilh8GoAtGq2t+k2nzr0v1LFwQJF4AfUAXDQCKJ8AbEh0AQlhQcWFeLnoAvhB+HlysFsCL9QOkkNVXHx0AQQiAikMfrfgACIKKuzITRR+AQ1DxHKR+Gxe9AASSrv58ACmEis8L4JDVf0RbAf7KG96tlY2jOwAAAABJRU5ErkJggg==") no-repeat;
+  image-rendering: pixelated;
+  pointer-events: none;
+  filter: drop-shadow(0 1px 0 var(--mad-linha, #480e1e));
+  z-index: 3;
+}
+.pp-vit::after { top: -6px; right: -5px; width: 16px; height: 16px; background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAi0lEQVR4nGNgGAjwf9a1/xRpBgNshhhzyv/Hh/G6AKQAbvq1dyj4U/TW/ydMe1AMwdAMUgQ2AIRxGIDTEJgBKIZAMbLmHvkkwq5ANgTGJ6gZnwEwzQQNwGYI0bbjClBkzYSiFqshyJq/HHXCwATDBFkzuiEnp+NxAbpB2Gwn2gBshoA0k2QAupeQMQCYaDesn3hl6wAAAABJRU5ErkJggg=="); }
+.pp-badge.pp-fora::after { top: -9px; }
+/* a etiqueta do canto não pode cobrir os botões do topo do quadro (Precificar, vendas) */
+.pp-badge .pp-topo { padding-right: 22px; }
