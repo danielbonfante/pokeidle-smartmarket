@@ -7,6 +7,7 @@
     #pausado  freio: pausado pelo aviso do servidor
     #vazio    cache vazio
     #fora     a aba ativa não é o jogo
+    #semabas  o navegador não entrega a mensagem à aba: o popup pergunta pelo chrome.storage (plano B)
     #tabela   a Tabela de preços do jogo não responde há 5 h
   window.__storage mostra o que o popup gravou; window.__pedidos, o que ele pediu à aba.
 -->
@@ -32,17 +33,33 @@
     const cache = { vendas, especies: vendas ? 214 : 0, maisAntiga: vendas ? agora - 8 * 864e5 : 0, maisNova: vendas ? agora - 6e4 : 0 };
     return p === 'ritmo' ? { conectado: true, ritmo: ritmo() } : { conectado: true, ritmo: ritmo(), cache };
   };
+  // storage falso com onChanged (o plano B do popup conversa com a ponte por ele)
+  const ouvintesStorage = [];
+  const avisar = mud => setTimeout(() => ouvintesStorage.slice().forEach(fn => fn(mud, 'local')), 5);
   const falso = {
-    storage: { local: {
-      get: (k, cb) => setTimeout(() => cb({ [k]: window.__storage[k] }), 5),
-      set: (o) => Object.assign(window.__storage, JSON.parse(JSON.stringify(o))),
-    } },
+    storage: {
+      local: {
+        get: (k, cb) => setTimeout(() => cb({ [k]: window.__storage[k] }), 5),
+        set: (o) => {
+          const copia = JSON.parse(JSON.stringify(o)), mud = {};
+          for (const k in copia) mud[k] = { oldValue: window.__storage[k], newValue: copia[k] };
+          Object.assign(window.__storage, copia);
+          avisar(mud);
+        },
+        remove: (ks) => { [].concat(ks).forEach(k => { delete window.__storage[k]; }); },
+      },
+      onChanged: {
+        addListener: fn => ouvintesStorage.push(fn),
+        removeListener: fn => { const i = ouvintesStorage.indexOf(fn); if (i >= 0) ouvintesStorage.splice(i, 1); },
+      },
+    },
     tabs: {
       query: async () => [{ id: 1 }],
       sendMessage: (id, msg, cb) => {
         window.__pedidos.push(msg.pism);
         setTimeout(() => {
-          if (caso === 'fora') { falso.runtime.lastError = { message: 'Receiving end does not exist.' }; cb(undefined); falso.runtime.lastError = undefined; return; }
+          // #fora: não é o jogo; #semabas: o navegador não entrega a mensagem à aba (o popup usa o plano B)
+          if (caso === 'fora' || caso === 'semabas') { falso.runtime.lastError = { message: 'Receiving end does not exist.' }; cb(undefined); falso.runtime.lastError = undefined; return; }
           cb(resposta(msg.pism));
         }, 30);
       },
@@ -50,6 +67,14 @@
     runtime: { lastError: undefined, getManifest: () => ({ version: '0.1.0' }) },
   };
   Object.defineProperty(window, 'chrome', { value: falso, configurable: true, writable: true });
+  // #semabas: a "ponte" da aba do jogo responde pelo storage, como a src/ponte.js
+  window.__pedidosStorage = [];
+  if (caso === 'semabas') falso.storage.onChanged.addListener((mud, area) => {
+    const p = area === 'local' && mud['pism-pedido'] && mud['pism-pedido'].newValue;
+    if (!p) return;
+    window.__pedidosStorage.push(p.pedido);
+    setTimeout(() => falso.storage.local.set({ 'pism-resposta': { id: p.id, dados: resposta(p.pedido), em: Date.now() } }), 30);
+  });
   // monta o corpo do popup de verdade e roda o popup.js dele
   fetch('popup.html').then(r => r.text()).then(html => {
     const corpo = new DOMParser().parseFromString(html, 'text/html').body;

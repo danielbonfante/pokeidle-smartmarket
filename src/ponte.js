@@ -40,16 +40,30 @@
     }
   });
 
-  chrome.runtime.onMessage.addListener((msg, remetente, responder) => {
-    if (!msg || typeof msg.pism !== 'string') return false;
+  /** Passa um pedido do popup para o MAIN world e entrega a resposta (ou um erro depois de 5 s). */
+  function encaminhar(pedido, responder) {
     const id = ++ultimoId;
     esperando.set(id, responder);
-    paraMain({ tipo: 'pedido', id, pedido: msg.pism });
+    paraMain({ tipo: 'pedido', id, pedido });
     setTimeout(() => {
       if (!esperando.has(id)) return;
       esperando.get(id)({ erro: 'o jogo não respondeu' });
       esperando.delete(id);
     }, ESPERA_MS);
+  }
+
+  chrome.runtime.onMessage.addListener((msg, remetente, responder) => {
+    if (!msg || typeof msg.pism !== 'string') return false;
+    encaminhar(msg.pism, responder);
     return true; // resposta assíncrona
+  });
+
+  // Plano B do popup: em navegadores em que o chrome.tabs.sendMessage não chega à aba, o popup grava o
+  // pedido em "pism-pedido" e espera a resposta em "pism-resposta" (só os números do cache e do freio;
+  // o popup apaga as duas chaves). Pedidos com mais de 5 s são ignorados.
+  chrome.storage.onChanged.addListener((mud, area) => {
+    const p = area === 'local' && mud['pism-pedido'] && mud['pism-pedido'].newValue;
+    if (!p || !p.id || typeof p.pedido !== 'string' || Date.now() - p.em > ESPERA_MS) return;
+    encaminhar(p.pedido, dados => chrome.storage.local.set({ 'pism-resposta': { id: p.id, dados, em: Date.now() } }));
   });
 })();

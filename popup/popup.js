@@ -58,14 +58,52 @@
   }
 
   // ---------- aba do jogo ----------
-  function pedir(pedido) {
+  function pedirPelaAba(pedido) {
     return new Promise(res => {
-      if (!aba) return res(null);
-      chrome.tabs.sendMessage(aba.id, { pism: pedido }, r => {
-        if (chrome.runtime.lastError) return res(null); // aba sem a extensão (não é o jogo)
-        res(r || null);
-      });
+      if (!aba || aba.id == null) return res(null);
+      try {
+        chrome.tabs.sendMessage(aba.id, { pism: pedido }, r => {
+          if (chrome.runtime.lastError) return res(null); // aba sem a extensão (não é o jogo)
+          res(r || null);
+        });
+      } catch (e) { res(null); }
     });
+  }
+
+  // Plano B: há navegadores em que o chrome.tabs não funciona como no Chrome (a aba ativa não vem, ou
+  // a mensagem não chega à aba) e o popup achava que não estava no jogo. Aí o pedido vai pelo
+  // chrome.storage: a ponte da aba do jogo (src/ponte.js) vê a mudança e responde pelo storage. Só
+  // passam os números do cache e do freio, e as duas chaves são apagadas logo depois.
+  const CHAVE_PEDIDO = 'pism-pedido', CHAVE_RESPOSTA = 'pism-resposta', ESPERA_STORAGE_MS = 1500;
+  let numPedido = 0;
+  function pedirPeloStorage(pedido) {
+    return new Promise(res => {
+      if (!chrome.storage || !chrome.storage.onChanged) return res(null);
+      const id = Date.now() + '-' + (++numPedido);
+      const ouvir = (mud, area) => {
+        const r = area === 'local' && mud[CHAVE_RESPOSTA] && mud[CHAVE_RESPOSTA].newValue;
+        if (!r || r.id !== id) return;
+        clearTimeout(fim);
+        chrome.storage.onChanged.removeListener(ouvir);
+        chrome.storage.local.remove([CHAVE_PEDIDO, CHAVE_RESPOSTA]);
+        res(r.dados || null);
+      };
+      const fim = setTimeout(() => { chrome.storage.onChanged.removeListener(ouvir); chrome.storage.local.remove(CHAVE_PEDIDO); res(null); }, ESPERA_STORAGE_MS);
+      chrome.storage.onChanged.addListener(ouvir);
+      chrome.storage.local.set({ [CHAVE_PEDIDO]: { id, pedido, em: Date.now() } });
+    });
+  }
+
+  let canal = null; // o caminho que funcionou: 'aba' ou 'storage'
+  async function pedir(pedido) {
+    if (canal !== 'storage') {
+      const r = await pedirPelaAba(pedido);
+      if (r) { canal = 'aba'; return r; }
+      if (canal === 'aba') return null;
+    }
+    const r = await pedirPeloStorage(pedido);
+    if (r) canal = 'storage';
+    return r;
   }
 
   function htmlCache(c) {
@@ -154,7 +192,8 @@
     mostrarLimpar();
     try { [aba] = await chrome.tabs.query({ active: true, currentWindow: true }); } catch (e) { aba = null; }
     await atualizarJogo(true);
-    setInterval(() => atualizarJogo(false), 2000); // o freio muda com o tempo; o cache, não
+    // o freio muda com o tempo; o cache, não. Fora do jogo não fica perguntando.
+    setInterval(() => { if (canal) atualizarJogo(false); }, 2000);
   }
 
   iniciar();
