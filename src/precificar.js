@@ -34,8 +34,8 @@
         <div class="pp-prec-topo">
           <div><b>Precificar</b> <span class="pp-prec-sub">· ${esc(alvo.nome)} · Nv ${alvo.level}${alvo.shiny ? ' · ✨ shiny' : ''}</span></div>
           <div class="pp-prec-moedas">
-            <button type="button" data-moeda="orb">💎 Gemas</button>
-            <button type="button" data-moeda="gold"${alvo.shiny ? ' disabled title="Shiny só vende em Gemas"' : ''}>🪙 Coins</button>
+            <button type="button" data-moeda="orb">${MOEDA.orb.icone} Gemas</button>
+            <button type="button" data-moeda="gold"${alvo.shiny ? ' disabled title="Shiny só vende em Gemas"' : ''}>${MOEDA.gold.icone} Coins</button>
           </div>
           <button type="button" class="pp-prec-fechar" title="Fechar">✕</button>
         </div>

@@ -14,7 +14,7 @@ Use o `tar` (vem com o Windows 10/11), não o `Compress-Archive`: o do Windows P
 
 O resumo da loja vem do campo `description` do `manifest.json` (no máximo 132 caracteres):
 
-> Quanto vale seu Pokémon no Mercado do pokeidle.io: preço em Gemas e Coins na ficha, selos de pechincha e ajuda para anunciar.
+> Quanto vale seu Pokémon no Mercado do pokeidle.io: preço em Gemas e Coins na ficha, selos de desconto e ajuda para anunciar.
 
 ## Aba "Página na loja" (Store listing)
 
@@ -34,7 +34,7 @@ NA FICHA DO POKÉMON
 • Botão Precificar: as vendas parecidas numa barra, a tabela das vendas que mais pesaram no preço (comparando nível, Potência, IV, Qualidade e Nota com o seu) e quantas vezes a estimativa acertou nas últimas vendas da espécie.
 
 NO MERCADO
-• Cada anúncio de Pokémon ganha um selo: pechincha, no preço ou acima do justo, com a porcentagem em relação ao Preço justo e a faixa de preço das vendas parecidas.
+• Cada anúncio de Pokémon ganha um selo: desconto, no preço ou acima do justo, com a porcentagem em relação ao Preço justo e a faixa de preço das vendas parecidas.
 
 NA HORA DE ANUNCIAR
 • Um painel ao lado da tela de anúncio com os preços, os anúncios parecidos à venda agora e os que já foram vendidos.

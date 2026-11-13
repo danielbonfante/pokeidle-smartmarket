@@ -58,7 +58,7 @@
     },
     restaurarVitrine: msg => { window.__chamadas.restaurarVitrine++; window.__restaurou = msg; return Promise.resolve(); },
   };
-  // Anúncios que o caçador de pechinchas já viu (plano B quando a consulta é recusada)
+  // Anúncios que a vitrine já viu (plano B quando a consulta é recusada)
   window.PIVitrine = { anunciosDaEspecie: (sid, moeda) => [
     { id: 900, preco: moeda === 'orb' ? 610 : 1.2e8, moeda, vistoEm: agora - 12 * 60000, alvo: Object.assign({}, alvoJogo, { id: 7900, nota: 4.58 }) },
   ] };

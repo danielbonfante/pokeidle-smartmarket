@@ -105,7 +105,7 @@
 .pp-badge.pp-largo .pp-liq { max-width: 460px; }
 .pp-badge.pp-largo .pp-comps { max-height: 220px; }
 
-/* ---------- Caçador de pechinchas: selo nos cards da vitrine do RMT ---------- */
+/* ---------- Selos de desconto nos cards da vitrine do RMT ---------- */
 .pp-vit {
   display: flex;
   flex-direction: column;
@@ -402,3 +402,22 @@
 .pp-prec-grupos th:first-child, .pp-prec-grupos td:first-child { text-align: left; color: #a993c9; }
 .pp-prec-grupos td:last-child { color: #fff; font-weight: 700; }
 .pp-prec-rodape { flex: none; padding: 4px 14px 10px; font-size: 10px; color: #8f7cad; text-align: right; }
+
+/* ---------- Gema (moeda do RMT): diamante rosa próprio da extensão, no lugar do 💎 ----------
+   O 💎 é azul, a cor do Diamante da loja VIP do jogo; a Gema é rosa. Pixel art 12x10 (2x para os
+   tamanhos grandes), sem suavizar. */
+.pp-gema {
+  display: inline-block;
+  width: 12px;
+  height: 10px;
+  vertical-align: -1px;
+  background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAwAAAAKCAYAAACALL/6AAAAYklEQVR4nGNggAJjTvn/+DADMgAJ/J917T8YXHuHgj9Fb/1/wrQHoQnEAAmCNYAwDg1wTTANKJqgGFlxj3wSpi3ImmB8DMX4NMAUY2jApgmn6dg0gTQQVIyuiSjF2CIRXQ4AV8zOT0UNkeUAAAAASUVORK5CYII=") no-repeat center / 12px 10px;
+  image-rendering: pixelated;
+}
+.pp-gema-2x, .pp-prec-justo b small .pp-gema {
+  width: 24px;
+  height: 20px;
+  vertical-align: 0;
+  background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAUCAYAAACXtf2DAAAAgUlEQVR4nGNgQAPGnPL/KcHo5mEAmlkAU/B/1jUIhoFr7/DiT9FbwfiEaQ8Y47SIZhbABGAK4RbAMIkWYFhEdwtwWoSGcRncI58ExvSzAFdc4LIIXZ6gwYPWAnSDB94CYi0iOWjobgEui2AWUGww3SzAZRHVDKabBegWkVyD0doCABEHOWYesVe2AAAAAElFTkSuQmCC");
+  background-size: 24px 20px;
+}

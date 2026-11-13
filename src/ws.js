@@ -88,7 +88,7 @@
     let j;
     try { j = JSON.parse(d); } catch (e) { return; }
     if (temPokemon) indexar(j, 0);
-    // Vitrine do RMT (anúncios de Pokémon): repassa para o caçador de pechinchas
+    // Vitrine do RMT (anúncios de Pokémon): repassa para os selos da vitrine (vitrine.js)
     if (ehVitrine && j.t === 'market' && j.aba === 'vitrine') {
       // A resposta da vitrine não tem seq: a consulta da extensão reconhece a sua pela espécie
       if (esperaVitrine) {

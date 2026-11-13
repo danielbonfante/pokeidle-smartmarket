@@ -260,7 +260,7 @@
     if (ja) { aplicarAVenda(p, moeda); return; }
     const sid = p.alvo.speciesId;
     // No Editar, atrás da folha está a lista de "Meus anúncios": uma consulta de vitrine a trocaria.
-    // Mostra só os anúncios desta espécie que o caçador de pechinchas já viu.
+    // Mostra só os anúncios desta espécie que a vitrine (vitrine.js) já viu.
     if (p.editando && sid != null) {
       const vistos = window.PIVitrine && window.PIVitrine.anunciosDaEspecie ? window.PIVitrine.anunciosDaEspecie(sid, moeda) : [];
       p.avendaPorMoeda[moeda] = { itens: vistos, erro: 'no Editar a lista não é atualizada', visto: true };
@@ -300,7 +300,7 @@
   // ---------- desenho ----------
   function desenharTopo() {
     const m = MOEDA[painel.moeda];
-    painel.el.querySelector('.pp-an-sub').textContent = `· ${painel.alvo.nome} em ${m.icone} ${m.nome}`;
+    painel.el.querySelector('.pp-an-sub').innerHTML = `· ${esc(painel.alvo.nome)} em ${m.icone} ${m.nome}`;
     const av = painel.el.querySelector('.pp-an-avisos');
     av.innerHTML = painel.alvo.parcial
       ? '<div class="pp-aviso">AoE, Z-Move e shiny não foram detectados neste anúncio.</div>' : '';

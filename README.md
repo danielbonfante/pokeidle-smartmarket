@@ -1,9 +1,9 @@
 # Smart Market
 
-Extensão do Chrome para quem joga [pokeidle.io](https://pokeidle.io): mostra **quanto vale o seu Pokémon no Mercado da Comunidade (RMT)**, em 💎 Gemas e 🪙 Coins, calculado a partir das vendas reais do próprio jogo.
+Extensão do Chrome para quem joga [pokeidle.io](https://pokeidle.io): mostra **quanto vale o seu Pokémon no Mercado da Comunidade (RMT)**, em Gemas e Coins, calculado a partir das vendas reais do próprio jogo.
 
 - Na **ficha do Pokémon**: Vender rápido, Preço justo e Esperar, e quanto você recebe depois da comissão.
-- No **Mercado**: um selo em cada anúncio dizendo se é **pechincha**, **no preço** ou **acima do justo**.
+- No **Mercado**: um selo em cada anúncio dizendo se está com **desconto**, **no preço** ou **acima do justo**.
 - Na hora de **anunciar** (ou editar um anúncio): os preços e os anúncios parecidos ao lado da tela, com um botão para preencher o preço.
 
 **Só leitura:** a extensão não compra, não vende, não anuncia e não guarda o nick de ninguém. Quem decide e clica é sempre você.
@@ -54,11 +54,11 @@ O botão **Precificar**, no quadro da ficha, abre a análise completa:
 
 Na vitrine do Mercado da Comunidade, cada anúncio de Pokémon ganha um selo abaixo do preço:
 
-- **pechincha −30%**, em verde: preço na faixa "Vender rápido" ou abaixo;
+- **desconto −30%**, em verde: preço na faixa "Vender rápido" ou abaixo;
 - **no preço**: entre "Vender rápido" e "Esperar";
 - **acima do justo +40%**, em vermelho: acima de "Esperar".
 
-A porcentagem compara o anúncio com o Preço justo; o rótulo compara com a faixa entre Vender rápido e Esperar. Por isso nem sempre andam juntos: quando as vendas parecidas custam quase o mesmo, a faixa é estreita e −9% já é pechincha; quando os preços variam muito, a faixa é larga e −31% ainda fica "no preço". A segunda linha do selo mostra o justo e essa faixa (por exemplo, "justo 130 · faixa 115–140"). Borda tracejada quer dizer confiança baixa ou estimativa. Passe o mouse no selo para ver os detalhes.
+A porcentagem compara o anúncio com o Preço justo; o rótulo compara com a faixa entre Vender rápido e Esperar. Por isso nem sempre andam juntos: quando as vendas parecidas custam quase o mesmo, a faixa é estreita e −9% já ganha o selo de desconto; quando os preços variam muito, a faixa é larga e −31% ainda fica "no preço". A segunda linha do selo mostra o justo e essa faixa (por exemplo, "justo 130 · faixa 115–140"). Borda tracejada quer dizer confiança baixa ou estimativa. Passe o mouse no selo para ver os detalhes.
 
 Os selos usam as vendas já guardadas. Vendas novas são buscadas quando a vitrine mostra uma espécie só (clicando na espécie ou buscando pelo nome) ou só shiny / só P5. Se a espécie não tem vendas guardadas, ou tem poucas, o selo oferece **buscar**: um clique busca as vendas dela, no mesmo ritmo de sempre.
 
@@ -76,7 +76,7 @@ O mesmo painel aparece ao **editar** um anúncio de Pokémon (Mercado → **Meus
 
 ### Ícone da extensão
 
-Clique no ícone 💎 na barra do Chrome:
+Clique no ícone da extensão (o diamante rosa com etiqueta) na barra do Chrome:
 
 - **liga e desliga** o quadro da ficha, os selos do Mercado e o painel de anúncio (vale na hora, em todas as abas do jogo);
 - mostra quantas vendas estão guardadas e permite **limpar o cache**;

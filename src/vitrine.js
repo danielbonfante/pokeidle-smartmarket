@@ -1,5 +1,5 @@
 /*
- * Smart Market — caçador de pechinchas na vitrine do RMT
+ * Smart Market — selos de desconto na vitrine do RMT
  * © 2026 dan_the_treiner — uso pessoal; proibido redistribuir, modificar para publicar ou vender (ver LICENSE).
  *
  * Quando o jogo recebe uma página de anúncios de Pokémon ({t:'market', aba:'vitrine'}),
@@ -127,7 +127,7 @@
     const dif = an.preco / res.precoJusto - 1;
     const est = res.estimativa ? '≈ ' : '';
     let cls, rotulo;
-    if (an.preco <= res.venderRapido) { cls = 'pp-vit-pechincha'; rotulo = 'pechincha'; }
+    if (an.preco <= res.venderRapido) { cls = 'pp-vit-pechincha'; rotulo = 'desconto'; }
     else if (an.preco > res.esperar) { cls = 'pp-vit-caro'; rotulo = 'acima do justo'; }
     else { cls = 'pp-vit-justo'; rotulo = 'no preço'; }
     if (res.confianca === 'baixa' || res.estimativa) cls += ' pp-vit-incerto';
@@ -136,7 +136,7 @@
       : `${res.vendasEspecie} vendas da espécie, confiança ${res.confianca}`;
     return {
       cls,
-      // a faixa explica o rótulo: pechincha = até o Vender rápido; acima = passou do Esperar
+      // a faixa explica o rótulo: desconto = até o Vender rápido; acima = passou do Esperar
       html: `<b>${est}${rotulo} ${pct(dif)}</b><span>justo ${est}${fmt(res.precoJusto, an.moeda)} · faixa ${faixaTexto(res, an.moeda)}</span>`,
       titulo: `Smart Market — preço justo estimado: ${fmt(res.precoJusto, an.moeda)} ` +
         `(Vender rápido ${fmt(res.venderRapido, an.moeda)} · Esperar ${fmt(res.esperar, an.moeda)}). ` +

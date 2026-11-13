@@ -13,7 +13,9 @@
   if (window.PIUi) return;
 
   const MOEDAS = [
-    { id: 'orb', nome: 'Gemas', icone: '💎' },
+    // a Gema é rosa no jogo (o 💎 azul é o Diamante da loja VIP): ícone próprio, ver .pp-gema no ui.css.
+    // icone é HTML: usar só em innerHTML; em texto puro (title, textContent) usar o nome.
+    { id: 'orb', nome: 'Gemas', icone: '<i class="pp-gema" aria-hidden="true"></i>' },
     { id: 'gold', nome: 'Coins', icone: '🪙' },
   ];
   const MOEDA = Object.fromEntries(MOEDAS.map(m => [m.id, m])); // MOEDA.orb.nome, MOEDA.gold.icone…
@@ -35,7 +37,7 @@
     nota: 'Nota de 0 a 10 do Pokémon vendido (IV, qualidade, potência e shiny, dentro da espécie). É o que mais pesa na comparação.',
     pot: 'Potência do Pokémon vendido (P1, P2, P3…). Potência maior aumenta os atributos.',
     extras: 'Extras do Pokémon vendido: ✨ = shiny · AoE = tem TM AoE · Z = tem Z-Move · M = é Mega. Vendas com AoE, Z-Move ou Mega diferentes dos deste Pokémon pesam menos. Shiny só é comparado com shiny (e só vende em Gemas).',
-    preco: 'Quanto o comprador pagou no total, em Gemas 💎 ou Coins 🪙.',
+    preco: 'Quanto o comprador pagou no total, em Gemas ou Coins.',
     ha: 'Há quanto tempo foi a venda. Vendas recentes pesam mais: uma de 5 dias atrás vale metade de uma de hoje.',
     liquidoGemas: 'Você recebe — o que sobra para o vendedor depois da comissão do RMT, se vender por cada um dos preços acima. Pokémon em Gemas paga por faixa: 13% até 500, 10% de 500 a 5.000 e 7,5% acima disso (10.000 Gemas → você recebe 9.110). A pensão do anúncio, 100 mil Coins por dia, é paga à parte, na hora de publicar.',
     liquidoCoins: 'Você recebe — o que sobra para o vendedor depois da comissão do RMT, se vender por cada um dos preços acima. Anúncio em Coins paga 15%. A pensão do anúncio, 100 mil Coins por dia, é paga à parte, na hora de publicar.',
