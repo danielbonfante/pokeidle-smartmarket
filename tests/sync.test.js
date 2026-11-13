@@ -138,6 +138,14 @@ test('vaiBuscar: diz se a busca vai consultar o jogo (para a tela mostrar "carre
   assert.deepEqual([...a.historico(), ...b.historico(), ...c.historico()], []);
 });
 
+test('vaiBuscar: com a Tabela de preços fora do ar, não vai buscar (a tela mostra o cache, sem "carregando")', async () => {
+  const { window } = montar(1);
+  for (let i = 0; i < 3; i++) window.PIWs._falhaTabela('teste');
+  assert.equal(window.PIWs.tabela().fora, true);
+  assert.equal(await window.PISync.vaiBuscar('Scizor', 'orb'), false);
+  await assert.rejects(window.PISync.sincronizar('Blastoise', 'orb'), /Tabela de preços/);
+});
+
 test('busca da classe (só shiny) e busca já com + não passam pela escolha', async () => {
   const { window, historico } = montar(1);
   await window.PISync.sincronizar('', 'orb', null, { soShiny: true });

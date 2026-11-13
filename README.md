@@ -94,6 +94,9 @@ Porque o mercado paga pela **Nota**, que já junta IV, Qualidade e Potência. Te
 **Por que aparece "sem vendas"?**
 A espécie teve poucas vendas parecidas nos últimos 30 dias. Lendários e míticos quase nunca são vendidos, então costumam ficar sem preço.
 
+**E se o jogo tirar ou mudar a Tabela de preços?**
+A extensão depende do histórico de vendas do Mercado. Se ele parar de responder, ela percebe depois de três tentativas seguidas, para de consultar e avisa no quadro e no ícone. Enquanto isso, os preços usam as vendas já guardadas, que não são apagadas, e uma tentativa por hora confere se a Tabela voltou.
+
 **Uso duas abas do jogo. Tem problema?**
 Evite. Cada aba faz as próprias consultas, e duas abas juntas chegam mais perto do limite do servidor.
 

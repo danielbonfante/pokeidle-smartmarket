@@ -179,3 +179,68 @@ test('ritmo: quando uma consulta desiste pela conexão ocupada, as que já estav
   assert.ok(res.every(m => /ocupada/.test(m)), JSON.stringify(res));
   assert.ok(quando[1] - quando[0] < 300, 'a segunda esperou mais ' + (quando[1] - quando[0]) + ' ms');
 });
+
+// ---------- Tabela de preços fora do ar ----------
+// Relógio que o teste adianta: a fila não espera os 1,5 s de verdade e dá para pular 1 h.
+function relogioAjustavel() {
+  const r = { desloc: 0 };
+  r.Relogio = class extends Date { static now() { return Date.now() + r.desloc; } };
+  return r;
+}
+
+test('tabela: 3 falhas seguidas → fora do ar: recusa na hora, sem enviar nada; 1 tentativa por hora; volta sozinha', async () => {
+  const rel = relogioAjustavel();
+  const { window, enviados, responderCom } = montar({ relogio: rel.Relogio });
+  let modo = 'erro';
+  responderCom((j, receber) => {
+    if (j.t !== 'market.historicoGlobal') return;
+    if (modo === 'erro') receber({ t: 'erro', msg: 'Comando desconhecido' });
+    else receber({ t: 'market', aba: 'historicoGlobal', seq: j.seq, linhas: [], temMais: false });
+  });
+  for (let i = 0; i < 3; i++) {
+    rel.desloc += 2000;
+    await assert.rejects(window.PIWs.consultarHistorico({ pagina: 0 }), /desconhecido/);
+  }
+  const t = window.PIWs.tabela();
+  assert.equal(t.fora, true);
+  assert.ok(t.desde > 0);
+  assert.equal(window.PIWs.ritmo().tabelaForaDesde, t.desde, 'o popup recebe pelo ritmo()');
+  const n = enviados.length;
+  rel.desloc += 2000;
+  await assert.rejects(window.PIWs.consultarHistorico({ pagina: 0 }), /Tabela de preços/);
+  assert.equal(enviados.length, n, 'fora do ar: não pode enviar');
+  // passada 1 h, uma consulta vai como teste; a Tabela respondeu → volta ao normal
+  modo = 'ok';
+  rel.desloc += 3600e3;
+  const j = await window.PIWs.consultarHistorico({ pagina: 0 });
+  assert.ok(Array.isArray(j.linhas));
+  assert.equal(window.PIWs.tabela().fora, false);
+});
+
+test('tabela: o teste da hora que falha espera mais 1 h; resposta sem "linhas" também conta como falha', async () => {
+  const rel = relogioAjustavel();
+  const { window, enviados, responderCom } = montar({ relogio: rel.Relogio });
+  responderCom((j, receber) => {
+    if (j.t === 'market.historicoGlobal') receber({ t: 'market', aba: 'historicoGlobal', seq: j.seq }); // sem linhas
+  });
+  for (let i = 0; i < 3; i++) {
+    rel.desloc += 2000;
+    await assert.rejects(window.PIWs.consultarHistorico({ pagina: 0 }), /inesperad/);
+  }
+  assert.equal(window.PIWs.tabela().fora, true);
+  rel.desloc += 3600e3;
+  await assert.rejects(window.PIWs.consultarHistorico({ pagina: 0 }), /inesperad/); // o teste da hora
+  const n = enviados.length;
+  rel.desloc += 60e3;
+  await assert.rejects(window.PIWs.consultarHistorico({ pagina: 0 }), /Tabela de preços/);
+  assert.equal(enviados.length, n, 'o próximo teste só daqui a 1 h');
+});
+
+test('tabela: erros que não são da Tabela não contam (pedido de calma, conexão)', async () => {
+  const rel = relogioAjustavel();
+  const { window, receber, responderCom } = montar({ relogio: rel.Relogio });
+  responderCom((j, rec) => { if (j.t === 'market.historicoGlobal') rec({ t: 'market', aba: 'historicoGlobal', seq: j.seq, linhas: [], temMais: false }); });
+  receber({ t: 'erro', msg: 'Devagar aí — muitas mensagens.' });
+  for (let i = 0; i < 4; i++) await assert.rejects(window.PIWs.consultarHistorico({ pagina: 0 }), /devagar/);
+  assert.equal(window.PIWs.tabela().fora, false);
+});

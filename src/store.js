@@ -127,9 +127,14 @@
     }));
   }
 
-  /** Poda se a última foi há mais de 1 dia; senão devolve null. */
+  /**
+   * Poda se a última foi há mais de 1 dia; senão devolve null. Com a Tabela de preços do jogo fora
+   * do ar (ws.js) não poda: sem vendas novas, as guardadas são tudo o que sobra para o preço.
+   */
   function podarSeVencido(agora) {
     const t0 = agora || Date.now();
+    const tabela = window.PIWs && window.PIWs.tabela ? window.PIWs.tabela() : null;
+    if (tabela && tabela.fora) return Promise.resolve(null);
     return lerSync(PODA_CHAVE).then(u => (u && t0 - u.em < DIA ? null : podar(t0)));
   }
 

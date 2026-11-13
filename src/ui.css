@@ -435,3 +435,6 @@
   animation: pp-girar 0.8s linear infinite;
 }
 .pp-linha.pp-carregando .pp-q2 { color: #c9a9d6; font-weight: 600; font-size: 11px; white-space: nowrap; }
+
+/* Tabela de preços do jogo fora do ar: o status do quadro vira aviso */
+.pp-status.pp-status-aviso { color: #f2c86b; font-size: 11px; cursor: help; }

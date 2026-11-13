@@ -50,6 +50,7 @@
     vendidos: 'Vendas desta espécie nos últimos 30 dias, nesta moeda, as mais parecidas com este Pokémon primeiro.',
     travado: 'o jogo só deixa mudar o preço a cada 30 min',
     precificar: 'Abre a análise completa: o preço justo com as vendas parecidas na barra, a confiança medida nesta espécie e os grupos de preço.',
+    tabelaFora: 'A extensão calcula o preço com o histórico de vendas do Mercado (a Tabela de preços do jogo), e ele parou de responder. Enquanto isso, ela usa só as vendas já guardadas, não apaga as antigas e tenta de novo a cada hora.',
     carregando: 'Buscando as vendas novas desta espécie no histórico do Mercado, uma página por vez, no ritmo de sempre. O preço aparece quando a busca terminar, já com todas as vendas.',
   };
   const FAIXA = window.PIMotor.FAIXA_MERCADO;
@@ -436,8 +437,27 @@
       status.textContent = `${total} vendas da espécie nos últimos 30 dias` +
         (estim ? ` · estimativa com ${estim.vendasClasse} vendas de outros ${nomeClasse}` : '');
     } catch (e) {
-      if (vivo()) status.textContent = 'não deu para atualizar agora (' + e.message + ') — usando o cache';
+      if (!vivo()) return;
+      if (e && e.tabela) {
+        const texto = await textoTabelaFora(alvo);
+        if (!vivo()) return;
+        status.textContent = texto;
+        status.classList.add('pp-status-aviso');
+        status.title = DICA.tabelaFora;
+      } else {
+        status.textContent = 'não deu para atualizar agora (' + e.message + ') — usando o cache';
+      }
     }
+  }
+
+  /** "A Tabela de preços do jogo não responde desde 20/11 — preço com as vendas guardadas até 19/11." */
+  async function textoTabelaFora(alvo) {
+    const t = window.PIWs.tabela ? window.PIWs.tabela() : { desde: 0 };
+    const vendas = await window.PIStore.vendasPorEspecie(alvo.speciesId, alvo.nome).catch(() => []);
+    const ultima = vendas.reduce((m, v) => Math.max(m, Number(v.em) || 0), 0);
+    const data = x => new Date(x).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+    return 'A Tabela de preços do jogo não responde' + (t.desde ? ' desde ' + data(t.desde) : '') +
+      ' — preço com as vendas guardadas' + (ultima ? ' até ' + data(ultima) : '') + '.';
   }
 
   /**

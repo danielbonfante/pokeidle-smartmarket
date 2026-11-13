@@ -7,6 +7,7 @@
     #pausado  freio: pausado pelo aviso do servidor
     #vazio    cache vazio
     #fora     a aba ativa não é o jogo
+    #tabela   a Tabela de preços do jogo não responde há 5 h
   window.__storage mostra o que o popup gravou; window.__pedidos, o que ele pediu à aba.
 -->
 <html lang="pt-BR"><head><meta charset="utf-8"><title>Teste — Popup</title>
@@ -24,6 +25,7 @@
     pausadoAte: caso === 'pausado' ? agora + 150000 : 0,
     freioAte: caso === 'lento' || caso === 'pausado' ? agora + 40 * 60000 : 0,
     tetoPorMinuto: 12, orcamentoConexao: 45, enviosConexaoUltimoMinuto: caso === 'lento' ? 41 : 23,
+    tabelaForaDesde: caso === 'tabela' ? agora - 5 * 3600e3 : 0, tabelaProximoTeste: caso === 'tabela' ? agora + 25 * 60000 : 0,
   });
   const resposta = p => {
     if (p === 'limpar-cache') vendas = 0;

@@ -92,7 +92,7 @@ function montar() {
   const ctx = vm.createContext({ window, indexedDB: indexedDBFalso(), Date, structuredClone, console,
     setTimeout: (fn, ms) => { timers.push({ fn, ms }); return timers.length; } });
   vm.runInContext(fs.readFileSync(path.join(SRC, 'store.js'), 'utf8'), ctx);
-  return { S: window.PIStore, timers };
+  return { S: window.PIStore, timers, window };
 }
 
 const venda = (id, idadeDias, agora) => ({ id, em: agora - idadeDias * DIA, speciesId: 9, nome: 'Blastoise', moeda: 'orb', preco: 50 });
@@ -120,6 +120,17 @@ test('podarSeVencido: no máximo uma vez por dia', async () => {
   assert.equal(await S.contar(), 1);
   assert.equal(await S.podarSeVencido(agora + DIA + 1), 1);
   assert.equal(await S.contar(), 0);
+});
+
+test('podarSeVencido: com a Tabela de preços fora do ar, não poda (as vendas guardadas são tudo o que sobra)', async () => {
+  const { S, window } = montar();
+  const agora = Date.now();
+  await S.salvarVendas([venda(1, 40, agora)]);
+  window.PIWs = { tabela: () => ({ fora: true }) };
+  assert.equal(await S.podarSeVencido(agora), null);
+  assert.equal(await S.contar(), 1);
+  window.PIWs = { tabela: () => ({ fora: false }) };
+  assert.equal(await S.podarSeVencido(agora), 1, 'a Tabela voltou: poda de novo');
 });
 
 test('a poda roda sozinha um pouco depois de abrir o jogo e volta a conferir a cada hora', async () => {

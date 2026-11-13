@@ -258,7 +258,11 @@
       });
       mudou = !!(r && !r.pulou);
     } catch (e) {
-      if (painel === p && p.geracao === g) avisar('não deu para atualizar as vendas agora (' + e.message + ') — usando o cache');
+      if (painel === p && p.geracao === g) {
+        avisar(e && e.tabela
+          ? 'A Tabela de preços do jogo não está respondendo — preços com as vendas já guardadas (nova tentativa a cada hora).'
+          : 'não deu para atualizar as vendas agora (' + e.message + ') — usando o cache');
+      }
     }
     if (painel !== p || p.geracao !== g) return;
     if (mudou || p.carregando != null) { p.carregando = null; await carregar(); }

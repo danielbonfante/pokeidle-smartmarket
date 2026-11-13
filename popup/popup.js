@@ -74,7 +74,12 @@
       ? `<div class="barra" title="Mensagens que saíram pela conexão do jogo no último minuto, somando o jogo e outras extensões"><i class="${fracao >= 0.8 ? 'alto' : ''}" style="width:${Math.round(fracao * 100)}%"></i></div>
          <div class="linha fraco">Conexão: ${usados} de ${r.orcamentoConexao} mensagens no último minuto (somando o jogo e outras extensões). Acima disso, a extensão espera a vez.</div>`
       : '<div class="linha fraco">Ainda sem conexão com o jogo.</div>';
-    return `<div class="linha">${estado}</div>${conexao}`;
+    // A Tabela de preços do jogo parou de responder (ws.js): sem vendas novas até ela voltar
+    const tabela = r.tabelaForaDesde
+      ? `<div class="linha"><span class="estado parado">Tabela fora</span> a Tabela de preços do jogo não responde desde ${fmtData(r.tabelaForaDesde)} ${fmtHora(r.tabelaForaDesde)}. ` +
+        `Os preços usam só as vendas guardadas, que não são apagadas enquanto isso. Nova tentativa ${r.tabelaProximoTeste > agora ? 'às ' + fmtHora(r.tabelaProximoTeste) : 'na próxima ficha aberta'}.</div>`
+      : '';
+    return `${tabela}<div class="linha">${estado}</div>${conexao}`;
   }
 
   async function atualizarJogo(completo) {

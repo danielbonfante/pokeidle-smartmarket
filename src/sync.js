@@ -128,6 +128,9 @@
    */
   async function vaiBuscar(busca, moeda, filtro) {
     if (emAndamento.has(chaveDe(busca, moeda, filtro))) return true;
+    // Tabela de preços fora do ar: a consulta é recusada na hora (fora o teste de hora em hora)
+    const t = window.PIWs.tabela ? window.PIWs.tabela() : null;
+    if (t && t.fora && !t.podeTestar) return false;
     let b = busca;
     const semFiltro = !filtro || !(filtro.soShiny || filtro.soP5);
     if (semFiltro && ehNomeSimples(busca)) {

@@ -1,6 +1,6 @@
 # Política de privacidade — Smart Market
 
-*Última atualização: 12 de novembro de 2026*
+*Última atualização: 13 de novembro de 2026*
 
 A Smart Market é uma extensão do Chrome que mostra preços estimados dentro do jogo [pokeidle.io](https://pokeidle.io). Ela foi feita para funcionar inteira no seu navegador: **não tem servidor próprio, não envia seus dados para ninguém e não guarda o nick de nenhum jogador.**
 
@@ -39,7 +39,7 @@ Essas consultas saem pela conexão que o jogo já abriu, num ritmo limitado (uma
 Tudo fica **no seu computador**, no próprio navegador:
 
 1. **Cache de vendas do Mercado** (IndexedDB do site pokeidle.io, banco `pokeidle-preco`). Para cada venda: o número da venda, a data, a moeda, o preço e os dados do Pokémon vendido (espécie, nome da espécie, nível, Nota, IV somado, qualidade, potência, shiny, TM AoE, Z-Move, mega e refino). Também guarda, para cada busca feita, até onde o histórico já foi baixado e quando, e, para cada espécie, se a busca usa só o nome ou a família (com a data da escolha). As vendas com mais de 30 dias, que já não entram no preço, são apagadas sozinhas uma vez por dia. **Não guarda nicks de vendedor, comprador ou de quem capturou o Pokémon.**
-2. **Estado do freio** (localStorage do site pokeidle.io, chave `pism-freio`): se o servidor pediu para ir mais devagar, o intervalo atual entre consultas e até quando vale a pausa. Expira em 1 hora.
+2. **Estado do freio** (localStorage do site pokeidle.io, chave `pism-freio`): se o servidor pediu para ir mais devagar, o intervalo atual entre consultas e até quando vale a pausa. Expira em 1 hora. Na mesma área fica também a chave `pism-tabela`, só quando a Tabela de preços do jogo para de responder: desde quando ela está fora do ar e quando foi a última tentativa. Ela some quando a Tabela volta.
 3. **Suas preferências** (armazenamento da extensão, `chrome.storage.local`, chave `config`): se o quadro de preço, os selos da vitrine e o painel de anúncio estão ligados ou desligados.
 
 Enquanto a aba do jogo está aberta, a extensão também mantém **na memória** (e não em disco) os dados de preço dos Pokémon que passaram pela tela e dos anúncios vistos na vitrine, sem nicks. Isso some quando você fecha ou recarrega a aba.
@@ -53,7 +53,7 @@ Enquanto a aba do jogo está aberta, a extensão também mantém **na memória**
 
 - **Cache de vendas:** clique no ícone da extensão, com a aba do jogo aberta, e use **Limpar cache…**.
 - **Preferências:** são apagadas quando você remove a extensão.
-- **Tudo de uma vez:** como o cache de vendas e o freio ficam no armazenamento do site pokeidle.io, **remover a extensão não apaga esses dois**. Para apagar, use **Limpar cache…** antes de remover, ou apague os dados do site em `chrome://settings/content/all` → `pokeidle.io` → **Excluir dados**. Atenção: apagar os dados do site também pode desconectar você do jogo.
+- **Tudo de uma vez:** como o cache de vendas, o freio e o aviso da Tabela ficam no armazenamento do site pokeidle.io, **remover a extensão não apaga esses dados**. Para apagar, use **Limpar cache…** antes de remover, ou apague os dados do site em `chrome://settings/content/all` → `pokeidle.io` → **Excluir dados**. Atenção: apagar os dados do site também pode desconectar você do jogo.
 
 ## Crianças
 

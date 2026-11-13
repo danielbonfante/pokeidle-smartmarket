@@ -41,13 +41,17 @@
   // #sync: finge uma busca no jogo (Gemas 4 páginas, Coins 3, uma página a cada 1,5 s alternando,
   // como a fila do ws.js) para ver o andamento no quadro: "atualizando gemas pág. 2 · coins pág. 1…"
   const comSync = location.hash === '#sync';
+  // #tabela: a Tabela de preços do jogo não responde há 5 h (ws.js desistiu): o quadro mostra o cache e avisa
+  const tabelaFora = location.hash === '#tabela';
   // #longe: o mesmo Blastoise com Nv 5.000 — a espécie tem vendas, mas nenhuma parecida
   // ("poucas com Nv e Nota parecidos" no quadro)
   const nivel = location.hash === '#longe' ? 5000 : 395;
-  window.PIWs = { pokemon: () => ({ id: 97553169, speciesId: 9, nome: 'Blastoise', level: nivel, nota: 3.598, quality: 1.8, potencia: 1, shiny: false, tmAoe: false, tmElemental: null, ivTotal: 130 }), conectado: () => comSync };
+  window.PIWs = { pokemon: () => ({ id: 97553169, speciesId: 9, nome: 'Blastoise', level: nivel, nota: 3.598, quality: 1.8, potencia: 1, shiny: false, tmAoe: false, tmElemental: null, ivTotal: 130 }), conectado: () => comSync || tabelaFora,
+    tabela: () => ({ fora: tabelaFora, desde: tabelaFora ? agora - 5 * H : 0, podeTestar: false }) };
   window.PIStore = { vendasPorEspecie: async () => vendas, vendasPorClasse: async () => [] };
   let filaFalsa = Promise.resolve();
   window.PISync = { vaiBuscar: async () => comSync, sincronizar: async (busca, moeda, aoProgresso) => {
+    if (tabelaFora) { const e = new Error('a Tabela de preços do jogo não está respondendo'); e.tabela = true; throw e; }
     if (!comSync) return { pulou: true };
     for (let p = 1; p <= (moeda === 'orb' ? 4 : 3); p++) {
       filaFalsa = filaFalsa.then(() => new Promise(r => setTimeout(r, 1500)));

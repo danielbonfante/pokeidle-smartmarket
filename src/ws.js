@@ -84,6 +84,20 @@
     if (/devagar|desacelera|flood|slow down|rate.?limit|too many/i.test(d) && !/"t"\s*:\s*"chat/.test(d) && !temPokemon) {
       frear(d.slice(0, 200));
     }
+    // Outro erro do servidor com uma consulta nossa ao histórico esperando: pode ser a Tabela de
+    // preços recusando o pedido (comando removido ou mudado). Responde a consulta mais antiga com
+    // o erro, e ele conta para o "Tabela fora do ar" (só 3 seguidos tiram a Tabela do ar).
+    else if (pendentes.size && /"t"\s*:\s*"erro"/.test(d)) {
+      let msg = '';
+      try { msg = String(JSON.parse(d).msg || ''); } catch (e) { /* ignora */ }
+      const [s, p] = pendentes.entries().next().value;
+      pendentes.delete(s);
+      clearTimeout(p.timer);
+      const e = new Error('o jogo respondeu com erro' + (msg ? ': ' + msg.slice(0, 120) : ''));
+      e.contaTabela = true;
+      p.reject(e);
+      return;
+    }
     if (!temPokemon && !ehHistorico && !ehVitrine) return;
     let j;
     try { j = JSON.parse(d); } catch (e) { return; }
@@ -198,6 +212,52 @@
     return new Error('o jogo pediu para ir mais devagar; consultas pausadas por ~' + min + ' min');
   }
 
+  // ---------- Tabela de preços fora do ar ----------
+  // A extensão vive do histórico de vendas (market.historicoGlobal, a "Tabela de preços" do jogo).
+  // Se o jogo tirar ou mudar a Tabela, as consultas passam a falhar. Depois de 3 falhas seguidas
+  // (sem resposta, resposta sem "linhas" ou erro do servidor), a extensão para de consultar,
+  // a poda do cache (store.js) para junto para as vendas guardadas não sumirem, e uma consulta
+  // por hora testa se a Tabela voltou. Falhas logo depois de um pedido de calma não contam.
+  const CHAVE_TABELA = 'pism-tabela';
+  const FALHAS_PARA_FORA = 3;
+  const TESTE_TABELA_MS = 60 * 60 * 1000;
+  let falhasTabela = 0;
+  let tabelaFora = null; // { desde, testeEm }
+  try {
+    const t = JSON.parse(localStorage.getItem(CHAVE_TABELA) || 'null');
+    if (t && t.desde) tabelaFora = { desde: t.desde, testeEm: t.testeEm || t.desde };
+  } catch (e) { /* sem localStorage: começa como disponível */ }
+  function salvarTabela() {
+    try {
+      if (tabelaFora) localStorage.setItem(CHAVE_TABELA, JSON.stringify(tabelaFora));
+      else localStorage.removeItem(CHAVE_TABELA);
+    } catch (e) {}
+  }
+  function falhaTabela(motivo) {
+    if (freadoEm && Date.now() - freadoEm < 60000) return; // o pedido de calma explica a falta de resposta
+    falhasTabela++;
+    if (tabelaFora) { tabelaFora.testeEm = Date.now(); salvarTabela(); return; } // o teste da hora falhou
+    if (falhasTabela >= FALHAS_PARA_FORA) {
+      tabelaFora = { desde: Date.now(), testeEm: Date.now() };
+      salvarTabela();
+      console.info('[Smart Market] a Tabela de preços do jogo não está respondendo (' + motivo + ') — usando só as vendas guardadas; nova tentativa a cada hora.');
+    }
+  }
+  function sucessoTabela() {
+    falhasTabela = 0;
+    if (tabelaFora) {
+      tabelaFora = null;
+      salvarTabela();
+      console.info('[Smart Market] a Tabela de preços do jogo voltou a responder.');
+    }
+  }
+  const podeTestarTabela = () => !!tabelaFora && Date.now() - tabelaFora.testeEm >= TESTE_TABELA_MS;
+  function erroTabela() {
+    const e = new Error('a Tabela de preços do jogo não está respondendo; usando as vendas guardadas (nova tentativa a cada hora)');
+    e.tabela = true;
+    return e;
+  }
+
   /** Envia pela conexão do jogo marcando que é da extensão (não conta como market.listar do jogo). */
   function enviarNosso(obj) {
     if (!socket || socket.readyState !== 1) throw new Error('sem conexão com o jogo');
@@ -209,7 +269,12 @@
     return new Promise((resolve, reject) => {
       if (!socket || socket.readyState !== 1) return reject(new Error('sem conexão com o jogo'));
       const s = ++seq;
-      const timer = setTimeout(() => { pendentes.delete(s); reject(new Error('sem resposta do jogo')); }, TIMEOUT_MS);
+      const timer = setTimeout(() => {
+        pendentes.delete(s);
+        const e = new Error('sem resposta do jogo');
+        e.contaTabela = true;
+        reject(e);
+      }, TIMEOUT_MS);
       pendentes.set(s, { resolve, reject, timer });
       enviarNosso(Object.assign({ t: 'market.historicoGlobal', seq: s }, corpo));
     });
@@ -255,12 +320,28 @@
 
   // soShiny / soP5: os filtros "Só shiny" e "Apenas P5" da Tabela de preços
   function consultarHistorico({ pagina = 0, moeda = 'orb', busca = '', soShiny = false, soP5 = false } = {}) {
+    // Tabela fora do ar: recusa na hora; passada 1 h desde o último teste, esta consulta é o teste
+    if (tabelaFora) {
+      if (!podeTestarTabela()) return Promise.reject(erroTabela());
+      tabelaFora.testeEm = Date.now();
+      salvarTabela();
+    }
     return agendar(() => {
       const corpo = { pagina, tipo: 'pokemon', moeda };
       if (busca) corpo.busca = busca;
       if (soShiny) corpo.soShiny = 1;
       if (soP5) corpo.soP5 = 1;
-      return enviar(corpo);
+      return enviar(corpo).then(j => {
+        if (!j || !Array.isArray(j.linhas)) {
+          falhaTabela('resposta sem linhas');
+          throw new Error('resposta inesperada da Tabela de preços do jogo');
+        }
+        sucessoTabela();
+        return j;
+      }, e => {
+        if (e && e.contaTabela) falhaTabela(e.message);
+        throw e;
+      });
     });
   }
 
@@ -301,7 +382,11 @@
     conectado: () => !!socket && socket.readyState === 1,
     aoReceberVitrine: fn => { ouvintesVitrine.push(fn); },
     pausado: () => Date.now() < pausadoAte,
-    ritmo: () => (soltarFreioVencido(), { intervalo, intervaloNormal: INTERVALO_MS, pausadoAte, freioAte: freadoEm ? freadoEm + FREIO_VALIDADE_MS : 0, tetoPorMinuto: TETO_POR_MINUTO, orcamentoConexao: ORCAMENTO_CONEXAO_MIN, enviosConexaoUltimoMinuto: enviosNoUltimoMinuto() }),
+    ritmo: () => (soltarFreioVencido(), { intervalo, intervaloNormal: INTERVALO_MS, pausadoAte, freioAte: freadoEm ? freadoEm + FREIO_VALIDADE_MS : 0, tetoPorMinuto: TETO_POR_MINUTO, orcamentoConexao: ORCAMENTO_CONEXAO_MIN, enviosConexaoUltimoMinuto: enviosNoUltimoMinuto(),
+      tabelaForaDesde: tabelaFora ? tabelaFora.desde : 0, tabelaProximoTeste: tabelaFora ? tabelaFora.testeEm + TESTE_TABELA_MS : 0 }),
+    /** Estado da Tabela de preços: fora do ar desde quando, e se a próxima consulta já pode ser o teste. */
+    tabela: () => ({ fora: !!tabelaFora, desde: tabelaFora ? tabelaFora.desde : 0, podeTestar: podeTestarTabela() }),
     _frear: frear,
+    _falhaTabela: falhaTabela, // para os testes de outros arquivos
   };
 })();
