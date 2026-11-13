@@ -60,7 +60,7 @@ Created by dan_the_treiner.
 
 **Imagens:**
 
-- Ícone da loja: `icons/icone-128.png` (128×128).
+- Ícone da loja: `icons/icone-128.png` (128×128, com o desenho em 96×96 e margem transparente, como a loja recomenda). Desde 13/11/2026 é o ícone próprio (diamante rosa com etiqueta de preço); se a loja mostrar o antigo, enviar este de novo no campo do ícone.
 - Capturas de tela: 5, em 1280×800, na pasta `capturas-loja/` (fora do git, porque mostram dados da conta): `1-ficha.png`, `2-precificar.png`, `3-vitrine.png`, `4-anuncio.png` (painel no Novo anúncio do Blastoise, com o "usar 190 M" já aplicado: o "VOCÊ RECEBE" do jogo bate com o líq) e `5-popup.png`. Há também `extra-editar-anuncio.png` (o painel no Editar), para trocar por alguma se quiser. Foram tiradas no jogo com as colunas laterais (chat, conta) e os nicks dos vendedores borrados; a do popup é a página de teste sobre a ficha escurecida. Para refazer: viewport do jogo com proporção 1,6, recorte e redimensionamento para 1280×800.
 - Bloco promocional pequeno (440×280): `capturas-loja/bloco-promocional-440x280.png` (o diamante, o nome e uma frase sobre o fundo vinho, com o toldo e a borda roxa da extensão). É a imagem que a loja usa nas listas e destaques, menor que as capturas.
 

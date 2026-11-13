@@ -2,6 +2,8 @@
 
 **Smart Market** (repositório `danielbonfante/pokeidle-smartmarket`; até 11/11/2026 se chamava Pokeidle Preço e até 12/11/2026, Pokeidle Smart Market — o nome perdeu o "Pokeidle" para não parecer oficial: o pokeidle.io só aparece como "para o pokeidle.io", no resumo e nos textos, e o README e a loja dizem que é um projeto independente). Extensão do Chrome (MV3) que mostra na ficha do Pokémon do pokeidle.io o preço estimado em Gemas e Coins, calculado a partir das vendas do mercado da comunidade (**RMT**). Created by dan_the_treiner. **Código visível, todos os direitos reservados** (`LICENSE`, desde 12/11/2026; até a 1.1.0 era GPL-3.0): pode ler, usar e contribuir; não pode redistribuir, publicar versão modificada, vender ou reaproveitar em outro projeto. Decidido depois de ver extensões do jogo copiadas em cadeia, uma delas como versão "PRO". Todo arquivo da extensão começa com o aviso de autoria (`© 2026 dan_the_treiner …`); arquivos novos também. É **só leitura**: não compra, não vende, não anuncia.
 
+**Ícone** (13/11/2026): diamante rosa com etiqueta de preço dourada e um brilho, pixel art 16×16 desenhada do zero (geometria simples) e ajustada pelo Daniel. O ícone anterior tinha sido feito a partir de um print da Gema do jogo; foi trocado para não usar arte do jogo nem parecer extensão oficial. Nunca usar arte, sprites ou ícones do jogo nos arquivos da extensão. O 💎 (azul) também não serve para a Gema: no jogo, o diamante azul é o da loja VIP, e a Gema é rosa.
+
 Responda em português.
 
 ## Decisões tomadas
