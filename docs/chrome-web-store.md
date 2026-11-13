@@ -108,16 +108,18 @@ Se a revisão da loja entender que guardar dados do site localmente conta como c
 
 **URL da política de privacidade:** `https://github.com/danielbonfante/pokeidle-smartmarket/blob/main/PRIVACY.md`
 
-## Instruções para a revisão (se o painel pedir)
+## Instruções para a revisão (campo "Mais instruções", no máximo 500 caracteres)
 
 ```text
-Para ver a extensão funcionando é preciso uma conta gratuita no pokeidle.io (https://pokeidle.io). Depois de entrar no jogo:
-1. Abra a ficha de qualquer Pokémon (por exemplo, pelo botão "Ver ficha" da equipe): aparece o quadro "Preço estimado" e o botão "Precificar".
-2. Abra o Mercado da Comunidade e clique numa espécie: cada anúncio ganha um selo (pechincha / no preço / acima do justo).
-3. Em "+ Anunciar" → "Um pokemon", escolha um Pokémon: aparece o painel de preços ao lado. Não é preciso publicar nada.
-4. Clique no ícone da extensão para ligar/desligar cada parte e ver o cache.
-Na primeira vez, o preço aparece logo e vai se ajustando enquanto a extensão baixa o histórico da espécie, o que pode levar alguns minutos numa espécie muito vendida (as consultas seguem um ritmo lento de propósito).
+Precisa de conta gratuita em https://pokeidle.io. No jogo:
+1. Abra a ficha de um Pokémon ("Ver ficha" na equipe): aparece o quadro "Preço estimado" e o botão "Precificar".
+2. No Mercado da Comunidade, clique numa espécie: cada anúncio ganha um selo de preço.
+3. Em "+ Anunciar" → "Um pokemon", escolha um: aparece o painel de preços. Não é preciso publicar.
+4. O ícone da extensão liga e desliga cada parte.
+A 1ª busca de uma espécie pode levar alguns minutos (ritmo lento de propósito).
 ```
+
+São 487 caracteres (492 se o painel contar a quebra de linha como dois). Se mudar o texto, conte de novo antes de colar.
 
 ## Aba "Distribuição"
 
