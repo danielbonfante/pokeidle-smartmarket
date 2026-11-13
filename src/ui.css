@@ -460,7 +460,11 @@
    dourado que o jogo põe nos cards shiny) e a etiqueta pixelada (o ícone) no canto de cima.
    Os valores depois da vírgula são os do modo normal, para quando as variáveis não existirem.
    ========================================================================================== */
-.pp-badge, .pp-anuncio, .pp-prec, .pp-vit { position: relative; }
+/* A etiqueta (::after) precisa de um pai posicionado. O quadro e o selo ganham position: relative; o
+   painel do anúncio JÁ É fixed (fica direto na página) e não pode entrar aqui: em 13/11/2026 esta regra
+   incluía .pp-anuncio, sobrescrevia o fixed, e o painel caía centenas de pixels abaixo da caixa do jogo
+   (top 339 no estilo, desenhado em 1019). A janela Precificar também é posicionada. */
+.pp-badge, .pp-prec, .pp-vit { position: relative; }
 
 /* quadro da ficha: o mesmo card do "Stats atuais" (.fi-cartao) */
 .pp-badge {
