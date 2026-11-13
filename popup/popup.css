@@ -105,3 +105,17 @@ footer .versao { margin-top: 2px; font-size: 10px; color: #8f7cad; }
 .dinheiro .cotacao { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; color: var(--titulo); }
 .dinheiro .cotacao[hidden] { display: none; }
 .dinheiro .cotacao input { width: 70px; padding: 3px 6px; border-radius: 6px; border: 1px solid rgba(181, 140, 255, 0.4); background: rgba(10, 4, 10, 0.6); color: #fff; font: inherit; }
+
+/* Janela larga (13/11/2026): há navegadores que abrem o popup numa janela comum, bem maior que os
+   340 px, e o conteúdo ficava preso à esquerda. Aí o fundo ocupa a janela toda e o conteúdo vira duas
+   colunas centralizadas (opções | cache e freio). No Chrome o popup tem a largura do conteúdo, então
+   isto nunca vale lá. */
+@media (min-width: 640px) {
+  html { min-height: 100%; background: #1d0d16; }
+  body { width: auto; max-width: 780px; min-height: 100vh; margin: 0 auto; display: flex; flex-direction: column; }
+  .colunas { display: grid; grid-template-columns: 1fr 1fr; align-items: start; }
+  .colunas section { padding-top: 6px; }
+  .apoie { width: calc(100% - 28px); max-width: 520px; margin: 6px auto 2px; }
+  footer { margin-top: auto; display: flex; justify-content: space-between; gap: 12px; align-items: baseline; }
+  footer .versao { margin-top: 0; }
+}
