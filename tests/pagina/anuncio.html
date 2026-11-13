@@ -5,6 +5,7 @@
   Servir a raiz do projeto em 127.0.0.1 e abrir /tests/pagina/anuncio.html#<caso>.
   Casos: #ok (padrão), #fora-do-indice, #shiny, #lento, #pausa, #agitado, #cores, #editar, #editar-travado,
   #carregando (busca de vendas de 3 páginas: o preço só aparece no fim).
+  O palco tem as medidas do jogo (toldo, sprite, nome): a ficha resumida aparece nele, à esquerda do sprite.
 -->
 <html lang="pt-BR"><head><meta charset="utf-8"><title>Teste — painel do anúncio</title>
 <link rel="stylesheet" href="../../src/ui.css">
@@ -14,7 +15,11 @@
   .cm-folha { position: absolute; inset: 0; background: rgba(0,0,0,.55); }
   .cm-folha-caixa { position: absolute; left: 400px; top: 116px; width: 520px; height: 584px; background: #4a2633; border: 2px solid #6e3a4a; border-radius: 8px; box-sizing: border-box; }
   .cm-folha-corpo { padding: 10px; }
-  .dlg-palco { background: #2a1520; text-align: center; padding: 18px 0; color: #ffd166; }
+  /* palco com as medidas do jogo (print de 13/11/2026): toldo em cima, sprite no meio, nome e Nv embaixo */
+  .dlg-palco { position: relative; height: 134px; box-sizing: border-box; padding-top: 86px; text-align: center; color: #ffd166;
+    background: linear-gradient(#7a3b4c 0 26px, #2a1520 26px); }
+  .dlg-palco::before { content: ''; position: absolute; left: 50%; top: 34px; width: 44px; height: 46px; margin-left: -22px; background: #c0392b; border-radius: 8px; }
+  .dlg-palco.compacta > :not(.pp-palco-ficha) { position: relative; }
   .mk-card { display: inline-block; padding: 10px; margin: 6px; background: #1d0f16; cursor: pointer; }
   .cm-moeda.on { outline: 2px solid #b58cff; }
   #resumo { margin-top: 8px; }

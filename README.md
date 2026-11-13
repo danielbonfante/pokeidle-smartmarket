@@ -67,7 +67,7 @@ Os selos usam as vendas já guardadas. Vendas novas são buscadas quando a vitri
 Ao anunciar um Pokémon (Mercado → **+ Anunciar** → **Um pokemon** → escolher o Pokémon), aparece um painel ao lado da tela de preço:
 
 - **Vender rápido / Preço justo / Esperar** na moeda escolhida, com o **líq** e um botão **usar** que preenche o campo de preço. Quem publica é sempre você.
-- À esquerda, uma **ficha resumida** do seu Pokémon.
+- Dentro do palco do jogo, ao lado do Pokémon, uma **ficha resumida**: tipos, Potência, Qualidade, IV, Nota e Poder.
 - Dá para **arrastar** o painel pela barra de cima, para ver o que está atrás (a janela Precificar também).
 - As abas **À venda** (anúncios abertos agora da mesma espécie) e **Vendidos** (vendas dos últimos 30 dias), com os mais parecidos com o seu primeiro.
 

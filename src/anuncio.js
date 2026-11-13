@@ -13,7 +13,7 @@
 
   const L = window.PIAnuncioLogica;
   const M = window.PIMotor;
-  const LARGURA = 360; // os dois painéis (ficha à esquerda, preços à direita) têm a mesma largura
+  const LARGURA = 360; // largura do painel de preços (a ficha resumida fica dentro do palco do jogo)
   const MAX_LINHAS = 8;
   const MOEDA = window.PIUi.MOEDA;
 
@@ -131,8 +131,8 @@
       consultas: [],        // promessas das consultas de vitrine feitas por este painel
     };
     folha.appendChild(painel.el);
-    painel.ficha = criarFicha(alvo, brutoDoAnuncio(folha));
-    folha.appendChild(painel.ficha);
+    painel.palcoFicha = criarFichaPalco(alvo, brutoDoAnuncio(folha));
+    colocarFichaNoPalco();
     posicionar();
     painel.obsMoeda = new MutationObserver(() => {
       const on = folha.querySelector('.cm-moeda.on');
@@ -155,7 +155,7 @@
     if (painel.obsMoeda) painel.obsMoeda.disconnect();
     window.removeEventListener('resize', posicionar);
     painel.el.remove();
-    if (painel.ficha) painel.ficha.remove();
+    if (painel.palcoFicha) painel.palcoFicha.remove();
     painel = null;
   }
 
@@ -170,56 +170,97 @@
     const altura = p.modo === 'abaixo' ? { height: '', maxHeight: rc.height + 'px' } : { height: rc.height + 'px', maxHeight: '' };
     Object.assign(painel.el.style, { left: p.left + 'px', top: p.top + 'px', width: LARGURA + 'px' }, altura);
     painel.el.dataset.modo = p.modo;
-    if (painel.ficha) {
-      const pf = L.posicaoPainel(rc, rf, LARGURA, undefined, 'esquerda');
-      const cabe = p.modo === 'direita' && pf.modo === 'esquerda';
-      painel.ficha.hidden = !cabe;
-      if (cabe) Object.assign(painel.ficha.style, { left: pf.left + 'px', top: pf.top + 'px', width: LARGURA + 'px', height: rc.height + 'px' });
-    }
+    colocarFichaNoPalco();
   }
 
-  // ---------- ficha resumida do Pokémon (à esquerda) ----------
+  // ---------- ficha resumida do Pokémon (dentro do palco do jogo) ----------
   const COR_TIPO = {
     normal: '#a8a77a', fire: '#ee8130', water: '#6390f0', electric: '#f7d02c', grass: '#7ac74c', ice: '#96d9d6',
     fighting: '#c22e28', poison: '#a33ea1', ground: '#e2bf65', flying: '#a98ff3', psychic: '#f95587', bug: '#a6b91a',
     rock: '#b6a136', ghost: '#735797', dragon: '#6f35fc', dark: '#705746', steel: '#b7b7ce', fairy: '#d685ad',
   };
 
-  function criarFicha(alvo, bruto) {
+  /**
+   * Ficha resumida dentro do palco do jogo (13/11/2026): o painel da esquerda deixava muito espaço
+   * vazio; agora os dados vão no canto vazio do palco, à esquerda do sprite, em pílulas como as dos
+   * cards da vitrine do jogo (as mesmas cores de antes). AoE/Z-Move/shiny não detectados: o aviso
+   * fica no painel de preços.
+   */
+  function criarFichaPalco(alvo, bruto) {
     const el = document.createElement('div');
-    el.className = 'pp-anuncio pp-an-ficha';
+    el.className = 'pp-palco-ficha';
+    el.title = 'Ficha resumida · Smart Market';
     // como na ficha do jogo: sempre 3 casas (1,200 / 4,610)
     const n = (x, c) => (isFinite(x) ? Number(x).toLocaleString('pt-BR', { minimumFractionDigits: c, maximumFractionDigits: c }) : '—');
     const tipos = ((bruto && bruto.tipos) || []).map(t => {
       const k = String(t).toLowerCase();
       return `<span class="pp-fi-tipo" style="background:${COR_TIPO[k] || '#777'}">${esc(k.toUpperCase())}</span>`;
     }).join('');
-    const selos = [alvo.shiny ? '✨ SHINY' : '', alvo.aoe ? 'TM AoE' : '', alvo.zmove ? 'Z-MOVE' : ''].filter(Boolean)
+    const selos = [alvo.shiny ? '✨' : '', alvo.aoe ? 'AoE' : '', alvo.zmove ? 'Z' : ''].filter(Boolean)
       .map(s => `<span class="pp-fi-selo">${s}</span>`).join('');
-    const faixa = L.faixaNota(alvo.nota);
-    // cls: cor do cartão — pp-fi-t1…t5 (escala de raridade do jogo) ou pp-fn0…9 (faixa da Nota)
-    const cartao = (rot, valor, extra, dica, cls) =>
-      `<div class="pp-fi-cartao ${cls || ''}" title="${esc(dica)}"><span>${rot}</span><b>${valor}</b>${extra ? '<i>' + extra + '</i>' : ''}</div>`;
+    // cls: cor da pílula — pp-fi-t1…t5 (escala de raridade do jogo) ou pp-fn0…9 (faixa da Nota)
+    const pilula = (rot, valor, dica, cls) =>
+      `<div class="pp-fi-cartao ${cls || ''}" title="${esc(dica)}"><span>${rot}</span><b>${valor}</b></div>`;
     const tem = x => isFinite(x) && x > 0;
     const t = (tipo, v) => (tem(v) ? 'pp-fi-t' + L.nivelSelo(tipo, v) : '');
     const iNota = L.indiceFaixaNota(alvo.nota);
+    const faixa = L.faixaNota(alvo.nota);
+    const poder = bruto && isFinite(bruto.poder) ? bruto.poder : null;
     el.innerHTML = `
-      <div class="pp-toldo"></div>
-      <div class="pp-fi-cab">
-        <div class="pp-fi-nome">${alvo.shiny ? '✨ ' : ''}${esc(alvo.nome)}</div>
-        <div class="pp-fi-linha"><span class="pp-fi-nv">Nv ${alvo.level}</span>${tipos}</div>
-        ${selos ? '<div class="pp-fi-linha">' + selos + '</div>' : ''}
+      ${tipos || selos ? `<div class="pp-pf-linha">${tipos}${selos}</div>` : ''}
+      <div class="pp-pf-grade">
+        ${pilula('P', tem(alvo.potencia) ? alvo.potencia : '—', D().pot, t('potencia', alvo.potencia))}
+        ${pilula('Q', n(alvo.quality, 3), 'Qualidade (0,8 a 1,8): sorteada na captura, multiplica todos os stats.', t('qualidade', alvo.quality))}
+        ${pilula('IV', tem(alvo.ivTotal) ? alvo.ivTotal : '—', 'IV somado: a soma dos seis IVs (1 a 32 cada, até 192). Nunca muda.', t('iv', alvo.ivTotal))}
+        ${pilula('N', n(alvo.nota, 3), D().nota + (faixa ? ' Faixa: ' + faixa + '.' : ''), iNota >= 0 ? 'pp-fn' + iNota : '')}
       </div>
-      <div class="pp-fi-cartoes">
-        ${cartao('Potência', tem(alvo.potencia) ? 'P' + alvo.potencia : '—', '', D().pot, t('potencia', alvo.potencia))}
-        ${cartao('Qualidade', n(alvo.quality, 3), '', 'Qualidade (0,8 a 1,8): sorteada na captura, multiplica todos os stats.', t('qualidade', alvo.quality))}
-        ${cartao('IV somado', tem(alvo.ivTotal) ? alvo.ivTotal + '<small>/192</small>' : '—', '', 'Soma dos seis IVs (1 a 32 cada). Nunca muda.', t('iv', alvo.ivTotal))}
-        ${cartao('Nota', n(alvo.nota, 3), faixa, D().nota, iNota >= 0 ? 'pp-fn' + iNota : '')}
-        ${cartao('Poder (ranking)', bruto && isFinite(bruto.poder) ? '⚔ ' + bruto.poder : '—', '', 'Poder (⚔) do ranking "Pokemon forte": sobe com nível, refino e evolução. Não é o "Poder no PvE" da ficha oficial.')}
-      </div>
-      ${alvo.parcial ? '<div class="pp-an-avisos"><div class="pp-aviso">Dados lidos da tela: AoE, Z-Move e shiny não foram detectados.</div></div>' : ''}
-      <div class="pp-fi-rodape">ficha resumida · Smart Market</div>`;
+      <div class="pp-pf-linha pp-pf-rodape">
+        ${poder != null ? `<span title="Poder (⚔) do ranking &quot;Pokemon forte&quot;: sobe com nível, refino e evolução. Não é o &quot;Poder no PvE&quot; da ficha oficial.">⚔ ${poder}</span>` : ''}
+        ${faixa ? `<span>${esc(faixa)}</span>` : ''}
+      </div>`;
     return el;
+  }
+
+  /** Põe a ficha no palco da folha, no canto de baixo à esquerda; não mostra se não couber ao lado do sprite. */
+  function colocarFichaNoPalco() {
+    if (!painel || !painel.palcoFicha) return;
+    const palco = painel.folha.querySelector('.dlg-palco');
+    const el = painel.palcoFicha;
+    if (!palco) { el.remove(); return; }
+    if (el.parentElement !== palco) {
+      if (getComputedStyle(palco).position === 'static') palco.style.position = 'relative';
+      palco.appendChild(el);
+    }
+    // à esquerda do sprite (que fica no meio): no máximo metade do palco menos uma folga para ele
+    const largura = Math.min(190, Math.floor(palco.clientWidth / 2) - 56);
+    el.style.width = largura + 'px';
+    el.hidden = false; // para medir de verdade
+    if (largura < 120 || el.offsetHeight > palco.clientHeight - 12) { el.hidden = true; return; }
+    // Não cobre nada do jogo (nome, nível, a placa da estadia no Editar…): tenta o canto de baixo,
+    // depois o de cima (abaixo do toldo), cada um do mais largo até 130 px; se encostar em texto do
+    // jogo em todos, não mostra
+    for (const canto of [{ top: '', bottom: '8px' }, { top: '30px', bottom: '' }]) {
+      Object.assign(el.style, canto);
+      for (let w = largura; w >= 130; w -= 20) {
+        el.style.width = w + 'px';
+        if (el.offsetHeight <= palco.clientHeight - 12 && !encostaEmTexto(palco, el)) return;
+      }
+      el.style.width = largura + 'px';
+    }
+    el.hidden = true;
+  }
+
+  /** Algum texto do jogo dentro do palco encosta no retângulo da ficha? Mede o texto, não a caixa
+   *  (um nome centralizado num bloco da largura do palco só ocupa o meio). */
+  function encostaEmTexto(palco, el) {
+    const r = el.getBoundingClientRect();
+    const faixa = document.createRange();
+    return [...palco.querySelectorAll('*')].some(n => {
+      if (el.contains(n) || n.childElementCount || !n.textContent.trim()) return false;
+      faixa.selectNodeContents(n);
+      const q = faixa.getBoundingClientRect();
+      return q.width > 0 && q.left < r.right && q.right > r.left && q.top < r.bottom && q.bottom > r.top;
+    });
   }
 
   // ---------- dados ----------
@@ -440,6 +481,8 @@
     const ligado = !window.PIConfig || window.PIConfig.ligado('painel'); // pode ser desligado no popup
     if (painel && (!ligado || !painel.input.isConnected || painel.input !== input || !visivel || !ehPokemon)) desmontar();
     if (ligado && !painel && input && visivel && ehPokemon) montar(folha, input);
+    // o jogo pode redesenhar o palco (troca de moeda, digitação): a ficha volta para o palco novo
+    if (painel && painel.palcoFicha && !painel.palcoFicha.isConnected) colocarFichaNoPalco();
   }
 
   new MutationObserver(muts => {

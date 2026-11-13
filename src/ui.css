@@ -242,21 +242,14 @@
 .pp-anuncio .pp-an-lista { flex: 1 1 auto; }
 .pp-anuncio[hidden] { display: none; }
 
-/* Ficha resumida do Pokémon (à esquerda da caixa do jogo) */
-.pp-an-ficha .pp-fi-cab { padding: 8px 10px 4px; }
-.pp-fi-nome { font-size: 15px; font-weight: 800; color: #fff; }
-.pp-fi-linha { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 5px; align-items: center; }
-.pp-fi-nv { padding: 1px 7px; border-radius: 999px; background: #1d0f16; color: #ffd166; font-weight: 700; font-size: 10.5px; }
-.pp-fi-tipo { padding: 1px 6px; border-radius: 4px; color: #fff; font-size: 9.5px; font-weight: 700; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4); }
+/* Ficha resumida do Pokémon (dentro do palco da folha de anúncio do jogo) */
+.pp-fi-tipo { padding: 0 5px; border-radius: 4px; color: #fff; font-size: 9.5px; font-weight: 700; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.4); }
 .pp-fi-selo { padding: 1px 6px; border-radius: 4px; background: rgba(255, 209, 102, 0.18); border: 1px solid rgba(255, 209, 102, 0.6); color: #ffd166; font-size: 9.5px; font-weight: 700; }
-.pp-fi-cartoes { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; margin: 6px 10px; }
 .pp-fi-cartao { background: rgba(20, 10, 16, 0.75); border: 1px solid rgba(181, 140, 255, 0.25); border-radius: 6px; padding: 5px 7px; cursor: help; }
 .pp-fi-cartao span { display: block; font-size: 9px; letter-spacing: 0.04em; text-transform: uppercase; color: #a993c9; }
 .pp-fi-cartao b { font-size: 15px; color: #fff; }
 .pp-fi-cartao b small { font-size: 10px; color: #a993c9; font-weight: 400; }
 .pp-fi-cartao i { display: block; font-style: normal; font-size: 10px; color: #7ee2a8; }
-.pp-fi-cartao:last-child:nth-child(odd) { grid-column: 1 / -1; }
-.pp-fi-rodape { margin-top: auto; padding: 6px 10px 8px; font-size: 9px; color: #8f7cad; text-align: right; }
 
 /* ---------- Perfumaria (pendência 11): letra maior e cartões coloridos como na ficha do jogo ---------- */
 .pp-anuncio { font-size: 12.5px; }
@@ -299,8 +292,6 @@
 .pp-fi-cartao[class*="pp-fi-t"] b small, .pp-fi-cartao[class*="pp-fn"] b small { color: rgba(43, 33, 53, 0.6); }
 .pp-fi-cartao[class*="pp-fn"] i { color: #2b2135; font-weight: 700; }
 .pp-fi-cartao.pp-fi-t5 { box-shadow: inset 0 0 0 2px var(--c-esc), inset 0 0 0 3px color-mix(in srgb, var(--c-luz) 55%, transparent), 0 0 7px #ffc02e66; }
-.pp-fi-nome { font-size: 16px; }
-.pp-fi-cartao b { font-size: 16px; }
 
 /* Selo "sem preço justo · buscar": busca as vendas da espécie sob demanda */
 .pp-vit-buscar { color: #d9c4ff; text-decoration: underline; cursor: pointer; font-weight: 700; }
@@ -443,3 +434,26 @@
 .pp-alca { cursor: move; touch-action: none; user-select: none; }
 .pp-alca button { cursor: pointer; }
 .pp-arrastando { opacity: 0.92; box-shadow: 0 10px 28px rgba(0, 0, 0, 0.55); }
+
+/* Ficha resumida no palco: canto de baixo à esquerda, ao lado do nome e do sprite (13/11/2026) */
+.pp-palco-ficha {
+  position: absolute;
+  left: 8px;
+  bottom: 8px;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: left;
+  font-family: inherit;
+  line-height: 1.2;
+  cursor: help;
+}
+.pp-palco-ficha[hidden] { display: none; }
+.pp-pf-linha { display: flex; flex-wrap: wrap; gap: 3px; align-items: center; }
+.pp-pf-linha .pp-fi-tipo, .pp-pf-linha .pp-fi-selo { font-size: 9.5px; padding: 0 5px; border-radius: 3px; }
+.pp-pf-grade { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; }
+.pp-palco-ficha .pp-fi-cartao { display: flex; align-items: baseline; justify-content: center; gap: 4px; padding: 2px 6px; border-radius: 5px; }
+.pp-palco-ficha .pp-fi-cartao span { display: inline; font-size: 10px; font-weight: 700; letter-spacing: 0; text-transform: none; }
+.pp-palco-ficha .pp-fi-cartao b { font-size: 12.5px; }
+.pp-pf-rodape { font-size: 11px; color: #e8d7ff; gap: 6px; text-shadow: 0 1px 1px rgba(0, 0, 0, 0.6); }
