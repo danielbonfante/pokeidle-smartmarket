@@ -50,6 +50,7 @@
     vendidos: 'Vendas desta espécie nos últimos 30 dias, nesta moeda, as mais parecidas com este Pokémon primeiro.',
     travado: 'o jogo só deixa mudar o preço a cada 30 min',
     precificar: 'Abre a análise completa: o preço justo com as vendas parecidas na barra, a confiança medida nesta espécie e os grupos de preço.',
+    carregando: 'Buscando as vendas novas desta espécie no histórico do Mercado, uma página por vez, no ritmo de sempre. O preço aparece quando a busca terminar, já com todas as vendas.',
   };
   const FAIXA = window.PIMotor.FAIXA_MERCADO;
 
@@ -190,7 +191,7 @@
     const linha = badge.querySelector(`.pp-linha[data-moeda="${moeda}"]`);
     if (!linha) return;
     const [q1, q2, q3] = ['.pp-q1', '.pp-q2', '.pp-q3'].map(s => linha.querySelector(s));
-    linha.classList.remove('pp-estimativa');
+    linha.classList.remove('pp-estimativa', 'pp-carregando');
     const liq = badge.querySelector(`.pp-liq[data-moeda="${moeda}"]`);
     if (liq) {
       const ok = res && res.suficiente;
@@ -331,47 +332,73 @@
     return est;
   }
 
+  /** Linha de uma moeda enquanto a busca dela roda: nada de preço parcial, só o andamento. */
+  function renderCarregando(badge, moeda, pagina) {
+    const linha = badge.querySelector(`.pp-linha[data-moeda="${moeda}"]`);
+    if (!linha) return;
+    const [q1, q2, q3] = ['.pp-q1', '.pp-q2', '.pp-q3'].map(s => linha.querySelector(s));
+    linha.classList.remove('pp-vazia', 'pp-estimativa');
+    linha.classList.add('pp-carregando');
+    linha.title = DICA.carregando;
+    q1.textContent = ''; q3.textContent = '';
+    q2.innerHTML = `<span class="pp-girando" aria-hidden="true"></span> carregando${pagina ? ' · pág. ' + pagina : ''}`;
+    const liq = badge.querySelector(`.pp-liq[data-moeda="${moeda}"]`);
+    if (liq) liq.hidden = true;
+  }
+
   async function atualizar(badge, alvo) {
     const resultados = {};
     const status = badge.querySelector('.pp-status');
     const vivo = () => badge.isConnected && fichaAtual === alvo.id;
+    // Moedas cuja busca está rodando, com a página atual. Enquanto a busca não termina, a linha
+    // mostra "carregando" em vez de preço: os primeiros valores, calculados no meio da busca,
+    // pareciam o resultado final e não eram (pedido do Daniel, 13/11/2026).
+    const carregando = new Map();
 
     const recalcular = async () => {
       for (const m of MOEDAS) {
         resultados[m.id] = await calcular(alvo, m.id);
         if (!vivo()) return;
-        renderMoeda(badge, m.id, resultados[m.id]);
+        if (carregando.has(m.id)) renderCarregando(badge, m.id, carregando.get(m.id));
+        else renderMoeda(badge, m.id, resultados[m.id]);
       }
-      renderResumo(badge, resultados, alvo);
+      // confiança e vendas só das moedas que já terminaram
+      const prontos = Object.fromEntries(MOEDAS.filter(m => !carregando.has(m.id)).map(m => [m.id, resultados[m.id]]));
+      renderResumo(badge, prontos, alvo);
     };
 
-    // 1) Mostra na hora o que já está no cache
-    await recalcular();
-    if (!vivo()) return;
-
-    // 2) Busca vendas novas no jogo, as duas moedas ao mesmo tempo. A fila do ws.js manda uma
-    //    consulta por vez, na ordem em que chegam, então as páginas saem intercaladas (Gemas, Coins,
-    //    Gemas…): o mesmo número de consultas e o mesmo ritmo, mas os dois preços aparecem logo
-    //    no começo, em vez de o Coins esperar o Gemas terminar.
+    // 1) Sem conexão: mostra o cache e pronto
     if (!window.PIWs.conectado()) {
-      status.textContent = 'sem conexão com o jogo — usando só o cache';
+      await recalcular();
+      if (vivo()) status.textContent = 'sem conexão com o jogo — usando só o cache';
       return;
     }
+
+    // 2) As moedas que vão consultar o jogo ficam em "carregando"; as outras (busca feita há menos
+    //    de 10 min, ou shiny em Coins) mostram o cache na hora
     const filtro = filtroDaClasse(alvo);
     const nomeClasse = alvo.shiny ? 'shiny' : 'P5';
     const moedas = MOEDAS.filter(m => !soGemas(alvo, m.id)); // shiny em Coins não existe: nem consulta
+    for (const m of moedas) {
+      try { if (await window.PISync.vaiBuscar(alvo.nome, m.id)) carregando.set(m.id, 0); } catch (e) { /* mostra o cache */ }
+    }
+    await recalcular();
+    if (!vivo()) return;
+
+    // 3) Busca vendas novas no jogo, as duas moedas ao mesmo tempo. A fila do ws.js manda uma
+    //    consulta por vez, na ordem em que chegam, então as páginas saem intercaladas (Gemas, Coins,
+    //    Gemas…): o mesmo número de consultas e o mesmo ritmo, e as duas terminam perto uma da outra.
     const andamento = {};
     const mostrarAndamento = () => {
       if (!vivo()) return;
       const partes = moedas.filter(m => andamento[m.id]).map(m => andamento[m.id]);
       if (partes.length) status.textContent = 'atualizando ' + partes.join(' · ') + '…';
     };
-    let ultimoRender = 0;
     const progresso = (m, rotulo) => ({ pagina }) => {
       if (!vivo()) return;
       andamento[m.id] = `${rotulo} pág. ${pagina}`;
       mostrarAndamento();
-      if (Date.now() - ultimoRender > 1500) { ultimoRender = Date.now(); recalcular(); }
+      if (carregando.has(m.id)) { carregando.set(m.id, pagina); renderCarregando(badge, m.id, pagina); }
     };
     const buscarMoeda = async m => {
       const nome = m.nome.toLowerCase();
@@ -380,18 +407,23 @@
       try {
         await window.PISync.sincronizar(alvo.nome, m.id, progresso(m, nome));
         if (!vivo()) return;
-        await recalcular();
-        if (!vivo()) return;
-        // Espécie sem vendas suficientes: busca as vendas de outros shiny/P5 para a estimativa pela Nota
-        const r = resultados[m.id];
-        if (filtro && !(r && r.suficiente && !r.estimativa)) {
-          await window.PISync.sincronizar('', m.id, progresso(m, `outros ${nomeClasse} em ${nome}`), filtro);
+        // Espécie sem vendas suficientes: busca as vendas de outros shiny/P5 para a estimativa pela
+        // Nota (a linha continua em "carregando" se essa busca for consultar o jogo)
+        if (filtro) {
+          const r = await calcular(alvo, m.id);
           if (!vivo()) return;
-          await recalcular();
+          if (!(r && r.suficiente && !r.estimativa)) {
+            if (!(await window.PISync.vaiBuscar('', m.id, filtro))) carregando.delete(m.id);
+            else carregando.set(m.id, 0);
+            await window.PISync.sincronizar('', m.id, progresso(m, `outros ${nomeClasse} em ${nome}`), filtro);
+            if (!vivo()) return;
+          }
         }
-      } finally { // também quando a moeda falha: o andamento dela sai da tela
+      } finally { // também quando a moeda falha: o andamento sai da tela e a linha mostra o cache
         delete andamento[m.id];
+        carregando.delete(m.id);
         mostrarAndamento();
+        if (vivo()) await recalcular();
       }
     };
     try {

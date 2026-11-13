@@ -241,17 +241,27 @@
       desenharPreco(); desenharLista();
       return true;
     };
+    // Vendas novas da espécie (mesma busca do quadro da ficha; respeita os 10 min e o ritmo).
+    // Se a busca vai consultar o jogo, o preço fica em "carregando" até ela terminar: o valor
+    // calculado no meio da busca parecia o final e não era.
+    const conectado = window.PIWs.conectado();
+    const vai = conectado && await window.PISync.vaiBuscar(p.alvo.nome, moeda).catch(() => false);
+    if (painel !== p || p.geracao !== g) return;
+    p.carregando = vai ? 0 : null;
     if (!(await carregar())) return;
     carregarAVenda(p, moeda);
-    // Vendas novas da espécie (mesma busca do quadro da ficha; respeita os 10 min e o ritmo)
-    if (window.PIWs.conectado()) {
-      try {
-        const r = await window.PISync.sincronizar(p.alvo.nome, moeda);
-        if (r && !r.pulou) await carregar();
-      } catch (e) {
-        if (painel === p && p.geracao === g) avisar('não deu para atualizar as vendas agora (' + e.message + ') — usando o cache');
-      }
+    if (!conectado) return;
+    let mudou = false;
+    try {
+      const r = await window.PISync.sincronizar(p.alvo.nome, moeda, ({ pagina }) => {
+        if (painel === p && p.geracao === g && p.carregando != null) { p.carregando = pagina; desenharPreco(); }
+      });
+      mudou = !!(r && !r.pulou);
+    } catch (e) {
+      if (painel === p && p.geracao === g) avisar('não deu para atualizar as vendas agora (' + e.message + ') — usando o cache');
     }
+    if (painel !== p || p.geracao !== g) return;
+    if (mudou || p.carregando != null) { p.carregando = null; await carregar(); }
   }
 
   /** Anúncios abertos da espécie nesta moeda: uma consulta por moeda; recusada → os já vistos. */
@@ -327,6 +337,13 @@
     const base = painel.el.querySelector('.pp-an-base');
     const res = painel.resultado;
     const moeda = painel.moeda;
+    box.classList.remove('pp-estimativa');
+    if (painel.carregando != null) {
+      const pag = painel.carregando ? ' · pág. ' + painel.carregando : '';
+      box.innerHTML = `<div class="pp-an-vazio" title="${esc(D().carregando)}"><span class="pp-girando" aria-hidden="true"></span> carregando vendas${pag}…</div>`;
+      base.textContent = '';
+      return;
+    }
     if (!res) { box.innerHTML = '<div class="pp-an-vazio">consultando vendas…</div>'; base.textContent = ''; return; }
     if (!res.suficiente) {
       box.innerHTML = `<div class="pp-an-vazio">${res.vendasEspecie ? res.vendasEspecie + ' venda(s) desta espécie em ' + MOEDA[moeda].nome + ' — poucas para estimar' : 'sem vendas desta espécie em ' + MOEDA[moeda].nome}</div>`;

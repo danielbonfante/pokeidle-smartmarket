@@ -13,6 +13,8 @@
     parecida → "poucas vendas com Nv e Nota parecidos · buscar" (sem o "buscar" depois de buscar).
   - #coins: igual a #buscar, mais três Garchomp em Coins (desconto, no preço, acima), para ver a
     faixa do selo com a unidade ("faixa 71–94 M").
+  - #atualizando: só Furious Scizor (vitrine focada); a busca de vendas leva 3 s e, enquanto isso, os
+    selos mostram "atualizando vendas…" em vez do preço calculado com as vendas antigas.
   Também redesenha os cards a cada 500 ms em #buscar e #pausa, como o jogo.
 -->
 <html lang="pt-BR"><head><meta charset="utf-8"><title>Teste — vitrine</title>
@@ -43,8 +45,11 @@
     vendasPorClasse: async () => [],
   };
   window.PISync = {
+    // #atualizando: a busca da vitrine focada (só Furious Scizor) consulta o jogo e leva 3 s
+    vaiBuscar: async busca => caso === 'atualizando' && !!busca,
     sincronizar: (busca, moeda, prog, filtro) => {
       if (!busca) return Promise.resolve({ pulou: true }); // sync de classe da vitrine: fora deste teste
+      if (caso === 'atualizando') return new Promise(r => setTimeout(() => r({ pulou: false, paginas: 3 }), 3000));
       window.__buscas.push({ busca, moeda });
       if (caso === 'pausa') return Promise.reject(new Error('o jogo pediu para ir mais devagar; consultas pausadas por ~3 min'));
       return new Promise(r => setTimeout(() => {
@@ -63,7 +68,7 @@
     ficha: { id: 7000 + i, speciesId: 212, nome: 'Furious Scizor', level: 100, nota: 3.5 + i * 0.02, potencia: 2, shiny: false, tmAoe: false, tmElemental: null } }));
   if (caso === 'coins') [5e7, 8.2e7, 1.2e8].forEach((preco, i) => linhas.push({ id: 950 + i, tipo: 'pokemon', moeda: 'gold', preco, pokemonId: 7950 + i,
     ficha: { id: 7950 + i, speciesId: 445, nome: 'Garchomp', level: 100, nota: 3.6, potencia: 2, shiny: false, tmAoe: false, tmElemental: null } }));
-  if (caso !== 'medir') linhas.push({ id: 900, tipo: 'pokemon', moeda: 'orb', preco: 14, pokemonId: 7900,
+  if (caso !== 'medir' && caso !== 'atualizando') linhas.push({ id: 900, tipo: 'pokemon', moeda: 'orb', preco: 14, pokemonId: 7900,
     ficha: { id: 7900, speciesId: 123, nome: 'Scizor', level: 100, nota: 3.502, potencia: 1, shiny: false, tmAoe: false, tmElemental: null } });
   // #parecidas: um Furious Scizor Nv 1.166 (as vendas guardadas são Nv 100) → "sem vendas parecidas"
   if (caso === 'parecidas') linhas.push({ id: 901, tipo: 'pokemon', moeda: 'orb', preco: 9000, pokemonId: 7901,

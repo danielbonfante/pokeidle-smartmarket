@@ -421,3 +421,17 @@
   background-image: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABgAAAAUCAYAAACXtf2DAAAAgUlEQVR4nGNgQAPGnPL/KcHo5mEAmlkAU/B/1jUIhoFr7/DiT9FbwfiEaQ8Y47SIZhbABGAK4RbAMIkWYFhEdwtwWoSGcRncI58ExvSzAFdc4LIIXZ6gwYPWAnSDB94CYi0iOWjobgEui2AWUGww3SzAZRHVDKabBegWkVyD0doCABEHOWYesVe2AAAAAElFTkSuQmCC");
   background-size: 24px 20px;
 }
+
+/* ---------- Carregando: enquanto a busca de uma moeda roda, no lugar do preço parcial ---------- */
+@keyframes pp-girar { to { transform: rotate(360deg); } }
+.pp-girando {
+  display: inline-block;
+  width: 9px;
+  height: 9px;
+  border: 2px solid rgba(217, 196, 255, 0.25);
+  border-top-color: #ff9ad6;
+  border-radius: 50%;
+  vertical-align: -1px;
+  animation: pp-girar 0.8s linear infinite;
+}
+.pp-linha.pp-carregando .pp-q2 { color: #c9a9d6; font-weight: 600; font-size: 11px; white-space: nowrap; }

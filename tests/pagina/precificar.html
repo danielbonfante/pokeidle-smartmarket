@@ -47,7 +47,7 @@
   window.PIWs = { pokemon: () => ({ id: 97553169, speciesId: 9, nome: 'Blastoise', level: nivel, nota: 3.598, quality: 1.8, potencia: 1, shiny: false, tmAoe: false, tmElemental: null, ivTotal: 130 }), conectado: () => comSync };
   window.PIStore = { vendasPorEspecie: async () => vendas, vendasPorClasse: async () => [] };
   let filaFalsa = Promise.resolve();
-  window.PISync = { sincronizar: async (busca, moeda, aoProgresso) => {
+  window.PISync = { vaiBuscar: async () => comSync, sincronizar: async (busca, moeda, aoProgresso) => {
     if (!comSync) return { pulou: true };
     for (let p = 1; p <= (moeda === 'orb' ? 4 : 3); p++) {
       filaFalsa = filaFalsa.then(() => new Promise(r => setTimeout(r, 1500)));

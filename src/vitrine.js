@@ -61,6 +61,14 @@
   // vêm várias espécies e as que não estão no cache ficavam "sem preço justo" para sempre.
   const buscas = new Map(); // "speciesId|moeda" -> { estado: 'buscando' | 'feita' | 'erro', msg }
 
+  // Busca da vitrine focada em andamento: moeda -> (anúncio) => é da espécie/classe buscada
+  const atualizando = new Map();
+  const SELO_ATUALIZANDO = {
+    cls: 'pp-vit-sem pp-vit-buscando',
+    html: '<span class="pp-girando" aria-hidden="true"></span> atualizando vendas…',
+    titulo: 'Smart Market: buscando as vendas novas desta espécie no histórico do RMT. O selo volta quando a busca terminar, já com todas as vendas.',
+  };
+
   function chaveEspecie(an) {
     return (an.alvo.speciesId != null ? an.alvo.speciesId : an.alvo.nome) + '|' + an.moeda;
   }
@@ -158,8 +166,10 @@
       const { an, rod, base } = alvo;
       const pronto = selosProntos.get(base);
       if (pronto && pronto.versao === versao) { porSelo(rod, base, pronto); continue; }
-      const res = await avaliar(an, memoEsp, memoClasse);
-      const novo = { versao, c: conteudoSelo(an, res) };
+      const foco = atualizando.get(an.moeda);
+      const novo = foco && foco(an)
+        ? { versao, c: SELO_ATUALIZANDO }
+        : { versao, c: conteudoSelo(an, await avaliar(an, memoEsp, memoClasse)) };
       selosProntos.delete(base);
       selosProntos.set(base, novo);
       if (selosProntos.size > MAX_ANUNCIOS) selosProntos.delete(selosProntos.keys().next().value);
@@ -300,13 +310,23 @@
     // As moedas ao mesmo tempo: a fila do ws.js manda uma consulta por vez, na ordem de chegada,
     // então as páginas saem intercaladas (Gemas, Coins…) e os selos das duas moedas chegam logo,
     // em vez de uma esperar a outra terminar. Mesmo ritmo e mesmo número de consultas.
+    // Enquanto a busca de uma moeda consulta o jogo, os selos desta espécie/classe nessa moeda
+    // mostram "atualizando vendas…" em vez do preço calculado com as vendas antigas.
+    const sid = nome ? desta[0].alvo.speciesId : null;
+    const doFoco = a => (nome ? a.alvo.speciesId === sid : window.PIMotor.classeDe(a.alvo) === classe);
     const porMoeda = async m => {
       const buscas = [];
-      if (nome) buscas.push(() => window.PISync.sincronizar(nome, m));
-      if (filtro) buscas.push(() => window.PISync.sincronizar('', m, null, filtro));
-      for (const b of buscas) {
-        const r = await b();
-        if (r && !r.pulou) { versao++; agendar(); }
+      if (nome) buscas.push([nome, undefined]);
+      if (filtro) buscas.push(['', filtro]);
+      for (const [busca, f] of buscas) {
+        const vai = await window.PISync.vaiBuscar(busca, m, f).catch(() => false);
+        if (vai) { atualizando.set(m, doFoco); versao++; agendar(); }
+        try {
+          const r = await window.PISync.sincronizar(busca, m, null, f);
+          if (r && !r.pulou) { versao++; agendar(); }
+        } finally {
+          if (vai) { atualizando.delete(m); versao++; agendar(); }
+        }
       }
     };
     sincronizando = true;

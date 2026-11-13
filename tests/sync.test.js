@@ -123,6 +123,21 @@ test('escolha da busca: as duas moedas juntas fazem uma comparação só', async
   assert.deepEqual(historico(), ['orb:Scizor:0', 'orb:+scizor:0', 'gold:+scizor:0']);
 });
 
+test('vaiBuscar: diz se a busca vai consultar o jogo (para a tela mostrar "carregando" só nesse caso)', async () => {
+  // sem escolha guardada: vai comparar as duas buscas → consulta
+  const a = montar(1);
+  assert.equal(await a.window.PISync.vaiBuscar('Scizor', 'orb'), true);
+  // escolha guardada e a busca escolhida feita há 2 min → pula (10 min de intervalo)
+  const b = montar(1, { sync: [escolhaSalva('Scizor', '+scizor'), { chave: 'orb|+scizor', maxId: 5, em: Date.now() - 2 * 60e3 }] });
+  assert.equal(await b.window.PISync.vaiBuscar('Scizor', 'orb'), false);
+  assert.equal(await b.window.PISync.vaiBuscar('Scizor', 'gold'), true, 'a outra moeda ainda não foi buscada');
+  // a busca da classe usa a própria chave
+  const c = montar(1, { sync: [{ chave: 'orb||shiny', maxId: 5, em: Date.now() - 11 * 60e3 }] });
+  assert.equal(await c.window.PISync.vaiBuscar('', 'orb', { soShiny: true }), true, 'passou dos 10 min');
+  // não consulta nada no jogo para responder
+  assert.deepEqual([...a.historico(), ...b.historico(), ...c.historico()], []);
+});
+
 test('busca da classe (só shiny) e busca já com + não passam pela escolha', async () => {
   const { window, historico } = montar(1);
   await window.PISync.sincronizar('', 'orb', null, { soShiny: true });

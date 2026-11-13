@@ -35,7 +35,7 @@ Abra a ficha de qualquer Pokémon. Aparece o quadro **Preço estimado**:
 - **líq**: quanto você recebe vendendo por aquele preço, já descontada a comissão do RMT (15% em Coins; em Gemas, 13% até 500, 10% até 5.000 e 7,5% acima).
 - **Confiança** (alta, média ou baixa): quantas vendas parecidas existem e quanto os preços variam.
 
-Na primeira vez que você abre uma espécie, a extensão busca o histórico dela, e o preço aparece logo e vai se ajustando enquanto carrega. As consultas seguem um ritmo lento de propósito, então uma espécie muito vendida pode levar uns 4 minutos para baixar tudo, Gemas e Coins juntas. Depois disso fica guardado e a atualização leva poucos segundos. Vendas com mais de 30 dias, que já não entram no preço, são apagadas sozinhas uma vez por dia.
+Na primeira vez que você abre uma espécie, a extensão busca o histórico dela. Enquanto busca, o quadro mostra "carregando" com a página em que está, e o preço só aparece quando a busca termina, já com todas as vendas. As consultas seguem um ritmo lento de propósito, então uma espécie muito vendida pode levar uns 4 minutos para baixar tudo, Gemas e Coins juntas. Depois disso fica guardado e a atualização leva poucos segundos. Vendas com mais de 30 dias, que já não entram no preço, são apagadas sozinhas uma vez por dia.
 
 Shiny só se vende em Gemas, então a linha de Coins mostra "só em Gemas". Shiny e P5 de espécies pouco vendidas ganham uma **≈ estimativa pela Nota**, com aviso, porque erra bastante. Só pode ir ao Mercado Pokémon com Nv 50+ e Nota 3,5+ (shiny, P5 e lendário podem com qualquer nível e Nota). Abaixo da Nota mínima, o quadro avisa que ele não tem preço de Mercado; abaixo do Nv 50, mostra o preço para quando ele chegar lá.
 

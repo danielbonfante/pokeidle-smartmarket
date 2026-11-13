@@ -3,7 +3,8 @@
   Página de teste do painel de preços na tela "Novo anúncio".
   Reproduz a estrutura da folha do jogo medida em 11/11/2026 (v1.416.0).
   Servir a raiz do projeto em 127.0.0.1 e abrir /tests/pagina/anuncio.html#<caso>.
-  Casos: #ok (padrão), #fora-do-indice, #shiny, #lento, #pausa, #agitado, #cores, #editar, #editar-travado.
+  Casos: #ok (padrão), #fora-do-indice, #shiny, #lento, #pausa, #agitado, #cores, #editar, #editar-travado,
+  #carregando (busca de vendas de 3 páginas: o preço só aparece no fim).
 -->
 <html lang="pt-BR"><head><meta charset="utf-8"><title>Teste — painel do anúncio</title>
 <link rel="stylesheet" href="../../src/ui.css">
@@ -63,7 +64,16 @@
     { id: 900, preco: moeda === 'orb' ? 610 : 1.2e8, moeda, vistoEm: agora - 12 * 60000, alvo: Object.assign({}, alvoJogo, { id: 7900, nota: 4.58 }) },
   ] };
   window.PIStore = { vendasPorEspecie: async () => vendas, vendasPorClasse: async () => [] };
-  window.PISync = { sincronizar: async () => ({ pulou: true }) };
+  // #carregando: finge uma busca de vendas de 3 páginas (1 s cada): o preço fica em "carregando · pág. N"
+  // até ela terminar. Nos outros casos a busca é pulada (rodou há menos de 10 min).
+  window.PISync = {
+    vaiBuscar: async () => caso === 'carregando',
+    sincronizar: async (busca, moeda, aoProgresso) => {
+      if (caso !== 'carregando') return { pulou: true };
+      for (let p = 1; p <= 3; p++) { await new Promise(r => setTimeout(r, 1000)); if (aoProgresso) aoProgresso({ pagina: p }); }
+      return { pulou: false };
+    },
+  };
 
   // ---------- a folha do jogo ----------
   const corpo = document.getElementById('corpo');

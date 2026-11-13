@@ -121,5 +121,23 @@
     return p;
   }
 
-  window.PISync = { sincronizar };
+  /**
+   * Diz, sem consultar o jogo, se sincronizar(busca, moeda, …, filtro) vai mesmo pedir páginas
+   * (ou se vai pular, porque a mesma busca rodou há menos de 10 min). A tela usa para mostrar
+   * "carregando" só quando vai haver busca, sem piscar quando ela é pulada.
+   */
+  async function vaiBuscar(busca, moeda, filtro) {
+    if (emAndamento.has(chaveDe(busca, moeda, filtro))) return true;
+    let b = busca;
+    const semFiltro = !filtro || !(filtro.soShiny || filtro.soP5);
+    if (semFiltro && ehNomeSimples(busca)) {
+      const salva = await window.PIStore.lerSync('escolha|' + busca.trim().toLowerCase());
+      if (!salva || Date.now() - salva.em >= (salva.validade || ESCOLHA_VALIDADE_MS)) return true; // vai comparar as buscas
+      b = salva.busca;
+    }
+    const meta = await window.PIStore.lerSync(chaveDe(b, moeda, filtro));
+    return !meta || Date.now() - meta.em >= REFRESCO_MS;
+  }
+
+  window.PISync = { sincronizar, vaiBuscar };
 })();
