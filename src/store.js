@@ -62,12 +62,6 @@
     }));
   }
 
-  /** Vendas de uma classe de mercado ('S' shiny, 'P5'), de qualquer espécie. */
-  function vendasPorClasse(classe) {
-    return tx('vendas', 'readonly', s => s.getAll())
-      .then(todas => (todas || []).filter(v => window.PIMotor.classeDe(v) === classe));
-  }
-
   function lerSync(chave) {
     return tx('sync', 'readonly', s => s.get(chave));
   }
@@ -148,5 +142,5 @@
   }
   agendarPoda(PODA_INICIO_MS);
 
-  window.PIStore = { salvarVendas, vendasPorEspecie, vendasPorClasse, lerSync, gravarSync, contar, resumo, limpar, podar, podarSeVencido };
+  window.PIStore = { salvarVendas, vendasPorEspecie, lerSync, gravarSync, contar, resumo, limpar, podar, podarSeVencido };
 })();

@@ -71,17 +71,3 @@ avaliar('Motor (vendas parecidas ponderadas)', v => {
   return { justo: r.precoJusto, q1: r.venderRapido, q3: r.esperar };
 });
 
-// Estimativa pela Nota (plano B para shiny e P5): simula uma espécie sem nenhuma venda,
-// tirando da base todas as vendas da mesma espécie.
-for (const [rotulo, filtro] of [
-  ['Shiny', v => v.shiny],
-  ['P5 não shiny', v => !v.shiny && v.potencia >= 5],
-]) {
-  avaliar(`Estimativa pela Nota — ${rotulo}, sem vendas da espécie`, v => {
-    if (!filtro(v)) return null;
-    const outras = vendas.filter(o => o.nome !== v.nome);
-    const r = M.precificarPorNota(Object.assign({}, v, { vendaId: v.id }), outras, { moeda: v.moeda, agora });
-    if (!r.suficiente) return null;
-    return { justo: r.precoJusto, q1: r.venderRapido, q3: r.esperar };
-  });
-}

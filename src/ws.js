@@ -101,7 +101,10 @@
     if (!temPokemon && !ehHistorico && !ehVitrine) return;
     let j;
     try { j = JSON.parse(d); } catch (e) { return; }
-    if (temPokemon) indexar(j, 0);
+    // O histórico de vendas traz a ficha de cada Pokémon como ele era no dia da venda: não entra no
+    // índice, senão uma foto velha (ex.: Nv 362 de uma venda antiga) substituía os dados de hoje
+    // (Nv 3.022) e o quadro da ficha precificava o Pokémon errado (visto em 13/11/2026).
+    if (temPokemon && !(j && j.aba === 'historicoGlobal')) indexar(j, 0);
     // Vitrine do RMT (anúncios de Pokémon): repassa para os selos da vitrine (vitrine.js)
     if (ehVitrine && j.t === 'market' && j.aba === 'vitrine') {
       // A resposta da vitrine não tem seq: a consulta da extensão reconhece a sua pela espécie

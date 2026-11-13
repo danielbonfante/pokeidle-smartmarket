@@ -390,7 +390,6 @@
     const base = painel.el.querySelector('.pp-an-base');
     const res = painel.resultado;
     const moeda = painel.moeda;
-    box.classList.remove('pp-estimativa');
     if (painel.carregando != null) {
       const pag = painel.carregando ? ' · pág. ' + painel.carregando : '';
       box.innerHTML = `<div class="pp-an-vazio" title="${esc(D().carregando)}"><span class="pp-girando" aria-hidden="true"></span> carregando vendas${pag}…</div>`;
@@ -399,21 +398,20 @@
     }
     if (!res) { box.innerHTML = '<div class="pp-an-vazio">consultando vendas…</div>'; base.textContent = ''; return; }
     if (!res.suficiente) {
-      box.innerHTML = `<div class="pp-an-vazio">${res.vendasEspecie ? res.vendasEspecie + ' venda(s) desta espécie em ' + MOEDA[moeda].nome + ' — poucas para estimar' : 'sem vendas desta espécie em ' + MOEDA[moeda].nome}</div>`;
+      // sem vendas parecidas da mesma espécie não há preço: a extensão não estima por outras espécies
+      const sh = painel.alvo.shiny ? ' shiny' : '';
+      box.innerHTML = `<div class="pp-an-vazio">${res.vendasEspecie ? `${res.vendasEspecie} venda(s)${sh} desta espécie em ${MOEDA[moeda].nome} nos últimos 30 dias, mas nenhuma parecida o bastante para um preço` : `sem vendas${sh} desta espécie em ${MOEDA[moeda].nome} nos últimos 30 dias`}. A extensão não estima pelo preço de outras espécies.</div>`;
       base.textContent = '';
       return;
     }
-    const est = res.estimativa ? '≈ ' : '';
-    base.textContent = res.estimativa
-      ? `≈ Estimativa pela Nota com ${res.vendasClasse} vendas de outras espécies — erra bastante`
-      : `Baseado em ${res.vendasEspecie} vendas desta espécie nos últimos 30 dias (~${window.PIUi.fmtNumero(res.nEfetivo, 1)} parecidas)`;
-    base.title = res.estimativa ? D().estimativa : '';
+    base.textContent = `Baseado em ${res.vendasEspecie} vendas desta espécie nos últimos 30 dias (~${window.PIUi.fmtNumero(res.nEfetivo, 1)} parecidas)`;
+    base.title = '';
     const col = (rot, dica, x, cls) => {
       const v = L.valorUsar(x);
       const travado = painel.input.disabled || painel.input.readOnly;
       return `<div class="pp-an-col">
         <span class="pp-an-rot" title="${esc(dica)}">${rot}</span>
-        <b class="${cls}">${cls === 'pp-q2' ? est : ''}${fmt(x, moeda)}</b>
+        <b class="${cls}">${fmt(x, moeda)}</b>
         <span class="pp-an-liq" title="${esc(moeda === 'orb' ? D().liquidoGemas : D().liquidoCoins)}">líq ${M.formatarValor(M.liquidoVendedor(v, moeda), moeda)}</span>
         ${moeda === 'orb' ? `<span class="pp-an-dinheiro pp-dinheiro" data-tipo="saque" data-parte="ambos" data-gemas="${M.liquidoVendedor(v, moeda)}" title="${esc(D().dinheiroSaque)}"></span>` : ''}
         <button type="button" class="pp-usar" data-valor="${v}" title="${esc(travado ? D().travado : D().usar)}"${travado ? ' disabled' : ''}>usar ${fmt(v, moeda)}</button>
@@ -422,7 +420,6 @@
     box.innerHTML = col('Vender rápido', D().venderRapido, res.venderRapido, 'pp-q1') +
       col('Preço justo', D().precoJusto, res.precoJusto, 'pp-q2') +
       col('Esperar', D().esperar, res.esperar, 'pp-q3');
-    box.classList.toggle('pp-estimativa', !!res.estimativa);
     if (window.PIDinheiro) window.PIDinheiro.pintar(box);
   }
 

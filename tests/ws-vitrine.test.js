@@ -244,3 +244,15 @@ test('tabela: erros que não são da Tabela não contam (pedido de calma, conex�
   for (let i = 0; i < 4; i++) await assert.rejects(window.PIWs.consultarHistorico({ pagina: 0 }), /devagar/);
   assert.equal(window.PIWs.tabela().fora, false);
 });
+
+// ---------- índice de Pokémon ----------
+test('índice: a ficha das vendas do histórico (foto do Pokémon no dia da venda) não substitui os dados atuais', async () => {
+  const { window, receber } = montar();
+  // a vitrine traz o Pokémon como está hoje
+  receber({ t: 'market', aba: 'vitrine', linhas: [{ id: 1, preco: 70000, moeda: 'orb', ficha: { id: 71329900, speciesId: 3149, nome: 'Mega Dragonite', level: 3022, nota: 7.385, shiny: true, tmAoe: true } }] });
+  // depois chega o histórico de vendas, com a venda antiga dele (Nv 362)
+  receber({ t: 'market', aba: 'historicoGlobal', seq: 1, linhas: [{ id: 9, moeda: 'orb', bruto: 50000, em: Date.now(), ficha: { id: 71329900, speciesId: 3149, nome: 'Mega Dragonite', level: 362, nota: 7.349, shiny: true } }] });
+  const p = window.PIWs.pokemon(71329900);
+  assert.equal(p.level, 3022);
+  assert.equal(p.nota, 7.385);
+});

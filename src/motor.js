@@ -169,7 +169,10 @@
     };
   }
 
-  // ---------- estimativa pela Nota (plano B para shiny e P5 sem vendas da espécie) ----------
+  // ---------- classe de mercado ----------
+  // (A estimativa pela Nota, que usava vendas de outras espécies da mesma classe para shiny/P5 sem
+  // vendas da espécie, foi tirada em 13/11/2026: a espécie pesa muito no preço. Sem vendas parecidas
+  // da espécie, a extensão diz isso e não estima.)
 
   /**
    * Classe de mercado: o preço de shiny e de P5 vive em outra escala que o do comum.
@@ -180,49 +183,6 @@
     return Number(p.potencia) >= 5 ? 'P5' : '';
   }
 
-  // Ajustado no backtest com a planilha de 11/11/2026 (5.000 vendas): sem nenhuma venda da
-  // espécie, acerta a ordem de grandeza, mas erra muito. Shiny: erro mediano ~67%.
-  const PADRAO_NOTA = {
-    escalaNota: 0.25,   // a Nota aqui compara espécies diferentes, então a régua é mais larga
-    escalaNivel: 0.5,
-    minVendas: 5,
-    minNEfetivo: 3,
-  };
-
-  /**
-   * Estima o preço de um shiny ou P5 pelas vendas de outras espécies da mesma classe e moeda,
-   * pesando por Nota e nível parecidos. Use só quando `precificar` não tem vendas suficientes.
-   */
-  function precificarPorNota(alvo, vendas, opcoes) {
-    const cfg = Object.assign({}, PADRAO, PADRAO_NOTA, opcoes);
-    const agora = cfg.agora || Date.now();
-    const desde = agora - cfg.janelaDias * DIA;
-    const classe = classeDe(alvo);
-    if (!classe || !isFinite(alvo.nota) || !(alvo.nota > 0)) {
-      return { suficiente: false, estimativa: true, vendasEspecie: 0, comparaveis: [] };
-    }
-
-    const candidatas = vendas.filter(v =>
-      v.moeda === cfg.moeda &&
-      v.em >= desde && v.em <= agora &&
-      classeDe(v) === classe &&
-      v.preco > 0 && isFinite(v.nota) &&
-      v.id !== alvo.vendaId
-    );
-    const pesadas = candidatas
-      .map(v => ({ v, w: pesoVenda(alvo, v, agora, cfg) }))
-      .filter(p => p.w > 1e-4);
-    const somaW = pesadas.reduce((s, p) => s + p.w, 0);
-    const somaW2 = pesadas.reduce((s, p) => s + p.w * p.w, 0);
-    if (pesadas.length < cfg.minVendas || (somaW * somaW) / somaW2 < cfg.minNEfetivo) {
-      return { suficiente: false, estimativa: true, vendasEspecie: 0, comparaveis: [] };
-    }
-    const r = resultado(pesadas, candidatas.filter(v => mesmaEspecie(alvo, v)).length, cfg);
-    r.estimativa = true;
-    r.confianca = 'estimativa';
-    r.vendasClasse = candidatas.length;
-    return r;
-  }
 
   /** Arredonda para um número "de vitrine": 2 algarismos significativos para valores altos. */
   function arredondarPreco(x) {
@@ -304,7 +264,7 @@
     return f(Math.floor(x + 1e-9), 0);
   }
 
-  const api = { PADRAO, PADRAO_NOTA, FAIXA_MERCADO, COMISSAO, liquidoVendedor, formatarValor, normalizarVenda, normalizarAlvo, precificar, precificarPorNota, classeDe, mesmaEspecie, arredondarPreco, pesoVenda, ehLendario, faixaMercado };
+  const api = { PADRAO, FAIXA_MERCADO, COMISSAO, liquidoVendedor, formatarValor, normalizarVenda, normalizarAlvo, precificar, classeDe, mesmaEspecie, arredondarPreco, pesoVenda, ehLendario, faixaMercado };
   root.PIMotor = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

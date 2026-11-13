@@ -19,7 +19,7 @@
     { id: 'gold', nome: 'Coins', icone: '🪙' },
   ];
   const MOEDA = Object.fromEntries(MOEDAS.map(m => [m.id, m])); // MOEDA.orb.nome, MOEDA.gold.icone…
-  const ROTULO_CONF = { alta: 'confiança alta', media: 'confiança média', baixa: 'confiança baixa', estimativa: '≈ estimativa' };
+  const ROTULO_CONF = { alta: 'confiança alta', media: 'confiança média', baixa: 'confiança baixa' };
 
   // Textos dos tooltips (atributo title, como a própria ficha do jogo faz)
   const DICA = {
@@ -30,7 +30,6 @@
       alta: 'Confiança alta — muitas vendas parecidas, com preços próximos entre si.',
       media: 'Confiança média — algumas vendas parecidas, ou preços bem espalhados.',
       baixa: 'Confiança baixa — poucas vendas parecidas ou preços muito diferentes entre si. Use só como referência.',
-      estimativa: 'Estimativa — não há vendas suficientes desta espécie; o preço vem de outras espécies com Nota parecida. Use só como ordem de grandeza.',
     },
     ver: 'Mostra as vendas da mesma espécie que mais pesaram no cálculo.',
     nv: 'Nível do Pokémon vendido. Vendas com nível parecido com o deste Pokémon pesam mais.',
@@ -42,9 +41,7 @@
     liquidoGemas: 'Você recebe — o que sobra para o vendedor depois da comissão do RMT, se vender por cada um dos preços acima. Pokémon em Gemas paga por faixa: 13% até 500, 10% de 500 a 5.000 e 7,5% acima disso (10.000 Gemas → você recebe 9.110). A pensão do anúncio, 100 mil Coins por dia, é paga à parte, na hora de publicar.',
     liquidoCoins: 'Você recebe — o que sobra para o vendedor depois da comissão do RMT, se vender por cada um dos preços acima. Anúncio em Coins paga 15%. A pensão do anúncio, 100 mil Coins por dia, é paga à parte, na hora de publicar.',
     faixa: 'Regra do Mercado da Comunidade: só entra Pokémon com Nv 50+ e Nota 3,5+. Shiny, P5 e lendário/mítico entram com qualquer nível e Nota.',
-    estimativa: 'Estimativa pela Nota — sem vendas suficientes desta espécie, o preço vem de vendas de outras espécies da mesma classe (shiny ou P5), com Nota e nível parecidos. No teste com 5.000 vendas reais, o valor pago caiu dentro da faixa Vender rápido–Esperar em metade dos casos, e o erro típico do Preço justo foi de 60% a 100%.',
     soGemas: 'Regra do Mercado da Comunidade: Pokémon shiny só pode ser anunciado em Gemas.',
-    especie: 'Espécie do Pokémon vendido. Na estimativa pela Nota entram vendas de outras espécies.',
     usar: 'Preenche o campo "Preço por unidade" do jogo com este valor. Quem publica o anúncio é você.',
     avenda: 'Anúncios abertos agora desta espécie, nesta moeda, os mais parecidos com este Pokémon primeiro. A porcentagem compara com o Preço justo.',
     vendidos: 'Vendas desta espécie nos últimos 30 dias, nesta moeda, as mais parecidas com este Pokémon primeiro.',
@@ -184,6 +181,7 @@
     const el = document.createElement('div');
     el.className = 'pp-badge';
     el.dataset.id = alvo.id;
+    el.dataset.shiny = alvo.shiny ? '1' : ''; // as mensagens de "sem preço" dizem "shiny"
     el.innerHTML = `
       <div class="pp-topo">
         <span class="pp-titulo">Preço estimado</span>
@@ -253,7 +251,7 @@
     const linha = badge.querySelector(`.pp-linha[data-moeda="${moeda}"]`);
     if (!linha) return;
     const [q1, q2, q3] = ['.pp-q1', '.pp-q2', '.pp-q3'].map(s => linha.querySelector(s));
-    linha.classList.remove('pp-estimativa', 'pp-carregando');
+    linha.classList.remove('pp-carregando');
     const liq = badge.querySelector(`.pp-liq[data-moeda="${moeda}"]`);
     if (liq) {
       const ok = res && res.suficiente;
@@ -261,7 +259,7 @@
       if (ok) {
         const l = x => window.PIMotor.formatarValor(window.PIMotor.liquidoVendedor(window.PIMotor.arredondarPreco(x), moeda), moeda);
         liq.querySelector('.pp-l1').textContent = l(res.venderRapido);
-        liq.querySelector('.pp-l2').textContent = (res.estimativa ? '≈ ' : '') + l(res.precoJusto);
+        liq.querySelector('.pp-l2').textContent = l(res.precoJusto);
         liq.querySelector('.pp-l3').textContent = l(res.esperar);
       }
       if (moeda === 'orb') {
@@ -273,20 +271,23 @@
       q1.textContent = '–'; q3.textContent = '–';
       // Sem preço: o texto diz o que falta, como o selo da vitrine. Com 3+ vendas da espécie,
       // o que falta são vendas parecidas (nível ou Nota muito diferentes), não vendas.
+      // As vendas contadas são as da mesma espécie e do mesmo status shiny (o motor não mistura os dois).
       const n = (res && res.vendasEspecie) || 0;
-      const onde = `desta espécie em ${(MOEDA[moeda] || { nome: moeda }).nome} nos últimos 30 dias`;
+      const sh = badge.dataset.shiny === '1' ? ' shiny' : '';
+      const onde = `${sh} desta espécie em ${(MOEDA[moeda] || { nome: moeda }).nome} nos últimos 30 dias`;
+      const semEstimativa = ' A extensão não estima pelo preço de outras espécies: a espécie pesa muito no preço.';
       if (res && res.soGemas) {
         q2.textContent = 'só em Gemas';
         linha.title = DICA.soGemas;
       } else if (n >= 3) {
-        q2.textContent = 'poucas com Nv e Nota parecidos';
-        linha.title = `Há ${n} vendas ${onde}, mas poucas com Nv e Nota parecidos com este Pokémon — um preço justo aqui seria chute.`;
+        q2.textContent = `sem vendas${sh} parecidas`;
+        linha.title = `Há ${n} vendas${onde}, mas nenhuma com nível, Nota e extras parecidos com este Pokémon — um preço justo aqui seria chute.` + semEstimativa;
       } else if (n > 0) {
-        q2.textContent = `só ${n} venda${n > 1 ? 's' : ''}`;
-        linha.title = `Só ${n === 1 ? '1 venda' : n + ' vendas'} ${onde}; são precisas pelo menos 3 para um preço justo.`;
+        q2.textContent = `só ${n} venda${n > 1 ? 's' : ''}${sh}`;
+        linha.title = `Só ${n === 1 ? '1 venda' : n + ' vendas'}${onde}; são precisas pelo menos 3 parecidas para um preço justo.` + semEstimativa;
       } else {
-        q2.textContent = 'sem vendas';
-        linha.title = `Nenhuma venda ${onde} guardada ainda.`;
+        q2.textContent = `sem vendas${sh}`;
+        linha.title = `Nenhuma venda${onde} guardada.` + semEstimativa;
       }
       linha.classList.add('pp-vazia');
       return;
@@ -295,13 +296,7 @@
     q1.textContent = fmtPreco(res.venderRapido, moeda);
     q2.textContent = fmtPreco(res.precoJusto, moeda);
     q3.textContent = fmtPreco(res.esperar, moeda);
-    if (res.estimativa) {
-      linha.classList.add('pp-estimativa');
-      q2.textContent = '≈ ' + q2.textContent;
-      linha.title = `${DICA.estimativa} Base: ${res.vendasClasse} vendas, ~${fmtNumero(res.nEfetivo, 1)} parecidas.`;
-    } else {
-      linha.title = `${res.vendasEspecie} vendas da espécie, ~${fmtNumero(res.nEfetivo, 1)} parecidas`;
-    }
+    linha.title = `${res.vendasEspecie} vendas da espécie, ~${fmtNumero(res.nEfetivo, 1)} parecidas`;
   }
 
   function comparar(seu) {
@@ -312,7 +307,7 @@
     return [o.shiny ? 'shiny' : '', o.aoe ? 'TM AoE' : '', o.zmove ? 'Z-Move' : '', o.mega ? 'Mega' : ''].filter(Boolean).join(', ') || 'nenhum';
   }
 
-  function linhaVenda(m, v, alvo, comEspecie) {
+  function linhaVenda(m, v, alvo) {
     const extras = [v.shiny ? '✨' : '', v.aoe ? 'AoE' : '', v.zmove ? 'Z' : '', v.mega ? 'M' : ''].filter(Boolean).join(' ');
     const data = new Date(v.em).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
     const t = {
@@ -324,7 +319,6 @@
       ha: `Vendido em ${data}`,
     };
     return `<tr>
-      ${comEspecie ? `<td class="pp-esp" title="${esc(v.nome + (v.shiny ? ' (shiny)' : ''))}">${esc(v.nome)}</td>` : ''}
       <td title="${esc(t.nv)}">${v.level}</td>
       <td title="${esc(t.nota)}">${fmtNumero(v.nota, 3)}</td>
       <td title="${esc(t.pot)}">${v.potencia}</td>
@@ -345,20 +339,6 @@
     } else {
       conf.hidden = true;
     }
-    // Aviso da estimativa pela Nota
-    const estimativa = MOEDAS.some(m => resultados[m.id] && resultados[m.id].estimativa);
-    let aviso = badge.querySelector('.pp-estim-aviso');
-    if (estimativa && !aviso) {
-      aviso = document.createElement('div');
-      aviso.className = 'pp-estim-aviso';
-      aviso.title = DICA.estimativa;
-      aviso.textContent = `≈ Estimativa pela Nota: esta espécie não tem vendas ${alvo.shiny ? 'shiny' : 'P5'} suficientes, ` +
-        `então o preço vem de outros ${alvo.shiny ? 'shiny' : 'P5'} com Nota e nível parecidos. Serve como ordem de grandeza; erra bastante.`;
-      badge.querySelector('.pp-status').insertAdjacentElement('beforebegin', aviso);
-    } else if (!estimativa && aviso) {
-      aviso.remove();
-    }
-
     const comps = badge.querySelector('.pp-comps');
     const linhas = MOEDAS.flatMap(m => {
       const r = resultados[m.id];
@@ -366,10 +346,9 @@
     });
     comps.innerHTML = linhas.length
       ? `<table><thead><tr>
-          ${estimativa ? `<th title="${esc(DICA.especie)}">Pokémon</th>` : ''}
           <th title="${esc(DICA.nv)}">Nv</th><th title="${esc(DICA.nota)}">Nota</th><th title="${esc(DICA.pot)}">P</th>
           <th title="${esc(DICA.extras)}">Extras</th><th title="${esc(DICA.preco)}">Preço</th><th title="${esc(DICA.ha)}">Há</th>
-        </tr></thead><tbody>${linhas.map(({ m, v }) => linhaVenda(m, v, alvo, estimativa)).join('')}</tbody></table>`
+        </tr></thead><tbody>${linhas.map(({ m, v }) => linhaVenda(m, v, alvo)).join('')}</tbody></table>`
       : '<p>Nenhuma venda desta espécie no período.</p>';
   }
 
@@ -378,24 +357,16 @@
     return alvo.shiny && moeda !== 'orb';
   }
 
-  /** Filtro da Tabela de preços que traz a classe do alvo, ou null se ele é comum. */
-  function filtroDaClasse(alvo) {
-    if (alvo.shiny) return { soShiny: true };
-    if (Number(alvo.potencia) >= 5) return { soP5: true };
-    return null;
-  }
-
+  /**
+   * Preço só pelas vendas da mesma espécie (e mesmo status shiny), com atributos parecidos. Sem
+   * elas, não há preço: a estimativa por vendas de outras espécies foi tirada em 13/11/2026 (pedido
+   * do Daniel) — a espécie pesa muito no preço (procura, força, "hype"), e o número misturando
+   * espécies passava a impressão errada. A tela diz o que falta.
+   */
   async function calcular(alvo, moeda) {
     if (soGemas(alvo, moeda)) return { suficiente: false, soGemas: true };
     const vendas = await window.PIStore.vendasPorEspecie(alvo.speciesId, alvo.nome);
-    const res = window.PIMotor.precificar(alvo, vendas, { moeda });
-    if (res.suficiente || !filtroDaClasse(alvo)) return res;
-    // Plano B: shiny ou P5 sem vendas suficientes da espécie → estimativa pela Nota
-    const daClasse = await window.PIStore.vendasPorClasse(window.PIMotor.classeDe(alvo));
-    const est = window.PIMotor.precificarPorNota(alvo, daClasse, { moeda });
-    if (!est.suficiente) return res;
-    est.vendasEspecie = res.vendasEspecie;
-    return est;
+    return window.PIMotor.precificar(alvo, vendas, { moeda });
   }
 
   /** Linha de uma moeda enquanto a busca dela roda: nada de preço parcial, só o andamento. */
@@ -403,7 +374,7 @@
     const linha = badge.querySelector(`.pp-linha[data-moeda="${moeda}"]`);
     if (!linha) return;
     const [q1, q2, q3] = ['.pp-q1', '.pp-q2', '.pp-q3'].map(s => linha.querySelector(s));
-    linha.classList.remove('pp-vazia', 'pp-estimativa');
+    linha.classList.remove('pp-vazia');
     linha.classList.add('pp-carregando');
     linha.title = DICA.carregando;
     q1.textContent = ''; q3.textContent = '';
@@ -443,8 +414,6 @@
 
     // 2) As moedas que vão consultar o jogo ficam em "carregando"; as outras (busca feita há menos
     //    de 10 min, ou shiny em Coins) mostram o cache na hora
-    const filtro = filtroDaClasse(alvo);
-    const nomeClasse = alvo.shiny ? 'shiny' : 'P5';
     const moedas = MOEDAS.filter(m => !soGemas(alvo, m.id)); // shiny em Coins não existe: nem consulta
     for (const m of moedas) {
       try { if (await window.PISync.vaiBuscar(alvo.nome, m.id)) carregando.set(m.id, 0); } catch (e) { /* mostra o cache */ }
@@ -473,19 +442,6 @@
       mostrarAndamento();
       try {
         await window.PISync.sincronizar(alvo.nome, m.id, progresso(m, nome));
-        if (!vivo()) return;
-        // Espécie sem vendas suficientes: busca as vendas de outros shiny/P5 para a estimativa pela
-        // Nota (a linha continua em "carregando" se essa busca for consultar o jogo)
-        if (filtro) {
-          const r = await calcular(alvo, m.id);
-          if (!vivo()) return;
-          if (!(r && r.suficiente && !r.estimativa)) {
-            if (!(await window.PISync.vaiBuscar('', m.id, filtro))) carregando.delete(m.id);
-            else carregando.set(m.id, 0);
-            await window.PISync.sincronizar('', m.id, progresso(m, `outros ${nomeClasse} em ${nome}`), filtro);
-            if (!vivo()) return;
-          }
-        }
       } finally { // também quando a moeda falha: o andamento sai da tela e a linha mostra o cache
         delete andamento[m.id];
         carregando.delete(m.id);
@@ -499,9 +455,7 @@
       const falha = fim.find(f => f.status === 'rejected');
       if (falha) throw falha.reason;
       const total = MOEDAS.reduce((s, m) => s + ((resultados[m.id] && resultados[m.id].vendasEspecie) || 0), 0);
-      const estim = MOEDAS.map(m => resultados[m.id]).find(r => r && r.estimativa);
-      status.textContent = `${total} vendas da espécie nos últimos 30 dias` +
-        (estim ? ` · estimativa com ${estim.vendasClasse} vendas de outros ${nomeClasse}` : '');
+      status.textContent = `${total} vendas${alvo.shiny ? ' shiny' : ''} da espécie nos últimos 30 dias`;
     } catch (e) {
       if (!vivo()) return;
       if (e && e.tabela) {
@@ -565,6 +519,13 @@
     const bruto = window.PIWs.pokemon(id);
     const alvo = bruto ? window.PIMotor.normalizarAlvo(bruto) : alvoDoDom(ficha, id);
     if (!alvo || !alvo.nome) return;
+    // O que a ficha mostra vale mais que o guardado: se o nível ou a Nota guardados estiverem velhos
+    // (o Pokémon subiu de nível ou foi refinado desde a última mensagem), usa os da tela.
+    if (bruto) {
+      const tela = alvoDoDom(ficha, id);
+      if (tela && isFinite(tela.level) && tela.level > 0 && tela.level !== alvo.level) alvo.level = tela.level;
+      if (tela && isFinite(tela.nota) && tela.nota > 0 && Math.abs(tela.nota - alvo.nota) > 0.0005) alvo.nota = tela.nota;
+    }
 
     fichaAtual = id;
     const faixa = window.PIMotor.faixaMercado(alvo);

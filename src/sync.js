@@ -13,12 +13,13 @@
   if (window.PISync) return;
 
   const MAX_PAGINAS = 25;        // primeira busca de uma espécie: até 750 vendas
-  const MAX_PAGINAS_CLASSE = 15; // shiny/P5 de todas as espécies: só para a estimativa pela Nota
+  const MAX_PAGINAS_CLASSE = 15; // vitrine "Só shiny" / "Apenas P5": vendas shiny/P5 das espécies da página
   const REFRESCO_MS = 10 * 60 * 1000; // não sincroniza a mesma busca mais de uma vez a cada 10 min
   const DIA = 24 * 60 * 60 * 1000;
   const emAndamento = new Map();
 
-  // filtro: { soShiny, soP5 } — as vendas de uma classe inteira, para a estimativa pela Nota
+  // filtro: { soShiny, soP5 } — as vendas de uma classe (vitrine "Só shiny" / "Apenas P5"); cada espécie
+  // usa as suas para o preço (a estimativa entre espécies foi tirada em 13/11/2026)
   function chaveDe(busca, moeda, filtro) {
     const f = (filtro && filtro.soShiny ? '|shiny' : '') + (filtro && filtro.soP5 ? '|p5' : '');
     return moeda + '|' + String(busca || '').trim().toLowerCase() + f;

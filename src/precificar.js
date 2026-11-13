@@ -111,7 +111,7 @@
   const comparar = (v, seu, folga) => !isFinite(seu) || !isFinite(v) ? '' : v > seu + folga ? ' class="pp-prec-acima"' : v < seu - folga ? ' class="pp-prec-abaixo"' : '';
 
   function htmlVendas(alvo, res, pontos, moeda) {
-    if (!res || !res.suficiente || res.estimativa || !pontos.length) return '';
+    if (!res || !res.suficiente || !pontos.length) return '';
     const linhas = pontos.map((p, i) => `
       <tr${i >= VISIVEIS ? ' class="pp-prec-extra"' : ''}>
         <td><span class="pp-prec-peso" title="parecida ${pct(p.peso)} com esta ficha"><i style="width:${pct(p.peso)}"></i></span></td>
@@ -153,9 +153,8 @@
   function htmlPreco(alvo, moeda, res, pontos) {
     if (!res || !res.suficiente) {
       return `<div class="pp-prec-bloco"><div class="pp-an-vazio">${res && res.soGemas ? 'Shiny só vende em Gemas.'
-        : `Poucas vendas desta espécie em ${MOEDA[moeda].nome} nos últimos 30 dias para estimar o preço.`}</div></div>`;
+        : `Sem vendas${alvo.shiny ? ' shiny' : ''} desta espécie parecidas o bastante em ${MOEDA[moeda].nome} nos últimos 30 dias para um preço. A extensão não estima pelo preço de outras espécies: a espécie pesa muito no preço.`}</div></div>`;
     }
-    const est = res.estimativa ? '≈ ' : '';
     const liquidoJusto = M.liquidoVendedor(window.PIAnuncioLogica ? window.PIAnuncioLogica.valorUsar(res.precoJusto) : res.precoJusto, moeda);
     const valores = pontos.map(p => p.preco).concat([res.venderRapido, res.precoJusto, res.esperar]);
     const pos = A.escalaBarra(valores);
@@ -167,17 +166,15 @@
     const marca = (x, cls, rot) => {
       const p = pos(x);
       const borda = (cls === 'pp-prec-q1' && p < 0.15) ? ' pp-prec-dentro-esq' : (cls === 'pp-prec-q3' && p > 0.85) ? ' pp-prec-dentro-dir' : '';
-      return `<b class="pp-prec-marca ${cls}${borda}" style="left:${(p * 100).toFixed(2)}%"><span>${rot}<br>${est}${fmt(x, moeda)}</span></b>`;
+      return `<b class="pp-prec-marca ${cls}${borda}" style="left:${(p * 100).toFixed(2)}%"><span>${rot}<br>${fmt(x, moeda)}</span></b>`;
     };
     const faixa = `left:${(pos(res.venderRapido) * 100).toFixed(2)}%;width:${((pos(res.esperar) - pos(res.venderRapido)) * 100).toFixed(2)}%`;
-    const base = res.estimativa
-      ? `≈ Estimativa pela Nota: sem vendas suficientes desta espécie, o preço vem de ${res.vendasClasse} vendas de outras espécies com Nota e nível parecidos. Erra bastante.`
-      : `Baseado em ${res.vendasEspecie} vendas desta espécie em ${MOEDA[moeda].nome} nos últimos 30 dias; as mais parecidas com este Pokémon (Nota, nível, potência, extras) pesam mais — cerca de ${num(res.nEfetivo, 0)} contam de verdade.`;
+    const base = `Baseado em ${res.vendasEspecie} vendas desta espécie em ${MOEDA[moeda].nome} nos últimos 30 dias; as mais parecidas com este Pokémon (Nota, nível, potência, extras) pesam mais — cerca de ${num(res.nEfetivo, 0)} contam de verdade.`;
     return `
       <div class="pp-prec-bloco">
         <div class="pp-prec-justo">
           <span>Preço justo</span>
-          <b>${est}${fmt(res.precoJusto, moeda)} <small>${MOEDA[moeda].icone}</small></b>
+          <b>${fmt(res.precoJusto, moeda)} <small>${MOEDA[moeda].icone}</small></b>
           <em>você recebe ${M.formatarValor(liquidoJusto, moeda)} depois da comissão${moeda === 'orb' ? ` <span class="pp-dinheiro" data-tipo="saque" data-parte="ambos" data-gemas="${liquidoJusto}" title="${esc(window.PIUi.DICA.dinheiroSaque)}"></span>` : ''}</em>
         </div>
         <div class="pp-prec-barra" title="Cada ponto é uma venda parecida; quanto maior e mais forte, mais parecida com este Pokémon.">
@@ -198,7 +195,6 @@
   }
 
   function htmlConfianca(conf, res) {
-    if (res && res.estimativa) return '';
     if (!conf) {
       return `<div class="pp-prec-bloco"><div class="pp-prec-titulo">Confiança</div><div class="pp-an-vazio">Ainda não há vendas suficientes desta espécie nesta moeda para medir a confiança.</div></div>`;
     }
@@ -220,8 +216,7 @@
     const mp = A.grupoMaisParecido(grupos);
     const nomeGrupo = lado => (lado === 'alto' ? 'caro' : 'barato');
     const cab = lado => `Grupo ${nomeGrupo(lado)}${mp && mp.lado === lado ? ' <span class="pp-prec-parecido" title="o grupo com mais peso: as vendas dele se parecem mais com este Pokémon (Nota, nível, potência, extras)">★ mais parecido</span>' : ''}`;
-    const est = res && res.estimativa ? '≈ ' : '';
-    const seuPreco = res && res.suficiente ? `<small>justo</small> ${est}${fmt(res.precoJusto, moeda)}` : '—';
+    const seuPreco = res && res.suficiente ? `<small>justo</small> ${fmt(res.precoJusto, moeda)}` : '—';
     const parecido = mp
       ? `Pelas vendas, este Pokémon se parece mais com o <b>grupo ${nomeGrupo(mp.lado)}</b> (${p(mp.fracao)} do peso).`
       : 'Este Pokémon fica no meio dos dois: nenhum grupo se parece claramente mais com ele.';

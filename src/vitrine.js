@@ -42,23 +42,20 @@
   }
 
   // ---------- preço ----------
-  async function avaliar(an, memoEsp, memoClasse) {
+  // Só pelas vendas da mesma espécie (e do mesmo status shiny), como o quadro da ficha: sem vendas
+  // parecidas da espécie, o selo diz isso e não estima por outras espécies (13/11/2026).
+  async function avaliar(an, memoEsp) {
     const a = an.alvo;
     const chaveEsp = a.speciesId != null ? 'id:' + a.speciesId : 'nome:' + a.nome;
     if (!memoEsp.has(chaveEsp)) memoEsp.set(chaveEsp, window.PIStore.vendasPorEspecie(a.speciesId, a.nome));
-    const res = window.PIMotor.precificar(a, await memoEsp.get(chaveEsp), { moeda: an.moeda });
-    const classe = window.PIMotor.classeDe(a);
-    if (res.suficiente || !classe) return res;
-    if (!memoClasse.has(classe)) memoClasse.set(classe, window.PIStore.vendasPorClasse(classe));
-    const est = window.PIMotor.precificarPorNota(a, await memoClasse.get(classe), { moeda: an.moeda });
-    return est.suficiente ? est : res;
+    return window.PIMotor.precificar(a, await memoEsp.get(chaveEsp), { moeda: an.moeda });
   }
 
   const pct = x => window.PIUi.fmtDif(x);
 
   // ---------- "buscar": vendas de uma espécie sob demanda (clique no selo) ----------
   // A vitrine só busca sozinha quando a página é de uma espécie só; numa busca como "scizor"
-  // vêm várias espécies e as que não estão no cache ficavam "sem preço justo" para sempre.
+  // vêm várias espécies e as que não estão no cache ficavam sem preço para sempre.
   const buscas = new Map(); // "speciesId|moeda" -> { estado: 'buscando' | 'feita' | 'erro', msg }
 
   // Busca da vitrine focada em andamento: moeda -> (anúncio) => é da espécie/classe buscada
@@ -76,10 +73,11 @@
   /**
    * Selo sem preço. O texto depende de quantas vendas da espécie (nesta moeda, 30 dias) já estão
    * guardadas — an.vendasEspecie, do último cálculo:
-   *  - nenhuma: "sem preço justo · buscar" (antes da busca) / "nenhuma venda desta espécie" (depois);
-   *  - 1 ou 2: "poucas vendas desta espécie";
-   *  - 3 ou mais: "poucas vendas com Nv e Nota parecidos" — a espécie vende, mas nenhuma venda tem nível, Nota ou
-   *    potência perto deste (ex.: Furious Scizor Nv 1.166, ou um P5 de Nota 4,995).
+   *  - nenhuma: "sem vendas da espécie · buscar" (antes da busca) / "nenhuma venda da espécie" (depois);
+   *  - 1 ou 2: "só N vendas da espécie";
+   *  - 3 ou mais: "sem vendas parecidas da espécie" — a espécie vende, mas nenhuma venda tem nível, Nota ou
+   *    extras perto deste (ex.: Furious Scizor Nv 1.166, ou um P5 de Nota 4,995).
+   * Para shiny, as vendas contadas são só as shiny ("sem vendas shiny da espécie"…).
    * Enquanto a busca desta sessão não foi feita, "buscar" continua oferecido: vendas novas no
    * histórico podem trazer uma parecida.
    */
@@ -94,30 +92,31 @@
     }
     const feita = !!(b && b.estado === 'feita');
     const n = an.vendasEspecie || 0;
-    const onde = `${an.alvo.nome} em ${(window.PIUi.MOEDA[an.moeda] || { nome: an.moeda }).nome} nos últimos 30 dias`;
+    const sh = an.alvo.shiny ? ' shiny' : ''; // o motor conta só vendas do mesmo status shiny
+    const onde = `${an.alvo.nome}${sh} em ${(window.PIUi.MOEDA[an.moeda] || { nome: an.moeda }).nome} nos últimos 30 dias`;
     const maisBusca = feita ? '' : ' Clique em "buscar" para conferir no histórico do RMT se há vendas novas (uma busca, no ritmo de sempre).';
     const comBotao = texto => feita ? texto : `${texto} · ${botao('buscar')}`;
     if (n >= 3) {
       return {
         cls: 'pp-vit-sem',
-        html: comBotao('poucas vendas com Nv e Nota parecidos'),
+        html: comBotao(`sem vendas${sh} parecidas da espécie`),
         titulo: `Smart Market: há ${n} vendas de ${onde}, mas nenhuma com nível, Nota e potência parecidos com este — um preço justo aqui seria chute.` + maisBusca,
       };
     }
     if (n > 0) {
       return {
         cls: 'pp-vit-sem',
-        html: comBotao('poucas vendas desta espécie'),
+        html: comBotao(`só ${n} venda${n > 1 ? 's' : ''}${sh} da espécie`),
         titulo: `Smart Market: só ${n === 1 ? '1 venda' : n + ' vendas'} de ${onde}; são precisas pelo menos 3 para um preço justo.` + maisBusca,
       };
     }
     if (feita) {
-      return { cls: 'pp-vit-sem', html: 'nenhuma venda desta espécie', titulo: `Smart Market: mesmo depois de buscar, nenhuma venda de ${onde}.` };
+      return { cls: 'pp-vit-sem', html: `nenhuma venda${sh} da espécie`, titulo: `Smart Market: mesmo depois de buscar, nenhuma venda de ${onde}.` };
     }
     return {
       cls: 'pp-vit-sem',
-      html: `sem preço justo · ${botao('buscar')}`,
-      titulo: 'Smart Market: ainda não há vendas desta espécie guardadas. Clique em "buscar" para trazer as vendas dela do histórico do RMT (uma busca, no ritmo de sempre).',
+      html: `sem vendas${sh} da espécie · ${botao('buscar')}`,
+      titulo: `Smart Market: ainda não há vendas${sh} desta espécie guardadas (o preço sai só das vendas da mesma espécie; a extensão não estima por outras espécies). Clique em "buscar" para trazer as vendas dela do histórico do RMT (uma busca, no ritmo de sempre).`,
     };
   }
 
@@ -140,21 +139,16 @@
     an.vendasEspecie = res ? res.vendasEspecie || 0 : 0; // guardado para o selo sem preço (também durante a busca)
     if (!res || !res.suficiente) return conteudoSemPreco(an);
     const dif = an.preco / res.precoJusto - 1;
-    // estimativa pela Nota (shiny/P5 sem vendas da espécie): uma palavra, e não "≈", que sozinho
-    // não se explica no card (13/11/2026); a borda tracejada continua
-    const est = res.estimativa ? '<i class="pp-vit-est">estimado</i> · ' : '';
     let cls, rotulo;
     if (an.preco <= res.venderRapido) { cls = 'pp-vit-pechincha'; rotulo = 'desconto'; }
     else if (an.preco > res.esperar) { cls = 'pp-vit-caro'; rotulo = 'acima do justo'; }
     else { cls = 'pp-vit-justo'; rotulo = 'no preço'; }
-    if (res.confianca === 'baixa' || res.estimativa) cls += ' pp-vit-incerto';
-    const base = res.estimativa
-      ? `estimativa pela Nota com ${res.vendasClasse} vendas de outras espécies (erra bastante)`
-      : `${res.vendasEspecie} vendas da espécie, confiança ${res.confianca}`;
+    if (res.confianca === 'baixa') cls += ' pp-vit-incerto';
+    const base = `${res.vendasEspecie} vendas${an.alvo.shiny ? ' shiny' : ''} da espécie, confiança ${res.confianca}`;
     return {
       cls,
       // a faixa explica o rótulo: desconto = até o Vender rápido; acima = passou do Esperar
-      html: `<b>${est}${rotulo} ${pct(dif)}</b><span>justo ${fmt(res.precoJusto, an.moeda)} · faixa ${faixaTexto(res, an.moeda)}</span>` +
+      html: `<b>${rotulo} ${pct(dif)}</b><span>justo ${fmt(res.precoJusto, an.moeda)} · faixa ${faixaTexto(res, an.moeda)}</span>` +
         dinheiroDoAnuncio(an),
       titulo: `Smart Market — preço justo estimado: ${fmt(res.precoJusto, an.moeda)} ` +
         `(Vender rápido ${fmt(res.venderRapido, an.moeda)} · Esperar ${fmt(res.esperar, an.moeda)}). ` +
@@ -169,7 +163,6 @@
     if (!ligado()) { lista.querySelectorAll('.pp-vit').forEach(s => s.remove()); return; }
     observar(lista);
     const memoEsp = new Map();
-    const memoClasse = new Map();
     for (const card of lista.querySelectorAll('.cm-card')) {
       const alvo = alvoDoCard(card);
       if (!alvo) continue;
@@ -179,7 +172,7 @@
       const foco = atualizando.get(an.moeda);
       const novo = foco && foco(an)
         ? { versao, c: SELO_ATUALIZANDO }
-        : { versao, c: conteudoSelo(an, await avaliar(an, memoEsp, memoClasse)) };
+        : { versao, c: conteudoSelo(an, await avaliar(an, memoEsp)) };
       selosProntos.delete(base);
       selosProntos.set(base, novo);
       if (selosProntos.size > MAX_ANUNCIOS) selosProntos.delete(selosProntos.keys().next().value);
