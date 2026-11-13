@@ -7,13 +7,13 @@ const path = require('path');
 const D = require(path.join(__dirname, '..', 'src', 'dinheiro.js'));
 
 test('texto: cotação de compra (vitrine) e de saque (quem vende), em dólar e real', () => {
-  assert.equal(D.texto(150, 'compra', 'ambos', { modo: 'usd' }), '≈ US$ 1,50');
-  assert.equal(D.texto(130, 'saque', 'ambos', { modo: 'usd' }), '≈ US$ 1,17');
-  assert.equal(D.texto(130, 'saque', 'ambos', { modo: 'usd-brl', brl: 5.5 }), '≈ US$ 1,17 · R$ 6,44');
+  assert.equal(D.texto(150, 'compra', 'ambos', { modo: 'usd' }), 'US$ 1,50');
+  assert.equal(D.texto(130, 'saque', 'ambos', { modo: 'usd' }), 'US$ 1,17');
+  assert.equal(D.texto(130, 'saque', 'ambos', { modo: 'usd-brl', brl: 5.5 }), 'US$ 1,17 · R$ 6,44');
   assert.equal(D.texto(130, 'saque', 'usd', { modo: 'usd-brl', brl: 5.5 }), '1,17');
   assert.equal(D.texto(130, 'saque', 'brl', { modo: 'usd-brl', brl: 5.5 }), '6,44');
   assert.equal(D.texto(130, 'saque', 'brl', { modo: 'usd' }), '', 'sem o real escolhido, a parte em real fica vazia');
-  assert.equal(D.texto(300000, 'compra', 'ambos', { modo: 'usd' }), '≈ US$ 3.000,00');
+  assert.equal(D.texto(300000, 'compra', 'ambos', { modo: 'usd' }), 'US$ 3.000');
 });
 
 test('texto: modo "nada", valor vazio ou zero → texto vazio; centavo quebrado → "< 0,01"', () => {
@@ -21,6 +21,11 @@ test('texto: modo "nada", valor vazio ou zero → texto vazio; centavo quebrado 
   assert.equal(D.texto(0, 'compra', 'ambos', { modo: 'usd' }), '');
   assert.equal(D.texto(NaN, 'compra', 'ambos', { modo: 'usd' }), '');
   assert.equal(D.texto(1, 'saque', 'usd', { modo: 'usd' }), '< 0,01'); // 1 Gema = US$ 0,009
+});
+
+test('texto: sem centavos a partir de US$ 100 (74 mil Gemas = US$ 740 · R$ 4.070)', () => {
+  assert.equal(D.texto(74000, 'compra', 'ambos', { modo: 'usd-brl', brl: 5.5 }), 'US$ 740 · R$ 4.070');
+  assert.equal(D.texto(9999, 'compra', 'usd', { modo: 'usd' }), '99,99');
 });
 
 test('texto: Gemas quebradas (líquido 21,75) contam como o jogo paga, 21', () => {

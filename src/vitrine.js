@@ -140,7 +140,9 @@
     an.vendasEspecie = res ? res.vendasEspecie || 0 : 0; // guardado para o selo sem preço (também durante a busca)
     if (!res || !res.suficiente) return conteudoSemPreco(an);
     const dif = an.preco / res.precoJusto - 1;
-    const est = res.estimativa ? '≈ ' : '';
+    // estimativa pela Nota (shiny/P5 sem vendas da espécie): uma palavra, e não "≈", que sozinho
+    // não se explica no card (13/11/2026); a borda tracejada continua
+    const est = res.estimativa ? '<i class="pp-vit-est">estimado</i> · ' : '';
     let cls, rotulo;
     if (an.preco <= res.venderRapido) { cls = 'pp-vit-pechincha'; rotulo = 'desconto'; }
     else if (an.preco > res.esperar) { cls = 'pp-vit-caro'; rotulo = 'acima do justo'; }
@@ -152,7 +154,7 @@
     return {
       cls,
       // a faixa explica o rótulo: desconto = até o Vender rápido; acima = passou do Esperar
-      html: `<b>${est}${rotulo} ${pct(dif)}</b><span>justo ${est}${fmt(res.precoJusto, an.moeda)} · faixa ${faixaTexto(res, an.moeda)}</span>` +
+      html: `<b>${est}${rotulo} ${pct(dif)}</b><span>justo ${fmt(res.precoJusto, an.moeda)} · faixa ${faixaTexto(res, an.moeda)}</span>` +
         dinheiroDoAnuncio(an),
       titulo: `Smart Market — preço justo estimado: ${fmt(res.precoJusto, an.moeda)} ` +
         `(Vender rápido ${fmt(res.venderRapido, an.moeda)} · Esperar ${fmt(res.esperar, an.moeda)}). ` +

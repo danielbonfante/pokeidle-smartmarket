@@ -58,7 +58,7 @@ Na vitrine do Mercado da Comunidade, cada anúncio de Pokémon ganha um selo aba
 - **no preço**: entre "Vender rápido" e "Esperar";
 - **acima do justo +40%**, em vermelho: acima de "Esperar".
 
-A porcentagem compara o anúncio com o Preço justo; o rótulo compara com a faixa entre Vender rápido e Esperar. Por isso nem sempre andam juntos: quando as vendas parecidas custam quase o mesmo, a faixa é estreita e −9% já ganha o selo de desconto; quando os preços variam muito, a faixa é larga e −31% ainda fica "no preço". A segunda linha do selo mostra o justo e essa faixa (por exemplo, "justo 130 · faixa 115–140"). Borda tracejada quer dizer confiança baixa ou estimativa. Passe o mouse no selo para ver os detalhes.
+A porcentagem compara o anúncio com o Preço justo; o rótulo compara com a faixa entre Vender rápido e Esperar. Por isso nem sempre andam juntos: quando as vendas parecidas custam quase o mesmo, a faixa é estreita e −9% já ganha o selo de desconto; quando os preços variam muito, a faixa é larga e −31% ainda fica "no preço". A segunda linha do selo mostra o justo e essa faixa (por exemplo, "justo 130 · faixa 115–140"). Borda tracejada quer dizer confiança baixa ou estimativa; a estimativa pela Nota (shiny ou P5 de espécie pouco vendida) também ganha a palavra **estimado** no selo. Passe o mouse no selo para ver os detalhes.
 
 Os selos usam as vendas já guardadas. Vendas novas são buscadas quando a vitrine mostra uma espécie só (clicando na espécie ou buscando pelo nome) ou só shiny / só P5. Se a espécie não tem vendas guardadas, ou tem poucas, o selo oferece **buscar**: um clique busca as vendas dela, no mesmo ritmo de sempre.
 

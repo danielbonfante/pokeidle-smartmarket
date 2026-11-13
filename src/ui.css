@@ -466,3 +466,5 @@
 .pp-an-dinheiro { display: block; font-size: 10px; color: #8fd6a8; cursor: help; }
 .pp-vit .pp-vit-dinheiro { color: #8fd6a8; font-size: 9.5px; }
 .pp-prec-justo em .pp-dinheiro { color: #8fd6a8; font-style: normal; }
+/* "estimado" no selo da vitrine: preço pela Nota (shiny/P5 sem vendas da espécie) */
+.pp-vit b .pp-vit-est { font-style: normal; font-weight: 700; color: #f2c86b; }

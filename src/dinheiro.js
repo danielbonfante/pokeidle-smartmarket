@@ -21,16 +21,20 @@
   const MODOS = ['nada', 'usd', 'usd-brl'];
   const CHAVE = 'pism-cotacao';
 
-  const num2 = x => x.toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  // centavos só abaixo de 100 (acima disso, ",00" ocupa espaço sem dizer nada)
+  const casas = x => (x >= 100 ? 0 : 2);
   function valor(x) {
     if (!isFinite(x) || x <= 0) return '';
-    return x < 0.01 ? '< 0,01' : num2(x);
+    if (x < 0.01) return '< 0,01';
+    const c = casas(x);
+    return x.toLocaleString('pt-BR', { minimumFractionDigits: c, maximumFractionDigits: c });
   }
 
   /**
    * Texto do valor em dinheiro de `gemas`, na cotação `tipo` ('compra' | 'saque'), conforme o
    * modo do popup ('nada' | 'usd' | 'usd-brl') e a cotação do real.
-   * parte: 'usd' → "1,17"; 'brl' → "6,44" (só no modo usd-brl); 'ambos' → "≈ US$ 1,17 · R$ 6,44".
+   * parte: 'usd' → "1,17"; 'brl' → "6,44" (só no modo usd-brl); 'ambos' → "US$ 1,17 · R$ 6,44".
+   * Sem "≈": na extensão o "≈" quer dizer só "preço estimado pela Nota" (13/11/2026).
    */
   function texto(gemas, tipo, parte, opcoes) {
     const o = Object.assign({ modo: 'usd', brl: BRL_PADRAO, cotacao: COTACAO_PADRAO }, opcoes);
@@ -40,7 +44,7 @@
     const comBrl = o.modo === 'usd-brl' && o.brl > 0;
     if (parte === 'usd') return valor(usd);
     if (parte === 'brl') return comBrl ? valor(usd * o.brl) : '';
-    return '≈ US$ ' + valor(usd) + (comBrl ? ' · R$ ' + valor(usd * o.brl) : '');
+    return 'US$ ' + valor(usd) + (comBrl ? ' · R$ ' + valor(usd * o.brl) : '');
   }
 
   /** Lê "0.0100 USDT por Gema" (ou "0,0090 USDT por Gema") de um texto; null se não achar ou não fizer sentido. */
