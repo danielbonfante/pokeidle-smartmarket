@@ -84,7 +84,11 @@
   // passam os números do cache e do freio, e as duas chaves são apagadas logo depois.
   // Prazos (revisão de 14/11/2026): 1,5 s para descobrir se o caminho existe; depois de achado, 5 s,
   // como o caminho pela aba (o "estado" lê o cache inteiro e pode demorar numa máquina lenta). Uma
-  // resposta que chega depois do prazo ainda é apagada (escuta até 5 s), para nada ficar guardado.
+  // resposta que chega depois do prazo ainda é apagada (escuta até 5,5 s), para nada ficar guardado, e,
+  // se o caminho ainda não estava achado, ela o acha (máquina lenta: 2ª revisão de 14/11/2026).
+  // Só a aba visível do jogo responde (ponte.js); quando o chrome.tabs parece não funcionar (nenhuma
+  // aba ativa, ou a "aba ativa" é o próprio popup aberto como janela/aba), o pedido aceita também a
+  // aba do jogo em segundo plano (aceitaOculta), que é o caso que motivou o plano B.
   const CHAVE_PEDIDO = 'pism-pedido', CHAVE_RESPOSTA = 'pism-resposta';
   const ESPERA_DESCOBRIR_MS = 1500, ESPERA_STORAGE_MS = 5000;
   let numPedido = 0;
@@ -100,14 +104,18 @@
         clearTimeout(limpar);
         parar();
         if (!respondido) { respondido = true; res(r.dados || null); }
+        else if (!canal && r.dados) canal = 'storage'; // chegou tarde, mas o caminho existe (o próximo tique pede tudo)
       };
       const prazo = canal === 'storage' ? ESPERA_STORAGE_MS : ESPERA_DESCOBRIR_MS;
       setTimeout(() => { if (!respondido) { respondido = true; chrome.storage.local.remove(CHAVE_PEDIDO); res(null); } }, prazo);
       const limpar = setTimeout(parar, ESPERA_STORAGE_MS + 500);
       chrome.storage.onChanged.addListener(ouvir);
-      chrome.storage.local.set({ [CHAVE_PEDIDO]: { id, pedido, em: Date.now() } });
+      chrome.storage.local.set({ [CHAVE_PEDIDO]: { id, pedido, em: Date.now(), aceitaOculta: tabsSemAba() } });
     });
   }
+
+  // o chrome.tabs não entregou uma aba de verdade (ou entregou o próprio popup)
+  const tabsSemAba = () => !aba || aba.id == null || /^[a-z-]+-extension:/.test(aba.url || '');
 
   let canal = null; // o caminho que funcionou: 'aba' ou 'storage'
   async function pedir(pedido) {
@@ -156,14 +164,22 @@
     return `${tabela}<div class="linha">${estado}</div>${conexao}`;
   }
 
+  // um pedido por vez (o prazo do storage é maior que o intervalo de 2 s), e, com o caminho já achado,
+  // "fora do jogo" só depois de 2 falhas seguidas (a aba recarregando não faz a tela piscar)
+  let emCurso = false, falhas = 0, cacheVisto = false;
   async function atualizarJogo(completo) {
-    const r = await pedir(completo ? 'estado' : 'ritmo');
+    if (emCurso) return;
+    emCurso = true;
+    let r;
+    try { r = await pedir(completo ? 'estado' : 'ritmo'); } finally { emCurso = false; }
+    if (!r && canal && ++falhas < 2) return;
+    if (r) falhas = 0;
     // fora do jogo as chaves continuam valendo: ficam guardadas no Chrome
     $('#nota-chaves').textContent = r ? 'Vale na hora, em todas as abas do jogo.' : 'Fica guardado e vale quando você abrir o jogo.';
     if (!r) { $('#jogo').hidden = true; $('#fora').hidden = false; return; }
     $('#jogo').hidden = false; $('#fora').hidden = true;
     if (r.erro) { $('#freio').textContent = 'Erro: ' + r.erro; return; }
-    if (completo) $('#cache').innerHTML = htmlCache(r.cache);
+    if (completo) { $('#cache').innerHTML = htmlCache(r.cache); cacheVisto = true; }
     $('#freio').innerHTML = htmlFreio(r.conectado, r.ritmo);
   }
 
@@ -212,11 +228,11 @@
     try { [aba] = await chrome.tabs.query({ active: true, currentWindow: true }); } catch (e) { aba = null; }
     await atualizarJogo(true);
     // o freio muda com o tempo; o cache, não. Sem caminho achado (a aba do jogo ainda carregando, ou
-    // fora do jogo), tenta de novo a cada 5 s, com o pedido completo.
+    // fora do jogo), tenta de novo a cada 6 s, com o pedido completo.
     let ciclos = 0;
     setInterval(() => {
       ciclos++;
-      if (canal) atualizarJogo(false);
+      if (canal) atualizarJogo(!cacheVisto);
       else if (ciclos % 3 === 0) atualizarJogo(true);
     }, 2000);
   }

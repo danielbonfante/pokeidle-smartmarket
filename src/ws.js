@@ -323,8 +323,8 @@
 
   // soShiny / soP5: os filtros "Só shiny" e "Apenas P5" da Tabela de preços
   // naoContaTabela: consulta extra (o histórico de um Pokémon pelo "#id", 14/11/2026) cujas falhas não
-  // marcam a Tabela como fora do ar (nem gastam o teste da hora): um recurso secundário, ainda não
-  // visto no jogo, não pode parar a sincronização do quadro, da vitrine e do anúncio.
+  // marcam a Tabela como fora do ar (nem gastam o teste da hora): um recurso secundário (conferido no
+  // jogo em 14/11/2026) não pode parar a sincronização do quadro, da vitrine e do anúncio.
   function consultarHistorico({ pagina = 0, moeda = 'orb', busca = '', soShiny = false, soP5 = false, naoContaTabela = false } = {}) {
     if (tabelaFora && naoContaTabela) return Promise.reject(erroTabela());
     // Tabela fora do ar: recusa na hora; passada 1 h desde o último teste, esta consulta é o teste

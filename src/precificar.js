@@ -415,12 +415,17 @@
     };
     extra(sim.aoe, !!alvo.aoe, s.comAoe, s.semAoe, s.pesoMesmoAoe, 'TM AoE');
     extra(sim.zmove, !!alvo.zmove, s.comZ, s.semZ, s.pesoMesmoZ, 'Z-Move');
-    // Nível sem nenhuma venda por perto: o motor só repete o preço das vendas de outros níveis
-    if (sim.level !== Number(alvo.level) && !s.pertoDoNivel) {
+    // Nível sem nenhuma venda por perto (do simulado ou do desta ficha): o motor só repete o preço das
+    // vendas de outros níveis, e a comparação não mede o efeito do nível
+    const mudouNivel = sim.level !== Number(alvo.level);
+    if (mudouNivel && (!s.pertoDoNivel || !s.pertoDaFicha)) {
       const nv = n => num(n, 0);
-      semMedida.push(`de nível perto do Nv ${nv(sim.level)}`); efeitosSemMedida.push('do nível');
-      avisos.push(`A espécie não tem nenhuma venda${s.alvo.shiny ? ' shiny' : ''} entre o Nv ${nv(s.faixaNivel[0])} e o Nv ${nv(s.faixaNivel[1])} em ${MOEDA[moeda].nome} nos últimos 30 dias.`);
-    } else if (sim.level !== Number(alvo.level)) medidos++;
+      const longe = !s.pertoDoNivel ? sim.level : Number(alvo.level);
+      semMedida.push(`de nível perto do Nv ${nv(longe)}`); efeitosSemMedida.push('do nível');
+      avisos.push(!s.pertoDoNivel
+        ? `A espécie não tem nenhuma venda${s.alvo.shiny ? ' shiny' : ''} entre o Nv ${nv(s.faixaNivel[0])} e o Nv ${nv(s.faixaNivel[1])} em ${MOEDA[moeda].nome} nos últimos 30 dias.`
+        : `A espécie não tem vendas${s.alvo.shiny ? ' shiny' : ''} perto do Nv ${nv(alvo.level)} desta ficha em ${MOEDA[moeda].nome} nos últimos 30 dias: o preço dela também não tem base de nível, então a comparação não mede o efeito do nível.`);
+    } else if (mudouNivel) medidos++;
     const r = s.res;
     const juntar = l => l.length > 1 ? l.slice(0, -1).join(', ') + ' e ' + l[l.length - 1] : l[0];
     const shinyTxt = s.alvo.shiny ? 'shiny' : 'sem shiny';
@@ -443,11 +448,13 @@
         const c = incertos.length || s.semNota ? 'baixa' : r.confianca;
         return `<span class="pp-conf pp-conf-${c}" title="${esc(window.PIUi.DICA.conf[c] || '')}">confiança ${c === 'media' ? 'média' : c}</span>`;
       })();
-    // nada que dê para medir mudou (nem o nível, nem o shiny): o número é o desta ficha, e a % pareceria uma medida
-    const soSemMedida = semMedida.length && !medidos && !s.semNota && sim.level === Number(alvo.level);
+    // nada que dê para medir mudou (nem o nível, nem o shiny): a % pareceria uma medida e sai; com o
+    // nível igual ao da ficha, o número é o desta ficha
+    const semMedirNada = semMedida.length && !medidos && !s.semNota;
+    const soSemMedida = semMedirNada && !mudouNivel;
     const dif = base && base.suficiente
       ? ` <span class="pp-prec-sim-dif">${variacao(r.precoJusto / base.precoJusto)} o desta ficha (${fmt(base.precoJusto, moeda)})</span>` : '';
-    html = `<p>Preço de mercado <b class="pp-prec-sim-justo">${fmt(r.precoJusto, moeda)} ${MOEDA[moeda].icone}</b>${soSemMedida ? '' : dif} ${selo}${oQue('confianca')}</p>`;
+    html = `<p>Preço de mercado <b class="pp-prec-sim-justo">${fmt(r.precoJusto, moeda)} ${MOEDA[moeda].icone}</b>${semMedirNada ? '' : dif} ${selo}${oQue('confianca')}</p>`;
     html += `<p class="pp-prec-fraco">faixa ${fmt(r.venderRapido, moeda)}–${fmt(r.esperar, moeda)}${r.faixaAlargada ? ' (alargada: poucas vendas parecidas)' : ''} · cerca de ${nParecidas} vendas parecidas ${emQue}</p>`;
     html += avisoShiny;
     if (semMedida.length) {
@@ -505,7 +512,7 @@
     }
     if (h.buscando) return '<div class="pp-an-vazio"><span class="pp-girando" aria-hidden="true"></span> buscando as vendas deste Pokémon…</div>';
     if (h.erro) return `<p>Não deu para buscar: ${esc(h.erro)}. <button type="button" class="pp-prec-hist-buscar">tentar de novo</button></p>`;
-    // a busca "#id" ainda não foi vista no jogo: sem linhas, não dá para afirmar que nunca foi vendido
+    // sem linhas, a janela não afirma "nunca foi vendido": diz só o que a Tabela trouxe
     if (!h.vendas.length) return '<p>A Tabela de preços não trouxe vendas deste Pokémon.</p>';
     const outroNome = h.vendas.some(v => v.nome !== j.alvo.nome); // vendido antes de evoluir: mostra o nome
     const linhas = h.vendas.map(v => `

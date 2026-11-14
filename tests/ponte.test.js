@@ -33,9 +33,10 @@ function montar({ visivel = true } = {}) {
     },
   };
   const document = { visibilityState: visivel ? 'visible' : 'hidden' };
-  vm.runInContext(SRC, vm.createContext({ chrome, window, document, location: { origin: 'https://pokeidle.io' }, setTimeout, Date }));
+  vm.runInContext(SRC, vm.createContext({ chrome, window, document, location: { origin: 'https://pokeidle.io' }, setTimeout: (f, ms) => { const t = setTimeout(f, ms); if (t.unref) t.unref(); return t; }, Date }));
   const pedir = (pedido, em = Date.now()) => ouvintesStorage.forEach(fn => fn({ 'pism-pedido': { newValue: { id: 'p1', pedido, em } } }, 'local'));
-  return { gravado, pedir };
+  const pedirCom = v => ouvintesStorage.forEach(fn => fn({ 'pism-pedido': { newValue: v } }, 'local'));
+  return { gravado, pedir, pedirCom };
 }
 
 const esperar = ms => new Promise(r => setTimeout(r, ms));
@@ -60,4 +61,11 @@ test('ponte: pedido com mais de 5 s é ignorado', async () => {
   pedir('estado', Date.now() - 6000);
   await esperar(30);
   assert.equal(gravado['pism-resposta'], undefined);
+});
+
+test('ponte: aba em segundo plano responde quando o popup não achou aba de verdade (aceitaOculta)', async () => {
+  const { gravado, pedirCom } = montar({ visivel: false });
+  pedirCom({ id: 'p2', pedido: 'ritmo', em: Date.now(), aceitaOculta: true });
+  await esperar(30);
+  assert.equal(gravado['pism-resposta'] && gravado['pism-resposta'].id, 'p2');
 });

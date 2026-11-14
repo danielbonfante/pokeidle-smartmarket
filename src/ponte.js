@@ -63,11 +63,18 @@
   // o popup apaga as duas chaves). Pedidos com mais de 5 s são ignorados. Só a aba visível responde
   // (revisão de 14/11/2026): no Chrome, com o popup aberto noutra aba, o jogo em segundo plano não
   // pode responder no lugar dela ("Abra a aba do pokeidle.io"), e com duas abas do jogo o freio de
-  // uma não pode aparecer como se fosse da outra.
+  // uma não pode aparecer como se fosse da outra. Exceção: aceitaOculta, quando o popup não achou uma
+  // aba de verdade (o chrome.tabs não funciona naquele navegador) — aí responde mesmo em segundo plano.
+  // A resposta se apaga sozinha em 10 s, se o popup fechou antes de apagar (2ª revisão de 14/11/2026).
   chrome.storage.onChanged.addListener((mud, area) => {
     const p = area === 'local' && mud['pism-pedido'] && mud['pism-pedido'].newValue;
     if (!p || !p.id || typeof p.pedido !== 'string' || Date.now() - p.em > ESPERA_MS) return;
-    if (document.visibilityState !== 'visible') return;
-    encaminhar(p.pedido, dados => chrome.storage.local.set({ 'pism-resposta': { id: p.id, dados, em: Date.now() } }));
+    if (document.visibilityState !== 'visible' && !p.aceitaOculta) return;
+    encaminhar(p.pedido, dados => {
+      chrome.storage.local.set({ 'pism-resposta': { id: p.id, dados, em: Date.now() } });
+      setTimeout(() => chrome.storage.local.get('pism-resposta', r => {
+        if (r && r['pism-resposta'] && r['pism-resposta'].id === p.id) chrome.storage.local.remove('pism-resposta');
+      }), 10000);
+    });
   });
 })();

@@ -186,7 +186,11 @@
     // naquele nível. Conta as vendas a até 2 escalas de nível (log), ~0,6× a 1,65× do nível simulado.
     const perto = M.PADRAO.escalaNivel * 2;
     const nivelSim = Math.max(1, Number(alvoSim.level) || 1);
-    const pertoDoNivel = daMoeda.filter(v => Math.abs(Math.log(Math.max(1, v.level)) - Math.log(nivelSim)) <= perto).length;
+    const pertoDe = nv => daMoeda.filter(v => Math.abs(Math.log(Math.max(1, v.level)) - Math.log(Math.max(1, nv))) <= perto).length;
+    const pertoDoNivel = pertoDe(nivelSim);
+    // e perto do nível da própria ficha: sem vendas lá, o preço dela também não tem dado de nível, e
+    // simular outro nível (mesmo um com vendas) compararia com um número sem base (2ª revisão)
+    const pertoDaFicha = pertoDe(Number(alvo.level) || 1);
     const faixaNivel = [Math.round(nivelSim * Math.exp(-perto)), Math.round(nivelSim * Math.exp(perto))];
     const conta = f => daMoeda.filter(f).length;
     // Quanto do peso das vendas parecidas (Nota, nível, potência e idade, SEM a penalidade dos extras)
@@ -202,7 +206,7 @@
       if (!!v.zmove === !!alvoSim.zmove) mesmoZ += w;
     }
     return {
-      alvo: alvoSim, res, total: daMoeda.length, semNota, pertoDoNivel, faixaNivel,
+      alvo: alvoSim, res, total: daMoeda.length, semNota, pertoDoNivel, pertoDaFicha, faixaNivel,
       comAoe: conta(v => v.aoe), semAoe: conta(v => !v.aoe),
       comZ: conta(v => v.zmove), semZ: conta(v => !v.zmove),
       pesoMesmoAoe: total ? mesmoAoe / total : 0, // 0–1

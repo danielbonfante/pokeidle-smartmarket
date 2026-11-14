@@ -232,3 +232,14 @@ test('simular nível: sem nenhuma venda perto do nível simulado, pertoDoNivel =
   assert.deepEqual(longe.faixaNivel, [849, 2308]);
   assert.ok(A.simular(alvo, vendas, 'orb', { level: 500 }, agora).pertoDoNivel > 10);
 });
+
+test('simular nível: a ficha longe das vendas (pertoDaFicha = 0) também não mede o efeito do nível', () => {
+  const agora = Date.UTC(2026, 10, 14);
+  const H = 3600e3;
+  const vendas = [];
+  for (let i = 1; i <= 20; i++) vendas.push({ id: i, em: agora - i * H, moeda: 'orb', preco: 20 + (i % 3), speciesId: 9, nome: 'Blastoise', level: 400 + i * 2, nota: 3.6, potencia: 1, shiny: false, aoe: false, zmove: false, mega: false });
+  const alvo = { id: 1, speciesId: 9, nome: 'Blastoise', level: 1400, nota: 3.6, potencia: 1, shiny: false, aoe: false, zmove: false, mega: false };
+  const s = A.simular(alvo, vendas, 'orb', { level: 420 }, agora);
+  assert.ok(s.pertoDoNivel > 10, 'o nível simulado tem vendas');
+  assert.equal(s.pertoDaFicha, 0, 'o da ficha não');
+});
