@@ -322,7 +322,11 @@
   }
 
   // soShiny / soP5: os filtros "Só shiny" e "Apenas P5" da Tabela de preços
-  function consultarHistorico({ pagina = 0, moeda = 'orb', busca = '', soShiny = false, soP5 = false } = {}) {
+  // naoContaTabela: consulta extra (o histórico de um Pokémon pelo "#id", 14/11/2026) cujas falhas não
+  // marcam a Tabela como fora do ar (nem gastam o teste da hora): um recurso secundário, ainda não
+  // visto no jogo, não pode parar a sincronização do quadro, da vitrine e do anúncio.
+  function consultarHistorico({ pagina = 0, moeda = 'orb', busca = '', soShiny = false, soP5 = false, naoContaTabela = false } = {}) {
+    if (tabelaFora && naoContaTabela) return Promise.reject(erroTabela());
     // Tabela fora do ar: recusa na hora; passada 1 h desde o último teste, esta consulta é o teste
     if (tabelaFora) {
       if (!podeTestarTabela()) return Promise.reject(erroTabela());
@@ -337,13 +341,13 @@
       if (soP5) corpo.soP5 = 1;
       return enviar(corpo).then(j => {
         if (!j || !Array.isArray(j.linhas)) {
-          falhaTabela('resposta sem linhas');
+          if (!naoContaTabela) falhaTabela('resposta sem linhas');
           throw new Error('resposta inesperada da Tabela de preços do jogo');
         }
-        sucessoTabela();
+        if (!naoContaTabela) sucessoTabela();
         return j;
       }, e => {
-        if (e && e.contaTabela) falhaTabela(e.message);
+        if (e && e.contaTabela && !naoContaTabela) falhaTabela(e.message);
         throw e;
       });
     });

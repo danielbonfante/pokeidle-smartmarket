@@ -219,3 +219,16 @@ test('simular shiny: usa as vendas shiny da espécie e ignora a Nota (o shiny mu
   assert.ok(s.res.nEfetivo > 4, 'a Nota diferente não derruba o peso');
   assert.equal(A.simular(alvo, vendas, 'orb', { level: 900 }, agora).semNota, false);
 });
+
+test('simular nível: sem nenhuma venda perto do nível simulado, pertoDoNivel = 0 (a janela diz que não dá para medir)', () => {
+  const agora = Date.UTC(2026, 10, 14);
+  const H = 3600e3;
+  const vendas = [];
+  for (let i = 1; i <= 20; i++) vendas.push({ id: i, em: agora - i * H, moeda: 'orb', preco: 20 + (i % 3), speciesId: 9, nome: 'Blastoise', level: 382 + i * 2, nota: 3.6, potencia: 1, shiny: false, aoe: false, zmove: false, mega: false });
+  const alvo = { id: 1, speciesId: 9, nome: 'Blastoise', level: 400, nota: 3.6, potencia: 1, shiny: false, aoe: false, zmove: false, mega: false };
+  // o caso da revisão: Nv 1.400 dava o mesmo preço com "confiança alta"
+  const longe = A.simular(alvo, vendas, 'orb', { level: 1400 }, agora);
+  assert.equal(longe.pertoDoNivel, 0);
+  assert.deepEqual(longe.faixaNivel, [849, 2308]);
+  assert.ok(A.simular(alvo, vendas, 'orb', { level: 500 }, agora).pertoDoNivel > 10);
+});

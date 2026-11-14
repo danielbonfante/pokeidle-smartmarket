@@ -266,3 +266,22 @@ test('consultarHistorico: moeda null não manda moeda (histórico de um Pokémon
   assert.ok(!('moeda' in enviados[0].j), 'sem moeda');
   assert.equal(enviados[1].j.moeda, 'orb', 'sem informar, continua Gemas');
 });
+
+test('tabela: a busca "#id" (naoContaTabela) não marca a Tabela como fora, nem gasta o teste da hora', async () => {
+  const rel = relogioAjustavel();
+  const { window, enviados, responderCom } = montar({ relogio: rel.Relogio });
+  responderCom((j, receber) => { if (j.t === 'market.historicoGlobal') receber({ t: 'erro', msg: 'Comando desconhecido' }); });
+  for (let i = 0; i < 4; i++) {
+    rel.desloc += 2000;
+    await assert.rejects(window.PIWs.consultarHistorico({ busca: '#1', moeda: null, naoContaTabela: true }), /desconhecido/);
+  }
+  assert.equal(window.PIWs.tabela().fora, false, '4 falhas do "#id" não derrubam a Tabela');
+  // com a Tabela fora (pelas consultas normais), o "#id" recusa na hora, sem enviar e sem gastar o teste
+  for (let i = 0; i < 3; i++) { rel.desloc += 2000; await assert.rejects(window.PIWs.consultarHistorico({ pagina: 0 })); }
+  assert.equal(window.PIWs.tabela().fora, true);
+  rel.desloc += 3600e3;
+  const n = enviados.length;
+  await assert.rejects(window.PIWs.consultarHistorico({ busca: '#1', moeda: null, naoContaTabela: true }), /Tabela de preços/);
+  assert.equal(enviados.length, n);
+  assert.equal(window.PIWs.tabela().podeTestar, true, 'o teste da hora continua disponível');
+});

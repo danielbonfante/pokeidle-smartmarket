@@ -307,6 +307,7 @@
     const caixa = j.el.querySelector('.pp-prec-sim');
     const nv = Math.round(Number(caixa.querySelector('.pp-prec-sim-nv').value));
     if (nv >= 1) j.sim.level = nv; // campo vazio ou zero no meio da digitação: fica o último nível válido
+    caixa.querySelector('.pp-prec-sim-nv').classList.toggle('pp-invalido', !(nv >= 1)); // e o campo avisa
     j.sim.aoe = ligado(caixa, '.pp-prec-sim-aoe');
     j.sim.zmove = ligado(caixa, '.pp-prec-sim-z');
     j.sim.shiny = ligado(caixa, '.pp-prec-sim-shiny');
@@ -318,6 +319,7 @@
     j.sim = simInicial(j.alvo);
     const caixa = j.el.querySelector('.pp-prec-sim');
     caixa.querySelector('.pp-prec-sim-nv').value = j.sim.level;
+    caixa.querySelector('.pp-prec-sim-nv').classList.remove('pp-invalido');
     caixa.querySelector('.pp-prec-sim-aoe').setAttribute('aria-pressed', String(j.sim.aoe));
     caixa.querySelector('.pp-prec-sim-z').setAttribute('aria-pressed', String(j.sim.zmove));
     caixa.querySelector('.pp-prec-sim-shiny').setAttribute('aria-pressed', String(j.sim.shiny));
@@ -413,6 +415,12 @@
     };
     extra(sim.aoe, !!alvo.aoe, s.comAoe, s.semAoe, s.pesoMesmoAoe, 'TM AoE');
     extra(sim.zmove, !!alvo.zmove, s.comZ, s.semZ, s.pesoMesmoZ, 'Z-Move');
+    // Nível sem nenhuma venda por perto: o motor só repete o preço das vendas de outros níveis
+    if (sim.level !== Number(alvo.level) && !s.pertoDoNivel) {
+      const nv = n => num(n, 0);
+      semMedida.push(`de nível perto do Nv ${nv(sim.level)}`); efeitosSemMedida.push('do nível');
+      avisos.push(`A espécie não tem nenhuma venda${s.alvo.shiny ? ' shiny' : ''} entre o Nv ${nv(s.faixaNivel[0])} e o Nv ${nv(s.faixaNivel[1])} em ${MOEDA[moeda].nome} nos últimos 30 dias.`);
+    } else if (sim.level !== Number(alvo.level)) medidos++;
     const r = s.res;
     const juntar = l => l.length > 1 ? l.slice(0, -1).join(', ') + ' e ' + l[l.length - 1] : l[0];
     const shinyTxt = s.alvo.shiny ? 'shiny' : 'sem shiny';
@@ -444,7 +452,7 @@
     html += avisoShiny;
     if (semMedida.length) {
       // o que o número é de verdade: o preço das vendas parecidas que NÃO têm o extra simulado
-      const de = soSemMedida ? 'É o mesmo desta ficha' : `O número acima não inclui o efeito ${juntar(efeitosSemMedida)}`;
+      const de = soSemMedida ? 'É o mesmo desta ficha' : `O número acima não mede o efeito ${juntar(efeitosSemMedida)}`;
       html += `<p class="pp-prec-aviso"><b>${de}:</b> nenhuma das cerca de ${nParecidas} vendas parecidas com este Pokémon (${emQue}) é ${juntar(semMedida)}, então a conta não tem como medir esse efeito. As vendas abaixo são as que formam o número.</p>`;
     }
     return html + avisos.map(a => `<p class="pp-prec-aviso">${esc(a)}</p>`).join('') + htmlSimVendas(r, moeda, s.semNota);
@@ -462,7 +470,7 @@
     j.hist = { buscando: true };
     desenharHist(j);
     try {
-      const r = await ws.consultarHistorico({ busca: '#' + id, moeda: null });
+      const r = await ws.consultarHistorico({ busca: '#' + id, moeda: null, naoContaTabela: true });
       const h = { vendas: A.historicoDoPokemon(r && r.linhas, id), temMais: !!(r && r.temMais) };
       historicos.set(String(id), h);
       if (janela === j) { j.hist = h; desenharHist(j); }
@@ -497,7 +505,8 @@
     }
     if (h.buscando) return '<div class="pp-an-vazio"><span class="pp-girando" aria-hidden="true"></span> buscando as vendas deste Pokémon…</div>';
     if (h.erro) return `<p>Não deu para buscar: ${esc(h.erro)}. <button type="button" class="pp-prec-hist-buscar">tentar de novo</button></p>`;
-    if (!h.vendas.length) return '<p>Pela Tabela de preços, este Pokémon nunca foi vendido no Mercado.</p>';
+    // a busca "#id" ainda não foi vista no jogo: sem linhas, não dá para afirmar que nunca foi vendido
+    if (!h.vendas.length) return '<p>A Tabela de preços não trouxe vendas deste Pokémon.</p>';
     const outroNome = h.vendas.some(v => v.nome !== j.alvo.nome); // vendido antes de evoluir: mostra o nome
     const linhas = h.vendas.map(v => `
       <tr>

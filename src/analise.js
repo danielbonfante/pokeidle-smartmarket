@@ -178,8 +178,16 @@
     const semNota = !!alvoSim.shiny !== !!alvo.shiny;
     const ajuste = semNota ? { escalaNota: 1e9 } : {};
     const res = M.precificar(alvoSim, vendas || [], Object.assign({ moeda, agora: t }, ajuste));
+    // as mesmas candidatas do motor (moeda, status shiny, 30 dias, preço, espécie)
     const daMoeda = (vendas || []).filter(v => v.moeda === moeda && !!v.shiny === !!alvoSim.shiny &&
-      v.em >= desde && v.em <= t && mesmaEspecie(alvo, v));
+      v.em >= desde && v.em <= t && v.preco > 0 && mesmaEspecie(alvo, v));
+    // Nível (revisão de 14/11/2026): com todas as vendas longe do nível simulado, o peso delas cai por
+    // igual, o nEfetivo quase não muda e o preço fica o mesmo, com "confiança alta" — sem dado nenhum
+    // naquele nível. Conta as vendas a até 2 escalas de nível (log), ~0,6× a 1,65× do nível simulado.
+    const perto = M.PADRAO.escalaNivel * 2;
+    const nivelSim = Math.max(1, Number(alvoSim.level) || 1);
+    const pertoDoNivel = daMoeda.filter(v => Math.abs(Math.log(Math.max(1, v.level)) - Math.log(nivelSim)) <= perto).length;
+    const faixaNivel = [Math.round(nivelSim * Math.exp(-perto)), Math.round(nivelSim * Math.exp(perto))];
     const conta = f => daMoeda.filter(f).length;
     // Quanto do peso das vendas parecidas (Nota, nível, potência e idade, SEM a penalidade dos extras)
     // está em vendas com o mesmo AoE / Z-Move da simulação. Se quase nada (ex.: o Mega Dragonite shiny
@@ -194,7 +202,7 @@
       if (!!v.zmove === !!alvoSim.zmove) mesmoZ += w;
     }
     return {
-      alvo: alvoSim, res, total: daMoeda.length, semNota,
+      alvo: alvoSim, res, total: daMoeda.length, semNota, pertoDoNivel, faixaNivel,
       comAoe: conta(v => v.aoe), semAoe: conta(v => !v.aoe),
       comZ: conta(v => v.zmove), semZ: conta(v => !v.zmove),
       pesoMesmoAoe: total ? mesmoAoe / total : 0, // 0–1

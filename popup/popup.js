@@ -82,21 +82,28 @@
   // a mensagem não chega à aba) e o popup achava que não estava no jogo. Aí o pedido vai pelo
   // chrome.storage: a ponte da aba do jogo (src/ponte.js) vê a mudança e responde pelo storage. Só
   // passam os números do cache e do freio, e as duas chaves são apagadas logo depois.
-  const CHAVE_PEDIDO = 'pism-pedido', CHAVE_RESPOSTA = 'pism-resposta', ESPERA_STORAGE_MS = 1500;
+  // Prazos (revisão de 14/11/2026): 1,5 s para descobrir se o caminho existe; depois de achado, 5 s,
+  // como o caminho pela aba (o "estado" lê o cache inteiro e pode demorar numa máquina lenta). Uma
+  // resposta que chega depois do prazo ainda é apagada (escuta até 5 s), para nada ficar guardado.
+  const CHAVE_PEDIDO = 'pism-pedido', CHAVE_RESPOSTA = 'pism-resposta';
+  const ESPERA_DESCOBRIR_MS = 1500, ESPERA_STORAGE_MS = 5000;
   let numPedido = 0;
   function pedirPeloStorage(pedido) {
     return new Promise(res => {
       if (!chrome.storage || !chrome.storage.onChanged) return res(null);
       const id = Date.now() + '-' + (++numPedido);
+      let respondido = false;
+      const parar = () => { chrome.storage.onChanged.removeListener(ouvir); chrome.storage.local.remove([CHAVE_PEDIDO, CHAVE_RESPOSTA]); };
       const ouvir = (mud, area) => {
         const r = area === 'local' && mud[CHAVE_RESPOSTA] && mud[CHAVE_RESPOSTA].newValue;
         if (!r || r.id !== id) return;
-        clearTimeout(fim);
-        chrome.storage.onChanged.removeListener(ouvir);
-        chrome.storage.local.remove([CHAVE_PEDIDO, CHAVE_RESPOSTA]);
-        res(r.dados || null);
+        clearTimeout(limpar);
+        parar();
+        if (!respondido) { respondido = true; res(r.dados || null); }
       };
-      const fim = setTimeout(() => { chrome.storage.onChanged.removeListener(ouvir); chrome.storage.local.remove(CHAVE_PEDIDO); res(null); }, ESPERA_STORAGE_MS);
+      const prazo = canal === 'storage' ? ESPERA_STORAGE_MS : ESPERA_DESCOBRIR_MS;
+      setTimeout(() => { if (!respondido) { respondido = true; chrome.storage.local.remove(CHAVE_PEDIDO); res(null); } }, prazo);
+      const limpar = setTimeout(parar, ESPERA_STORAGE_MS + 500);
       chrome.storage.onChanged.addListener(ouvir);
       chrome.storage.local.set({ [CHAVE_PEDIDO]: { id, pedido, em: Date.now() } });
     });
@@ -200,10 +207,18 @@
     iniciarApoie();
     await iniciarOpcoes();
     mostrarLimpar();
+    // sobras de um popup fechado no meio de um pedido (o plano B pelo storage)
+    try { chrome.storage.local.remove([CHAVE_PEDIDO, CHAVE_RESPOSTA]); } catch (e) { /* sem storage */ }
     try { [aba] = await chrome.tabs.query({ active: true, currentWindow: true }); } catch (e) { aba = null; }
     await atualizarJogo(true);
-    // o freio muda com o tempo; o cache, não. Fora do jogo não fica perguntando.
-    setInterval(() => { if (canal) atualizarJogo(false); }, 2000);
+    // o freio muda com o tempo; o cache, não. Sem caminho achado (a aba do jogo ainda carregando, ou
+    // fora do jogo), tenta de novo a cada 5 s, com o pedido completo.
+    let ciclos = 0;
+    setInterval(() => {
+      ciclos++;
+      if (canal) atualizarJogo(false);
+      else if (ciclos % 3 === 0) atualizarJogo(true);
+    }, 2000);
   }
 
   iniciar();

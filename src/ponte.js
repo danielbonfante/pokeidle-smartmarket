@@ -60,10 +60,14 @@
 
   // Plano B do popup: em navegadores em que o chrome.tabs.sendMessage não chega à aba, o popup grava o
   // pedido em "pism-pedido" e espera a resposta em "pism-resposta" (só os números do cache e do freio;
-  // o popup apaga as duas chaves). Pedidos com mais de 5 s são ignorados.
+  // o popup apaga as duas chaves). Pedidos com mais de 5 s são ignorados. Só a aba visível responde
+  // (revisão de 14/11/2026): no Chrome, com o popup aberto noutra aba, o jogo em segundo plano não
+  // pode responder no lugar dela ("Abra a aba do pokeidle.io"), e com duas abas do jogo o freio de
+  // uma não pode aparecer como se fosse da outra.
   chrome.storage.onChanged.addListener((mud, area) => {
     const p = area === 'local' && mud['pism-pedido'] && mud['pism-pedido'].newValue;
     if (!p || !p.id || typeof p.pedido !== 'string' || Date.now() - p.em > ESPERA_MS) return;
+    if (document.visibilityState !== 'visible') return;
     encaminhar(p.pedido, dados => chrome.storage.local.set({ 'pism-resposta': { id: p.id, dados, em: Date.now() } }));
   });
 })();
