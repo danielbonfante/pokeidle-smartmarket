@@ -537,3 +537,49 @@ tr.pp-mesmo td { background: color-mix(in srgb, var(--rx-rosa, #ffa7d7) 14%, tra
 .pp-revenda { margin-top: 4px; font-size: 11px; color: var(--sobre-mad, #fff6ef); cursor: help; }
 .pp-revenda[hidden] { display: none; }
 .pp-revenda b { color: var(--rx-rosa, #ffa7d7); }
+
+/* Botões do quadro (14/11/2026): Precificar com cara de botão do jogo (dourado, com "+" como o "+ Anunciar"),
+   e "vendas" com uma setinha que mostra que a lista abre para baixo (e vira para cima quando aberta). */
+.pp-badge .pp-precificar {
+  display: inline-flex; align-items: center; gap: 3px; padding: 2px 9px 3px; font-size: 10.5px;
+  color: #3a1f05; border: 1px solid #b8791a; border-radius: 6px;
+  background: linear-gradient(180deg, #ffd977, #e7a92c);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 2px 0 #8a5a12;
+}
+.pp-badge .pp-precificar:hover { background: linear-gradient(180deg, #ffe39a, #f0b53a); }
+.pp-badge .pp-precificar:active { transform: translateY(1px); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55), 0 1px 0 #8a5a12; }
+.pp-mais { font-size: 12px; line-height: 1; font-weight: 800; }
+.pp-badge .pp-ver { display: inline-flex; align-items: center; gap: 4px; padding: 2px 7px 3px; box-shadow: 0 2px 0 var(--mad-linha, #480e1e); }
+.pp-seta {
+  width: 0; height: 0; border-left: 4px solid transparent; border-right: 4px solid transparent;
+  border-top: 5px solid currentColor; transition: transform 0.15s;
+}
+.pp-ver[aria-expanded="true"] .pp-seta { transform: rotate(180deg); }
+
+/* Precificar: simular nível/AoE/Z-Move e as vendas deste Pokémon pelo "#id" (14/11/2026) */
+.pp-prec-fraco { color: #a993c9 !important; font-size: 11px !important; }
+.pp-prec-sim-campos { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 8px 0; font-size: 12px; color: #e8d7ff; }
+.pp-prec-sim-campos label { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
+.pp-prec-sim-campos input[type="checkbox"] { accent-color: #ba5ad1; margin: 0; }
+.pp-prec-sim-nv {
+  width: 78px; padding: 3px 6px; border-radius: 6px; font: inherit; font-size: 12px; color: #fff;
+  border: 1px solid rgba(181, 140, 255, 0.45); background: rgba(10, 4, 10, 0.6);
+}
+.pp-prec-sim-volta, .pp-prec-hist-buscar {
+  font: inherit; font-size: 11px; padding: 2px 9px 3px; border-radius: 6px; cursor: pointer;
+  border: 1px solid var(--rx-esc, #8d49b8); color: var(--sobre-mad, #fff6ef);
+  background: color-mix(in srgb, var(--rx, #ba5ad1) 45%, transparent); box-shadow: 0 2px 0 var(--mad-linha, #480e1e);
+}
+.pp-prec-sim-volta { margin-left: auto; }
+.pp-prec-sim-volta:hover, .pp-prec-hist-buscar:hover { background: color-mix(in srgb, var(--rx, #ba5ad1) 70%, transparent); }
+.pp-prec-sim-res p + p { margin-top: 3px; }
+.pp-prec-sim-justo { color: #fff; font-size: 14px; }
+.pp-prec-sim-dif { color: #f2c86b; font-size: 11px; margin-left: 4px; }
+.pp-prec-bloco p.pp-prec-aviso { margin-top: 5px; color: #f2c86b; font-size: 11px; }
+.pp-prec-hist-acao { margin: 8px 0 !important; }
+.pp-prec-hist table { width: 100%; margin: 6px 0; border-collapse: collapse; font-size: 12px; font-variant-numeric: tabular-nums; }
+.pp-prec-hist th { padding: 3px 5px; text-align: right; color: #a993c9; font-weight: 600; font-size: 11px; }
+.pp-prec-hist td { padding: 3px 5px; text-align: right; color: #d9c4ff; border-top: 1px solid rgba(255, 255, 255, 0.06); white-space: nowrap; }
+.pp-prec-hist th:first-child, .pp-prec-hist td:first-child { text-align: left; }
+.pp-prec-hist td small { color: #a993c9; }
+.pp-prec-hist td.pp-prec-valor { color: #fff; font-weight: 700; }

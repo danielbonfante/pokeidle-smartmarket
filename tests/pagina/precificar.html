@@ -49,10 +49,25 @@
   const comSync = location.hash === '#sync';
   // #tabela: a Tabela de preços do jogo não responde há 5 h (ws.js desistiu): o quadro mostra o cache e avisa
   const tabelaFora = location.hash === '#tabela';
+  const comHistorico = location.hash === '#historico' || location.hash === '#nunca';
   // #longe: o mesmo Blastoise com Nv 5.000 — a espécie tem vendas, mas nenhuma parecida
   // ("poucas com Nv e Nota parecidos" no quadro)
   const nivel = location.hash === '#longe' ? 5000 : 395;
-  window.PIWs = { pokemon: () => ({ id: 97553169, speciesId: 9, nome: 'Blastoise', level: nivel, nota: 3.598, quality: 1.8, potencia: 1, shiny: false, tmAoe: false, tmElemental: null, ivTotal: 130 }), conectado: () => comSync || tabelaFora,
+  window.PIWs = { pokemon: () => ({ id: 97553169, speciesId: 9, nome: 'Blastoise', level: nivel, nota: 3.598, quality: 1.8, potencia: 1, shiny: false, tmAoe: false, tmElemental: null, ivTotal: 130 }), conectado: () => comSync || tabelaFora || comHistorico,
+    // #historico / #nunca: o botão "Buscar as vendas deste Pokémon" da Precificar (busca "#id", todas as
+    // moedas). Vem uma venda dele antes de evoluir (Wartortle, em Coins), uma depois e uma de OUTRO Pokémon
+    // (número parecido, que a janela tem de deixar de fora); as linhas trazem nicks, como as do jogo.
+    consultarHistorico: ({ busca, moeda }) => new Promise(r => setTimeout(() => {
+      window.__buscaHistorico = { busca, moeda };
+      const ficha = (nome, level, nota, extra) => Object.assign({ id: 97553169, nome, speciesId: nome === 'Blastoise' ? 9 : 8, level, nota,
+        tmAoe: false, tmElemental: null, shiny: false, caughtBy: 'alguem' }, extra);
+      const linhas = location.hash === '#nunca' ? [] : [
+        { id: 9003, tipo: 'pokemon', moeda: 'orb', bruto: 999, vendedor: 'x', comprador: 'y', em: agora - 2 * H, pokemonId: 975531690, ficha: ficha('Blastoise', 500, 4, { id: 975531690 }) },
+        { id: 9002, tipo: 'pokemon', moeda: 'orb', bruto: 24, vendedor: 'nickB', comprador: 'nickC', em: agora - 20 * 24 * H, pokemonId: 97553169, ficha: ficha('Blastoise', 310, 3.598, { tmAoe: true }) },
+        { id: 9001, tipo: 'pokemon', moeda: 'gold', bruto: 4.2e7, vendedor: 'nickA', comprador: 'nickB', em: agora - 70 * 24 * H, pokemonId: 97553169, ficha: ficha('Wartortle', 120, 3.49) },
+      ];
+      r({ linhas, temMais: false });
+    }, 1200)),
     tabela: () => ({ fora: tabelaFora, desde: tabelaFora ? agora - 5 * H : 0, podeTestar: false }) };
   window.PIStore = { vendasPorEspecie: async () => vendas, vendasPorClasse: async () => [] };
   let filaFalsa = Promise.resolve();

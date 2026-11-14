@@ -6,7 +6,8 @@
  * destaque com uma barra onde aparecem as vendas parecidas, frases em português claro,
  * a confiança medida de verdade (o motor refeito para as vendas recentes da espécie) e
  * um aviso quando as vendas se dividem em dois grupos de preço. Usa só o cache: nenhuma
- * consulta nova ao jogo.
+ * consulta nova ao jogo, a não ser o botão "Buscar as vendas deste Pokémon" (uma consulta pelo
+ * "#id", só com o clique). Também simula outro nível, AoE e Z-Move (14/11/2026).
  */
 (function () {
   'use strict';
@@ -16,7 +17,9 @@
   const M = window.PIMotor;
   const MOEDA = window.PIUi.MOEDA;
 
-  let janela = null; // { el, alvo, moeda, geracao }
+  let janela = null; // { el, alvo, moeda, geracao, res, vendas, sim, hist }
+  // histórico pelo "#id" já buscado nesta sessão (id -> { vendas, temMais }): a mesma busca não se repete
+  const historicos = new Map();
 
   const fmt = (x, m) => window.PIUi.fmtPreco(x, m);
   const num = (x, c) => window.PIUi.fmtNumero(x, c);
@@ -52,13 +55,22 @@
         ver.textContent = aberto ? 'mostrar menos' : `ver as ${bloco.querySelectorAll('tbody tr').length - 1} vendas`;
         return;
       }
+      if (ev.target.closest('.pp-prec-hist-buscar')) { buscarHistorico(janela); return; }
+      if (ev.target.closest('.pp-prec-sim-volta')) { voltarSim(janela); return; }
       const b = ev.target.closest('[data-moeda]');
       if (b && !b.disabled) { janela.moeda = b.getAttribute('data-moeda'); desenhar(); }
     });
+    // simulação: recalcula enquanto digita (com uma pausa curta) e ao marcar os extras
+    const aoMudar = ev => { if (ev.target.closest('.pp-prec-sim')) aoMudarSim(janela); };
+    el.addEventListener('input', aoMudar);
+    el.addEventListener('change', aoMudar);
+    // as teclas digitadas nos campos da janela não vão para o jogo (atalhos)
+    el.addEventListener('keydown', ev => { if (ev.key !== 'Escape' && ev.target.matches('input')) ev.stopPropagation(); });
     document.body.appendChild(el);
     const caixa = el.querySelector('.pp-prec');
     window.PIUi.arrastavel(caixa, [caixa.querySelector('.pp-toldo'), caixa.querySelector('.pp-prec-topo')]);
-    janela = { el, alvo, moeda: 'orb', geracao: 0, esperar: esperar || null }; // abre em Gemas (shiny só vende em Gemas)
+    janela = { el, alvo, moeda: 'orb', geracao: 0, esperar: esperar || null, // abre em Gemas (shiny só vende em Gemas)
+      sim: simInicial(alvo), hist: historicos.get(String(alvo.id)) || null };
     document.addEventListener('keydown', aoTeclar, true);
     desenhar();
   }
@@ -100,8 +112,10 @@
     const pontos = A.pontosVendas(alvo, vendas, moeda, agora);
     const grupos = A.detectarGrupos(pontos);
     const conf = A.confiancaEspecie(vendas.filter(v => !!v.shiny === !!alvo.shiny), moeda, agora);
+    j.res = res; j.vendas = vendas;
     corpo.innerHTML = htmlPreco(alvo, moeda, res, pontos) + htmlVendas(alvo, res, pontos, moeda) +
-      htmlConfianca(conf, res) + (grupos ? htmlGrupos(alvo, res, grupos, moeda) : htmlUmGrupo(A.maiorSalto(pontos), moeda));
+      htmlConfianca(conf, res) + (grupos ? htmlGrupos(alvo, res, grupos, moeda) : htmlUmGrupo(A.maiorSalto(pontos), moeda)) +
+      htmlSimular(j) + htmlHistorico(j);
     if (window.PIDinheiro) window.PIDinheiro.pintar(corpo);
   }
 
@@ -254,6 +268,153 @@
         <p><b>As vendas parecidas formam um grupo só.</b> O maior salto entre preços vizinhos vai de
         <b>${fmt(salto.de, moeda)}</b> para <b>${fmt(salto.para, moeda)}</b> (${razao}×); a janela só separa em dois grupos a partir de 2,5×.</p>
       </div>`;
+  }
+
+  // ---------- simular nível, AoE e Z-Move (14/11/2026) ----------
+  const simInicial = alvo => ({ level: Number(alvo.level) || 1, aoe: !!alvo.aoe, zmove: !!alvo.zmove });
+  let esperaSim = 0;
+
+  function aoMudarSim(j) {
+    if (!j || janela !== j) return;
+    const caixa = j.el.querySelector('.pp-prec-sim');
+    const nv = Math.round(Number(caixa.querySelector('.pp-prec-sim-nv').value));
+    if (nv >= 1) j.sim.level = nv; // campo vazio ou zero no meio da digitação: fica o último nível válido
+    j.sim.aoe = caixa.querySelector('.pp-prec-sim-aoe').checked;
+    j.sim.zmove = caixa.querySelector('.pp-prec-sim-z').checked;
+    clearTimeout(esperaSim);
+    esperaSim = setTimeout(() => desenharSim(j), 200);
+  }
+
+  function voltarSim(j) {
+    j.sim = simInicial(j.alvo);
+    const caixa = j.el.querySelector('.pp-prec-sim');
+    caixa.querySelector('.pp-prec-sim-nv').value = j.sim.level;
+    caixa.querySelector('.pp-prec-sim-aoe').checked = j.sim.aoe;
+    caixa.querySelector('.pp-prec-sim-z').checked = j.sim.zmove;
+    desenharSim(j);
+  }
+
+  function desenharSim(j) {
+    if (janela !== j) return;
+    const r = j.el.querySelector('.pp-prec-sim-res');
+    if (r) r.innerHTML = htmlSimResultado(j);
+  }
+
+  function htmlSimular(j) {
+    if (!j.vendas) return '';
+    const { sim } = j;
+    return `
+      <div class="pp-prec-bloco pp-prec-sim">
+        <div class="pp-prec-titulo">Simular</div>
+        <p>Quanto o preço muda se este Pokémon tivesse outro nível ou outros extras. É a mesma conta do Preço justo, com as vendas guardadas desta espécie; a Nota fica a mesma.</p>
+        <div class="pp-prec-sim-campos">
+          <label>Nv <input type="number" class="pp-prec-sim-nv" min="1" step="1" inputmode="numeric" value="${sim.level}"></label>
+          <label><input type="checkbox" class="pp-prec-sim-aoe"${sim.aoe ? ' checked' : ''}> TM AoE</label>
+          <label><input type="checkbox" class="pp-prec-sim-z"${sim.zmove ? ' checked' : ''}> Z-Move</label>
+          <button type="button" class="pp-prec-sim-volta" title="Volta ao nível e aos extras desta ficha">desta ficha</button>
+        </div>
+        <div class="pp-prec-sim-res">${htmlSimResultado(j)}</div>
+      </div>`;
+  }
+
+  function htmlSimResultado(j) {
+    const { alvo, moeda, sim, res: base } = j;
+    if (base && base.soGemas) return '<p>Shiny só vende em Gemas.</p>';
+    if (sim.level === Number(alvo.level) && sim.aoe === !!alvo.aoe && sim.zmove === !!alvo.zmove) {
+      return '<p class="pp-prec-fraco">Mude o nível ou marque/desmarque os extras para ver o preço.</p>';
+    }
+    const s = A.simular(alvo, j.vendas, moeda, sim);
+    // Sem vendas com o extra, o motor não tem como medir o efeito dele (pesa todas igual): avisar
+    const avisos = [];
+    const extra = (ligado, original, com, sem, nome) => {
+      if (ligado === original) return;
+      const n = ligado ? com : sem;
+      const quais = `${ligado ? 'com' : 'sem'} ${nome}`;
+      const efeito = `o efeito ${ligado ? 'do' : 'de tirar o'} ${nome}`;
+      if (!n) avisos.push(`Nenhuma venda da espécie ${quais} em ${MOEDA[moeda].nome} nos últimos 30 dias: a conta não tem como medir ${efeito}.`);
+      else if (n < 3) avisos.push(`Só ${n} venda${n > 1 ? 's' : ''} da espécie ${quais}: ${efeito} fica incerto.`);
+    };
+    extra(sim.aoe, !!alvo.aoe, s.comAoe, s.semAoe, 'AoE');
+    extra(sim.zmove, !!alvo.zmove, s.comZ, s.semZ, 'Z-Move');
+    const r = s.res;
+    let html;
+    if (!r.suficiente) {
+      html = '<p>Sem vendas parecidas o bastante com esse caso para um preço.</p>';
+    } else {
+      const dif = base && base.suficiente
+        ? ` <span class="pp-prec-sim-dif">${window.PIUi.fmtDif(r.precoJusto / base.precoJusto - 1)} sobre o justo desta ficha (${fmt(base.precoJusto, moeda)})</span>` : '';
+      html = `<p>Preço justo <b class="pp-prec-sim-justo">${fmt(r.precoJusto, moeda)} ${MOEDA[moeda].icone}</b>${dif}</p>
+        <p class="pp-prec-fraco">faixa ${fmt(r.venderRapido, moeda)}–${fmt(r.esperar, moeda)}${r.faixaAlargada ? ' (alargada: poucas vendas parecidas)' : ''} · cerca de ${num(r.nEfetivo, r.nEfetivo < 10 ? 1 : 0)} vendas parecidas</p>`;
+    }
+    return html + avisos.map(a => `<p class="pp-prec-aviso">${esc(a)}</p>`).join('');
+  }
+
+  // ---------- vendas deste Pokémon pelo "#id" (14/11/2026) ----------
+  // A busca "#id" da Tabela de preços traz todas as vendas daquele Pokémon, sem a janela de 30 dias.
+  // Uma consulta, só com o clique, pela fila de sempre. As linhas trazem os nicks de quem vendeu e
+  // de quem comprou: normalizarVenda descarta, e nada disso é guardado.
+  async function buscarHistorico(j) {
+    if (!j || janela !== j || (j.hist && j.hist.buscando)) return;
+    const id = j.alvo.id;
+    const ws = window.PIWs;
+    if (!ws || !ws.consultarHistorico || !ws.conectado()) { j.hist = { erro: 'sem conexão com o jogo' }; desenharHist(j); return; }
+    j.hist = { buscando: true };
+    desenharHist(j);
+    try {
+      const r = await ws.consultarHistorico({ busca: '#' + id, moeda: null });
+      const h = { vendas: A.historicoDoPokemon(r && r.linhas, id), temMais: !!(r && r.temMais) };
+      historicos.set(String(id), h);
+      if (janela === j) { j.hist = h; desenharHist(j); }
+    } catch (e) {
+      if (janela !== j) return;
+      j.hist = { erro: e && e.tabela ? 'a Tabela de preços do jogo não está respondendo agora' : ((e && e.message) || 'erro desconhecido') };
+      desenharHist(j);
+    }
+  }
+
+  function desenharHist(j) {
+    if (janela !== j) return;
+    const c = j.el.querySelector('.pp-prec-hist-corpo');
+    if (c) c.innerHTML = htmlHistCorpo(j);
+  }
+
+  function htmlHistorico(j) {
+    if (!j.alvo.id) return '';
+    return `
+      <div class="pp-prec-bloco pp-prec-hist">
+        <div class="pp-prec-titulo">Vendas deste Pokémon <span class="pp-prec-sub">#${esc(j.alvo.id)}</span></div>
+        <div class="pp-prec-hist-corpo">${htmlHistCorpo(j)}</div>
+      </div>`;
+  }
+
+  function htmlHistCorpo(j) {
+    const h = j.hist;
+    if (!h) {
+      return `<p>A Tabela de preços do jogo guarda todas as vendas de cada Pokémon, sem o limite de 30 dias.</p>
+        <p class="pp-prec-hist-acao"><button type="button" class="pp-prec-hist-buscar">Buscar as vendas deste Pokémon</button></p>
+        <p class="pp-prec-fraco">Uma consulta ao jogo, no ritmo de sempre. A Tabela traz quem vendeu e quem comprou; a extensão descarta esses nomes.</p>`;
+    }
+    if (h.buscando) return '<div class="pp-an-vazio"><span class="pp-girando" aria-hidden="true"></span> buscando as vendas deste Pokémon…</div>';
+    if (h.erro) return `<p>Não deu para buscar: ${esc(h.erro)}. <button type="button" class="pp-prec-hist-buscar">tentar de novo</button></p>`;
+    if (!h.vendas.length) return '<p>Pela Tabela de preços, este Pokémon nunca foi vendido no Mercado.</p>';
+    const outroNome = h.vendas.some(v => v.nome !== j.alvo.nome); // vendido antes de evoluir: mostra o nome
+    const linhas = h.vendas.map(v => `
+      <tr>
+        <td>${new Date(v.em).toLocaleDateString('pt-BR')} <small>há ${esc(window.PIUi.fmtIdade(v.em))}</small></td>
+        <td class="pp-prec-valor">${MOEDA[v.moeda] ? MOEDA[v.moeda].icone : ''} ${fmt(v.preco, v.moeda)}</td>
+        ${outroNome ? `<td>${esc(v.nome)}</td>` : ''}
+        <td>${num(v.level, 0)}</td>
+        <td><b>${num(v.nota, 3)}</b></td>
+        <td>${extras(v)}</td>
+      </tr>`).join('');
+    const n = h.vendas.length;
+    const rodape = h.temMais ? `As ${n} vendas mais recentes (há mais antigas).` : `${n === 1 ? '1 venda' : n + ' vendas'}, desde a primeira.`;
+    return `
+      <table>
+        <thead><tr><th>Quando</th><th>Preço</th>${outroNome ? '<th>Como</th>' : ''}<th>Nv</th><th>Nota</th><th>Extras</th></tr></thead>
+        <tbody>${linhas}</tbody>
+      </table>
+      <p class="pp-prec-fraco">${rodape} A Nota e o nível são os do dia da venda.</p>`;
   }
 
   window.PIPrecificar = { abrir, fechar, _htmlGrupos: htmlGrupos }; // _htmlGrupos: para as páginas de teste

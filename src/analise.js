@@ -162,7 +162,40 @@
     return { total, acertos, taxa: acertos / total };
   }
 
-  const api = { pontosVendas, escalaBarra, detectarGrupos, maiorSalto, grupoMaisParecido, noVao, confiancaEspecie };
+  /**
+   * Simulação (14/11/2026): o motor refeito com o alvo alterado (nível, AoE, Z-Move), para ver quanto
+   * isso muda o preço. Conta também as vendas da espécie com e sem cada extra (mesma moeda, mesmo
+   * status shiny, 30 dias): sem venda nenhuma com AoE, por exemplo, ligar o AoE não muda nada (o
+   * motor pesa ×0,3 todas as vendas igualmente), e a janela precisa dizer que não dá para medir.
+   */
+  function simular(alvo, vendas, moeda, mud, agora) {
+    const t = agora || Date.now();
+    const desde = t - M.PADRAO.janelaDias * DIA;
+    const alvoSim = Object.assign({}, alvo, mud);
+    const res = M.precificar(alvoSim, vendas || [], { moeda, agora: t });
+    const daMoeda = (vendas || []).filter(v => v.moeda === moeda && !!v.shiny === !!alvo.shiny &&
+      v.em >= desde && v.em <= t && mesmaEspecie(alvo, v));
+    const conta = f => daMoeda.filter(f).length;
+    return {
+      alvo: alvoSim, res, total: daMoeda.length,
+      comAoe: conta(v => v.aoe), semAoe: conta(v => !v.aoe),
+      comZ: conta(v => v.zmove), semZ: conta(v => !v.zmove),
+    };
+  }
+
+  /**
+   * Histórico de um Pokémon pela busca "#id" da Tabela de preços (14/11/2026): as linhas que são
+   * mesmo dele (pelo número), já normalizadas (sem nicks: normalizarVenda descarta), mais novas primeiro.
+   */
+  function historicoDoPokemon(linhas, pokemonId) {
+    const id = Number(pokemonId);
+    return (linhas || [])
+      .map(l => M.normalizarVenda(l))
+      .filter(v => v && v.pokemonId === id)
+      .sort((a, b) => b.em - a.em);
+  }
+
+  const api = { pontosVendas, escalaBarra, detectarGrupos, maiorSalto, grupoMaisParecido, noVao, confiancaEspecie, simular, historicoDoPokemon };
   root.PIAnalise = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

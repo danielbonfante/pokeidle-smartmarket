@@ -29,7 +29,7 @@ O conteúdo das mensagens do chat não é guardado. A extensão só verifica se 
 
 Só consultas ao próprio pokeidle.io, as mesmas que a interface do jogo faz:
 
-- `market.historicoGlobal`: o histórico de vendas do Mercado (a "Tabela de preços"), filtrado por Pokémon, moeda e espécie;
+- `market.historicoGlobal`: o histórico de vendas do Mercado (a "Tabela de preços"), filtrado por Pokémon, moeda e espécie, ou pelo número de um Pokémon, quando você clica em "Buscar as vendas deste Pokémon" na janela Precificar (essa resposta só aparece na tela, sem nicks, e não é guardada);
 - `market.listar`: uma página de anúncios de uma espécie, quando você abre o painel da tela de anúncio.
 
 Essas consultas saem pela conexão que o jogo já abriu, num ritmo limitado (uma por vez, com pausa entre elas, no máximo 12 por minuto) e só quando você abre uma ficha, uma vitrine focada ou o painel de anúncio. **Nenhum dado é enviado a qualquer outro endereço.**

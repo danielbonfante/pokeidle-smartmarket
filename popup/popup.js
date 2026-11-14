@@ -34,14 +34,22 @@
         chrome.storage.local.set({ config });
       });
     });
-    // Gemas em dinheiro: o modo e a cotação do real (o campo só aparece com "Dólar e real")
+    // Gemas em dinheiro: dois switches ("Dólar" e "Dólar e real"); ligar um desliga o outro, e os dois
+    // desligados é "não mostrar". O campo da cotação do real só fica ativo com "Dólar e real".
     const cotacao = $('#cotacao-brl');
-    const mostrarCotacao = () => { $('#cotacao-area').hidden = config.dinheiro !== 'usd-brl'; };
-    document.querySelectorAll('input[name="dinheiro"]').forEach(r => {
-      r.checked = r.value === config.dinheiro;
-      r.addEventListener('change', () => {
-        if (!r.checked) return;
-        config.dinheiro = r.value;
+    const switches = [...document.querySelectorAll('input[data-dinheiro]')];
+    const mostrarCotacao = () => {
+      const brl = config.dinheiro === 'usd-brl';
+      switches.forEach(s => { s.checked = s.getAttribute('data-dinheiro') === config.dinheiro; });
+      cotacao.disabled = !brl;
+      $('#cotacao-caixa').classList.toggle('desligada', !brl);
+      $('#cotacao-nota').textContent = brl
+        ? 'Cotação do real: quanto vale 1 USDT em reais. A extensão não consulta site de câmbio; atualize o número quando quiser.'
+        : 'Cotação do real: só vale com "Dólar e real" ligado. A extensão não consulta site de câmbio; o número é o que você digitar.';
+    };
+    switches.forEach(s => {
+      s.addEventListener('change', () => {
+        config.dinheiro = s.checked ? s.getAttribute('data-dinheiro') : 'nada';
         mostrarCotacao();
         chrome.storage.local.set({ config });
       });

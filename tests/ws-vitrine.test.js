@@ -256,3 +256,13 @@ test('índice: a ficha das vendas do histórico (foto do Pokémon no dia da vend
   assert.equal(p.level, 3022);
   assert.equal(p.nota, 7.385);
 });
+
+test('consultarHistorico: moeda null não manda moeda (histórico de um Pokémon pelo "#id", todas as moedas)', async () => {
+  const { window, enviados, responderCom } = montar();
+  responderCom((j, receber) => receber({ t: 'market', aba: 'historicoGlobal', seq: j.seq, linhas: [], temMais: false }));
+  await window.PIWs.consultarHistorico({ busca: '#97553169', moeda: null });
+  await window.PIWs.consultarHistorico({ busca: 'Blastoise' });
+  assert.equal(enviados[0].j.busca, '#97553169');
+  assert.ok(!('moeda' in enviados[0].j), 'sem moeda');
+  assert.equal(enviados[1].j.moeda, 'orb', 'sem informar, continua Gemas');
+});

@@ -187,8 +187,8 @@
       <div class="pp-topo">
         <span class="pp-titulo">Preço estimado</span>
         <span class="pp-conf" hidden></span>
-        <button type="button" class="pp-precificar" title="${esc(DICA.precificar)}">Precificar</button>
-        <button type="button" class="pp-ver" title="${esc(DICA.ver)}">vendas</button>
+        <button type="button" class="pp-precificar" title="${esc(DICA.precificar)}"><span class="pp-mais" aria-hidden="true">+</span>Precificar</button>
+        <button type="button" class="pp-ver" title="${esc(DICA.ver)}" aria-expanded="false">vendas<span class="pp-seta" aria-hidden="true"></span></button>
       </div>
       <div class="pp-rotulos"><span title="${esc(DICA.venderRapido)}">Vender rápido</span><span title="${esc(DICA.precoJusto)}">Preço justo</span><span title="${esc(DICA.esperar)}">Esperar</span></div>
       ${MOEDAS.map(m => `
@@ -209,6 +209,7 @@
       ev.stopPropagation();
       const c = el.querySelector('.pp-comps');
       c.hidden = !c.hidden;
+      ev.currentTarget.setAttribute('aria-expanded', String(!c.hidden)); // a setinha vira para cima
     });
     return el;
   }

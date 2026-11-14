@@ -99,12 +99,12 @@ footer p { margin: 0; font-size: 11px; color: var(--suave); }
 footer .versao { margin-top: 2px; font-size: 10px; color: #8f7cad; }
 
 /* Gemas em dinheiro */
-.dinheiro .modos { display: flex; flex-wrap: wrap; gap: 4px 12px; margin-bottom: 6px; }
-.dinheiro .modos label { display: flex; align-items: center; gap: 4px; cursor: pointer; color: var(--titulo); }
-.dinheiro .modos input { accent-color: #7a4fc0; margin: 0; }
 .dinheiro .cotacao { display: flex; align-items: center; gap: 6px; margin-bottom: 4px; color: var(--titulo); }
-.dinheiro .cotacao[hidden] { display: none; }
 .dinheiro .cotacao input { width: 70px; padding: 3px 6px; border-radius: 6px; border: 1px solid rgba(181, 140, 255, 0.4); background: rgba(10, 4, 10, 0.6); color: #fff; font: inherit; }
+.dinheiro .cotacao input:disabled { opacity: 0.5; cursor: not-allowed; }
+/* sem "Dólar e real" ligado, a cotação do real aparece apagada (o campo fica na tela, mas não vale) */
+.dinheiro.desligada .cotacao { color: var(--suave); }
+.dinheiro .nota { margin: 0; }
 
 /* Janela larga (13/11/2026): há navegadores que abrem o popup numa janela comum, bem maior que os
    340 px, e o conteúdo ficava preso à esquerda. Aí o fundo ocupa a janela toda e o conteúdo vira duas

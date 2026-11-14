@@ -138,3 +138,45 @@ test('confiancaEspecie: menos de 10 vendas avaliáveis → null', () => {
 test('motor intacto', () => {
   assert.equal(typeof M.precificar, 'function');
 });
+
+// ---------- simular e histórico pelo "#id" (14/11/2026) ----------
+test('simular: AoE com vendas de AoE na espécie muda o justo; sem nenhuma, não muda e a contagem avisa', () => {
+  const agora = Date.UTC(2026, 10, 14);
+  const H = 3600e3;
+  const base = (i, extra) => Object.assign({ id: i, em: agora - i * H, moeda: 'orb', speciesId: 9, nome: 'Blastoise', level: 400, nota: 3.6, potencia: 1, shiny: false, aoe: false, zmove: false, mega: false }, extra);
+  const vendas = [];
+  for (let i = 1; i <= 12; i++) vendas.push(base(i, { preco: 20 + (i % 3) }));
+  for (let i = 13; i <= 20; i++) vendas.push(base(i, { preco: 90 + (i % 3), aoe: true }));
+  const alvo = { id: 1, speciesId: 9, nome: 'Blastoise', level: 400, nota: 3.6, potencia: 1, shiny: false, aoe: false, zmove: false, mega: false };
+  const sem = A.simular(alvo, vendas, 'orb', {}, agora);
+  const com = A.simular(alvo, vendas, 'orb', { aoe: true }, agora);
+  assert.ok(sem.res.suficiente && com.res.suficiente);
+  assert.ok(com.res.precoJusto > sem.res.precoJusto * 2, `com AoE ${com.res.precoJusto} contra ${sem.res.precoJusto}`);
+  assert.equal(com.comAoe, 8);
+  assert.equal(com.semAoe, 12);
+  assert.equal(com.alvo.aoe, true);
+  assert.equal(alvo.aoe, false, 'o alvo original não muda');
+  // Z-Move: nenhuma venda com Z → ligar o Z não muda o justo (o motor pesa todas igual) e comZ = 0
+  const z = A.simular(alvo, vendas, 'orb', { zmove: true }, agora);
+  assert.equal(z.comZ, 0);
+  assert.equal(z.res.precoJusto, sem.res.precoJusto);
+  // outra moeda e venda antiga (fora dos 30 dias) não entram na contagem
+  const mais = vendas.concat([base(99, { preco: 5, moeda: 'gold', aoe: true }), base(98, { preco: 5, aoe: true, em: agora - 40 * 24 * H })]);
+  assert.equal(A.simular(alvo, mais, 'orb', { aoe: true }, agora).comAoe, 8);
+});
+
+test('historicoDoPokemon: só as linhas deste Pokémon, sem nicks, mais novas primeiro', () => {
+  const ficha = (id, nome, level) => ({ id, nome, speciesId: 9, level, nota: 3.6, caughtBy: 'alguem', apelido: 'xx' });
+  const linhas = [
+    { id: 1, tipo: 'pokemon', moeda: 'gold', bruto: 4e7, vendedor: 'a', comprador: 'b', em: 1000, pokemonId: 77, ficha: ficha(77, 'Wartortle', 120) },
+    { id: 2, tipo: 'pokemon', moeda: 'orb', bruto: 24, vendedor: 'b', comprador: 'c', em: 3000, pokemonId: 77, ficha: ficha(77, 'Blastoise', 300) },
+    { id: 3, tipo: 'pokemon', moeda: 'orb', bruto: 999, vendedor: 'x', comprador: 'y', em: 5000, pokemonId: 770, ficha: ficha(770, 'Blastoise', 500) },
+    { id: 4, tipo: 'item', moeda: 'orb', bruto: 1, em: 6000 },
+  ];
+  const h = A.historicoDoPokemon(linhas, '77');
+  assert.deepEqual(h.map(v => v.id), [2, 1]);
+  for (const v of h) {
+    for (const k of ['vendedor', 'comprador', 'caughtBy', 'apelido']) assert.ok(!(k in v), `${k} não pode ficar`);
+  }
+  assert.deepEqual(A.historicoDoPokemon(null, 77), []);
+});

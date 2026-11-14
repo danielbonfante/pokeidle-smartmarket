@@ -330,7 +330,8 @@
       salvarTabela();
     }
     return agendar(() => {
-      const corpo = { pagina, tipo: 'pokemon', moeda };
+      const corpo = { pagina, tipo: 'pokemon' };
+      if (moeda) corpo.moeda = moeda; // moeda: null = todas (o histórico de um Pokémon pelo "#id")
       if (busca) corpo.busca = busca;
       if (soShiny) corpo.soShiny = 1;
       if (soP5) corpo.soP5 = 1;

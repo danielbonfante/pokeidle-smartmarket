@@ -32,7 +32,7 @@ NA FICHA DO POKÉMON
 • Quanto você recebe depois da comissão do Mercado.
 • Confiança da estimativa: alta, média ou baixa. Com poucas vendas parecidas, a faixa fica mais larga, para mostrar a incerteza.
 • Revenda: se este mesmo Pokémon já foi vendido no último mês, mostra por quanto e quando.
-• Botão Precificar: as vendas parecidas numa barra, a tabela das vendas que mais pesaram no preço (comparando nível, Potência, IV, Qualidade e Nota com o seu) e quantas vezes a estimativa acertou nas últimas vendas da espécie.
+• Botão Precificar: as vendas parecidas numa barra, a tabela das vendas que mais pesaram no preço (comparando nível, Potência, IV, Qualidade e Nota com o seu) quantas vezes a estimativa acertou nas últimas vendas da espécie, uma simulação de outro nível, TM AoE ou Z-Move, e um botão que busca todas as vendas deste mesmo Pokémon.
 
 NO MERCADO
 • Cada anúncio de Pokémon ganha um selo: desconto, no preço ou acima do justo, com a porcentagem em relação ao Preço justo e a faixa de preço das vendas parecidas.
