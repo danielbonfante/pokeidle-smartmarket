@@ -57,6 +57,8 @@
       }
       if (ev.target.closest('.pp-prec-hist-buscar')) { buscarHistorico(janela); return; }
       if (ev.target.closest('.pp-prec-sim-volta')) { voltarSim(janela); return; }
+      const extra = ev.target.closest('.pp-prec-sim-extra');
+      if (extra) { const on = extra.getAttribute('aria-pressed') !== 'true'; extra.setAttribute('aria-pressed', String(on)); aoMudarSim(janela); return; }
       const b = ev.target.closest('[data-moeda]');
       if (b && !b.disabled) { janela.moeda = b.getAttribute('data-moeda'); desenhar(); }
     });
@@ -279,8 +281,8 @@
     const caixa = j.el.querySelector('.pp-prec-sim');
     const nv = Math.round(Number(caixa.querySelector('.pp-prec-sim-nv').value));
     if (nv >= 1) j.sim.level = nv; // campo vazio ou zero no meio da digitação: fica o último nível válido
-    j.sim.aoe = caixa.querySelector('.pp-prec-sim-aoe').checked;
-    j.sim.zmove = caixa.querySelector('.pp-prec-sim-z').checked;
+    j.sim.aoe = caixa.querySelector('.pp-prec-sim-aoe').getAttribute('aria-pressed') === 'true';
+    j.sim.zmove = caixa.querySelector('.pp-prec-sim-z').getAttribute('aria-pressed') === 'true';
     clearTimeout(esperaSim);
     esperaSim = setTimeout(() => desenharSim(j), 200);
   }
@@ -289,8 +291,8 @@
     j.sim = simInicial(j.alvo);
     const caixa = j.el.querySelector('.pp-prec-sim');
     caixa.querySelector('.pp-prec-sim-nv').value = j.sim.level;
-    caixa.querySelector('.pp-prec-sim-aoe').checked = j.sim.aoe;
-    caixa.querySelector('.pp-prec-sim-z').checked = j.sim.zmove;
+    caixa.querySelector('.pp-prec-sim-aoe').setAttribute('aria-pressed', String(j.sim.aoe));
+    caixa.querySelector('.pp-prec-sim-z').setAttribute('aria-pressed', String(j.sim.zmove));
     desenharSim(j);
   }
 
@@ -309,8 +311,9 @@
         <p>Quanto o preço muda se este Pokémon tivesse outro nível ou outros extras. É a mesma conta do Preço justo, com as vendas guardadas desta espécie; a Nota fica a mesma.</p>
         <div class="pp-prec-sim-campos">
           <label>Nv <input type="number" class="pp-prec-sim-nv" min="1" step="1" inputmode="numeric" value="${sim.level}"></label>
-          <label><input type="checkbox" class="pp-prec-sim-aoe"${sim.aoe ? ' checked' : ''}> TM AoE</label>
-          <label><input type="checkbox" class="pp-prec-sim-z"${sim.zmove ? ' checked' : ''}> Z-Move</label>
+          <!-- botões de ligar, não caixas de marcar: o CSS do jogo desenha as caixas do jeito dele (14/11/2026) -->
+          <button type="button" class="pp-prec-sim-extra pp-prec-sim-aoe" aria-pressed="${sim.aoe}">TM AoE</button>
+          <button type="button" class="pp-prec-sim-extra pp-prec-sim-z" aria-pressed="${sim.zmove}">Z-Move</button>
           <button type="button" class="pp-prec-sim-volta" title="Volta ao nível e aos extras desta ficha">desta ficha</button>
         </div>
         <div class="pp-prec-sim-res">${htmlSimResultado(j)}</div>

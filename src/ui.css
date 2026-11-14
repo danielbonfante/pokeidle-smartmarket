@@ -559,8 +559,7 @@ tr.pp-mesmo td { background: color-mix(in srgb, var(--rx-rosa, #ffa7d7) 14%, tra
 /* Precificar: simular nível/AoE/Z-Move e as vendas deste Pokémon pelo "#id" (14/11/2026) */
 .pp-prec-fraco { color: #a993c9 !important; font-size: 11px !important; }
 .pp-prec-sim-campos { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; margin: 8px 0; font-size: 12px; color: #e8d7ff; }
-.pp-prec-sim-campos label { display: inline-flex; align-items: center; gap: 5px; cursor: pointer; }
-.pp-prec-sim-campos input[type="checkbox"] { accent-color: #ba5ad1; margin: 0; }
+.pp-prec-sim-campos label { display: inline-flex; align-items: center; gap: 5px; }
 .pp-prec-sim-nv {
   width: 78px; padding: 3px 6px; border-radius: 6px; font: inherit; font-size: 12px; color: #fff;
   border: 1px solid rgba(181, 140, 255, 0.45); background: rgba(10, 4, 10, 0.6);
@@ -583,17 +582,13 @@ tr.pp-mesmo td { background: color-mix(in srgb, var(--rx-rosa, #ffa7d7) 14%, tra
 .pp-prec-hist th:first-child, .pp-prec-hist td:first-child { text-align: left; }
 .pp-prec-hist td small { color: #a993c9; }
 .pp-prec-hist td.pp-prec-valor { color: #fff; font-weight: 700; }
-/* caixas de marcar da simulação com desenho próprio: o CSS do jogo deixava as caixas largas e marrons */
-.pp-prec .pp-prec-sim-campos input[type="checkbox"] {
-  -webkit-appearance: none !important; appearance: none !important; box-sizing: border-box !important;
-  width: 15px !important; height: 15px !important; min-width: 0 !important; min-height: 0 !important;
-  padding: 0 !important; margin: 0 !important; flex: none; position: relative; cursor: pointer;
-  border: 1px solid rgba(181, 140, 255, 0.6) !important; border-radius: 4px !important;
-  background: rgba(10, 4, 10, 0.6) !important; box-shadow: none !important;
+/* extras da simulação: botões de ligar (o CSS do jogo redesenhava as caixas de marcar por cima) */
+.pp-prec-sim-extra {
+  display: inline-flex; align-items: center; gap: 5px; font: inherit; font-size: 11.5px; padding: 2px 10px 3px;
+  border-radius: 999px; cursor: pointer; border: 1px solid rgba(181, 140, 255, 0.45);
+  background: rgba(10, 4, 10, 0.5); color: #a993c9;
 }
-.pp-prec .pp-prec-sim-campos input[type="checkbox"]:checked { background: var(--rx, #ba5ad1) !important; border-color: var(--rx, #ba5ad1) !important; }
-.pp-prec .pp-prec-sim-campos input[type="checkbox"]:checked::after {
-  content: ""; position: absolute; left: 4px; top: 1px; width: 4px; height: 8px;
-  border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(45deg);
-}
-.pp-prec .pp-prec-sim-campos input[type="checkbox"]:focus-visible { outline: 2px solid #f2c86b; outline-offset: 1px; }
+.pp-prec-sim-extra::before { content: ""; width: 7px; height: 7px; border-radius: 50%; border: 1px solid currentColor; }
+.pp-prec-sim-extra[aria-pressed="true"] { background: var(--rx-esc, #8d49b8); border-color: var(--rx, #ba5ad1); color: #fff; }
+.pp-prec-sim-extra[aria-pressed="true"]::before { background: #fff; border-color: #fff; }
+.pp-prec-sim-extra:focus-visible { outline: 2px solid #f2c86b; outline-offset: 1px; }
