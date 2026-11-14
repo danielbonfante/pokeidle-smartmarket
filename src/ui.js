@@ -345,16 +345,18 @@
       conf.hidden = true;
     }
     const comps = badge.querySelector('.pp-comps');
+    // Só as moedas com preço: sem preço, o motor devolve as primeiras vendas da espécie (não as mais
+    // parecidas), e a lista parecia "as vendas que deram o preço" de um preço que não existe
     const linhas = MOEDAS.flatMap(m => {
       const r = resultados[m.id];
-      return r && r.comparaveis ? r.comparaveis.slice(0, 5).map(v => ({ m, v })) : [];
+      return r && r.suficiente && r.comparaveis ? r.comparaveis.slice(0, 5).map(v => ({ m, v })) : [];
     });
     comps.innerHTML = linhas.length
       ? `<table><thead><tr>
           <th title="${esc(DICA.nv)}">Nv</th><th title="${esc(DICA.nota)}">Nota</th><th title="${esc(DICA.pot)}">P</th>
           <th title="${esc(DICA.extras)}">Extras</th><th title="${esc(DICA.preco)}">Preço</th><th title="${esc(DICA.ha)}">Há</th>
         </tr></thead><tbody>${linhas.map(({ m, v }) => linhaVenda(m, v, alvo)).join('')}</tbody></table>`
-      : '<p>Nenhuma venda desta espécie no período.</p>';
+      : '<p>Nenhuma venda parecida com este Pokémon nos últimos 30 dias.</p>';
   }
 
   /**

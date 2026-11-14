@@ -141,7 +141,10 @@
     const conf = A.confiancaEspecie(vendas.filter(v => !!v.shiny === !!alvo.shiny), moeda, agora);
     j.res = res; j.vendas = vendas;
     corpo.innerHTML = htmlPreco(alvo, moeda, res, pontos) + htmlVendas(alvo, res, pontos, moeda) +
-      htmlConfianca(conf, res) + (grupos ? htmlGrupos(alvo, res, grupos, moeda) : htmlUmGrupo(A.maiorSalto(pontos), moeda)) +
+      htmlConfianca(conf, res) +
+      // grupos e "grupo só" falam do preço de mercado: sem preço, não aparecem (os pontos da barra usam um
+      // corte de peso menor que o do motor, e podiam sobrar 2 vendas longe para "formar um grupo só")
+      (!res || !res.suficiente ? '' : grupos ? htmlGrupos(alvo, res, grupos, moeda) : htmlUmGrupo(A.maiorSalto(pontos), moeda)) +
       htmlSimular(j) + htmlHistorico(j);
     if (window.PIDinheiro) window.PIDinheiro.pintar(corpo);
   }
