@@ -441,7 +441,9 @@
     }
     if (!painel.avenda) { lista.innerHTML = '<div class="pp-an-vazio">carregando…</div>'; return; }
     const motivo = painel.avendaErro ? `<div class="pp-an-motivo">${esc(painel.avendaErro)}</div>` : '';
-    const res = painel.resultado;
+    // enquanto a busca consulta o jogo, o preço mostra "carregando": a % contra o justo do cache antigo
+    // também fica de fora (aparece quando a busca termina e o justo final é calculado)
+    const res = painel.carregando == null ? painel.resultado : null;
     const as = painel.avenda.slice(0, MAX_LINHAS);
     lista.innerHTML = as.length
       ? '<table>' + as.map(a => {
