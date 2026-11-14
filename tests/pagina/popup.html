@@ -80,9 +80,14 @@
     const corpo = new DOMParser().parseFromString(html, 'text/html').body;
     corpo.querySelectorAll('script').forEach(s => s.remove());
     document.body.insertAdjacentHTML('beforeend', corpo.innerHTML);
-    const s = document.createElement('script');
-    s.src = 'popup.js';
-    document.body.appendChild(s);
+    const g = document.createElement('script');
+    g.src = '../src/glossario.js';
+    g.onload = () => {
+      const s = document.createElement('script');
+      s.src = 'popup.js';
+      document.body.appendChild(s);
+    };
+    document.body.appendChild(g);
   });
 </script>
 </body></html>

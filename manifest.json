@@ -49,6 +49,7 @@
         "src/anuncio-logica.js",
         "src/anuncio.js",
         "src/analise.js",
+        "src/glossario.js",
         "src/precificar.js"
       ],
       "css": [

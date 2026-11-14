@@ -592,3 +592,29 @@ tr.pp-mesmo td { background: color-mix(in srgb, var(--rx-rosa, #ffa7d7) 14%, tra
 .pp-prec-sim-extra[aria-pressed="true"] { background: var(--rx-esc, #8d49b8); border-color: var(--rx, #ba5ad1); color: #fff; }
 .pp-prec-sim-extra[aria-pressed="true"]::before { background: #fff; border-color: #fff; }
 .pp-prec-sim-extra:focus-visible { outline: 2px solid #f2c86b; outline-offset: 1px; }
+
+/* "Como ler" da Precificar (14/11/2026): o glossário (src/glossario.js) e os links "o que é isso?" */
+.pp-prec-ajuda-bt {
+  margin-left: 12px; font: inherit; font-size: 11px; font-weight: 700; padding: 2px 9px 3px; border-radius: 999px; cursor: pointer;
+  border: 1px solid var(--rx-esc, #8d49b8); color: var(--sobre-mad, #fff6ef);
+  background: color-mix(in srgb, var(--rx, #ba5ad1) 45%, transparent);
+}
+.pp-prec-ajuda-bt[aria-expanded="true"] { background: var(--rx-esc, #8d49b8); }
+.pp-prec-ajuda {
+  flex: none; max-height: 45vh; overflow: auto; margin: 0 14px 10px; padding: 10px 14px; border-radius: 8px;
+  background: var(--vao, #33202b); border: 1px solid rgba(242, 200, 107, 0.5);
+}
+.pp-prec-ajuda[hidden] { display: none; }
+.pp-prec-oque {
+  margin-left: 6px; padding: 0; border: 0; background: none; cursor: pointer; font: inherit; font-size: 11px; font-weight: 400;
+  color: #f2c86b; text-decoration: underline dotted; text-underline-offset: 2px;
+}
+.pp-glossario { margin: 0; font-size: 12px; }
+.pp-glossario dt { margin-top: 8px; font-weight: 700; color: #e8d7ff; }
+.pp-glossario dt:first-child { margin-top: 2px; }
+.pp-glossario dd { margin: 2px 0 0; color: #d9c4ff; line-height: 1.45; }
+.pp-glossario dd b { color: #fff; }
+.pp-glossario .pp-gl-destaque { background: rgba(242, 200, 107, 0.16); border-radius: 4px; }
+.pp-gl-verde { color: #7ee2a8 !important; }
+.pp-gl-vermelho { color: #ff8f8f !important; }
+.pp-gl-tracejado { padding: 0 4px; border: 1px dashed currentColor; border-radius: 4px; }

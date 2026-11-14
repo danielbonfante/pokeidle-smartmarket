@@ -37,11 +37,16 @@
         <div class="pp-toldo"></div>
         <div class="pp-prec-topo">
           <div><b>Precificar</b> <span class="pp-prec-sub">· ${esc(alvo.nome)} · Nv ${alvo.level}${alvo.shiny ? ' · ✨ shiny' : ''}</span></div>
+          <button type="button" class="pp-prec-ajuda-bt" aria-expanded="false" title="O que quer dizer cada termo da janela">? Como ler</button>
           <div class="pp-prec-moedas">
             <button type="button" data-moeda="orb">${MOEDA.orb.icone} Gemas</button>
             <button type="button" data-moeda="gold"${alvo.shiny ? ' disabled title="Shiny só vende em Gemas"' : ''}>${MOEDA.gold.icone} Coins</button>
           </div>
           <button type="button" class="pp-prec-fechar" title="Fechar">✕</button>
+        </div>
+        <div class="pp-prec-ajuda" hidden>
+          <div class="pp-prec-titulo">Como ler esta janela</div>
+          ${window.PIGlossario ? window.PIGlossario.html() : ''}
         </div>
         <div class="pp-prec-corpo"><div class="pp-an-vazio">calculando…</div></div>
         <div class="pp-prec-rodape">análise com as vendas já guardadas · Smart Market</div>
@@ -55,6 +60,10 @@
         ver.textContent = aberto ? 'mostrar menos' : `ver as ${bloco.querySelectorAll('tbody tr').length - 1} vendas`;
         return;
       }
+      // "? Como ler" abre/fecha o glossário; "o que é isso?" abre já no termo daquele bloco
+      if (ev.target.closest('.pp-prec-ajuda-bt')) { mostrarAjuda(el, null, el.querySelector('.pp-prec-ajuda').hidden); return; }
+      const oque = ev.target.closest('.pp-prec-oque');
+      if (oque) { mostrarAjuda(el, oque.getAttribute('data-termo'), true); return; }
       if (ev.target.closest('.pp-prec-hist-buscar')) { buscarHistorico(janela); return; }
       if (ev.target.closest('.pp-prec-sim-volta')) { voltarSim(janela); return; }
       const extra = ev.target.closest('.pp-prec-sim-extra');
@@ -76,6 +85,22 @@
     document.addEventListener('keydown', aoTeclar, true);
     desenhar();
   }
+
+  /** Abre (ou fecha) o "Como ler"; com termo, rola até ele e o destaca por um instante. */
+  function mostrarAjuda(el, termo, abrir) {
+    const ajuda = el.querySelector('.pp-prec-ajuda');
+    ajuda.hidden = !abrir;
+    el.querySelector('.pp-prec-ajuda-bt').setAttribute('aria-expanded', String(abrir));
+    ajuda.querySelectorAll('.pp-gl-destaque').forEach(x => x.classList.remove('pp-gl-destaque'));
+    if (!abrir) return;
+    const alvos = termo ? ajuda.querySelectorAll(`[data-termo="${termo}"]`) : [];
+    ajuda.scrollTop = 0;
+    if (alvos.length) {
+      alvos.forEach(x => x.classList.add('pp-gl-destaque'));
+      ajuda.scrollTop = alvos[0].offsetTop - ajuda.offsetTop - 8;
+    }
+  }
+  const oQue = termo => ` <button type="button" class="pp-prec-oque" data-termo="${termo}">o que é isso?</button>`;
 
   function fechar() {
     if (!janela) return;
@@ -158,7 +183,7 @@
       ? `<button type="button" class="pp-prec-vermais">ver as ${pontos.length} vendas</button>` : '';
     return `
       <div class="pp-prec-bloco pp-prec-vendas">
-        <div class="pp-prec-titulo">Vendas que mais pesaram no preço</div>
+        <div class="pp-prec-titulo">Vendas que mais pesaram no preço${oQue('parecidas')}</div>
         <p><b>O que conta:</b> pesa mais a <b>Nota</b> — ela já resume IV, Qualidade e Potência, por isso esses três não contam sozinhos. Depois vem o <b>nível</b>. Uma venda com AoE, Z-Move ou Mega diferente desta ficha conta só 30%, e uma venda de 5 dias atrás conta metade de uma de hoje.</p>
         <table>
           <thead><tr><th>Parecida</th><th>Preço</th><th>Nv</th><th>Pot.</th><th>IV</th><th>Qual.</th><th>Nota</th><th>Extras</th><th>Há</th></tr></thead>
@@ -206,7 +231,7 @@
         <ul class="pp-prec-frases">
           <li>${res.faixaAlargada
             ? `Há poucas vendas parecidas (cerca de ${num(res.nEfetivo, 1)}), então a faixa foi alargada para mostrar a incerteza: entre <b>${fmt(res.venderRapido, moeda)}</b> e <b>${fmt(res.esperar, moeda)}</b>.`
-            : `Metade das vendas parecidas saiu entre <b>${fmt(res.venderRapido, moeda)}</b> e <b>${fmt(res.esperar, moeda)}</b>.`}</li>
+            : `Metade das vendas parecidas saiu entre <b>${fmt(res.venderRapido, moeda)}</b> e <b>${fmt(res.esperar, moeda)}</b>.`}${oQue('faixa')}</li>
           <li><b>Vender rápido:</b> 1 em cada 4 vendas parecidas saiu por menos que isso — anunciar aqui tende a vender logo.</li>
           <li><b>Esperar:</b> só 1 em cada 4 saiu por mais — dá para pedir se você puder esperar um comprador.</li>
           <li class="pp-prec-base">${esc(base)}</li>
@@ -221,9 +246,9 @@
     const nivel = conf.taxa >= 0.7 ? 'alta' : conf.taxa >= 0.5 ? 'media' : 'baixa';
     return `
       <div class="pp-prec-bloco">
-        <div class="pp-prec-titulo">Confiança <b class="pp-prec-conf pp-conf-${nivel}">${pct(conf.taxa)}</b></div>
+        <div class="pp-prec-titulo">Confiança <b class="pp-prec-conf pp-conf-${nivel}">${pct(conf.taxa)}</b>${oQue('confianca')}</div>
         <div class="pp-prec-confbarra"><i class="pp-conf-${nivel}" style="width:${pct(conf.taxa)}"></i></div>
-        <p>Refazendo a conta para as últimas <b>${conf.total}</b> vendas desta espécie — cada uma só com as vendas anteriores a ela —, o Preço de mercado ficou a até 25% do valor pago em <b>${conf.acertos}</b> (${Math.round(conf.taxa * 10)} em cada 10).</p>
+        <p>Quanto o preço de mercado acerta nesta espécie. Refazendo a conta para as últimas <b>${conf.total}</b> vendas desta espécie — cada uma só com as vendas anteriores a ela —, o Preço de mercado ficou a até 25% do valor pago em <b>${conf.acertos}</b> (${Math.round(conf.taxa * 10)} em cada 10).</p>
       </div>`;
   }
 
@@ -244,8 +269,8 @@
     const avisoVao = vao ? ' <b>O Preço de mercado cai no vão entre eles</b>, e nesse caso ele erra mais: nos testes, acertou só cerca de 1 em cada 6 vendas.' : '';
     return `
       <div class="pp-prec-bloco pp-prec-grupos">
-        <div class="pp-prec-titulo">⚠ As vendas parecidas se dividem em dois grupos</div>
-        <p>Um grupo saiu por <b>${fmt(baixo.min, moeda)}–${fmt(baixo.max, moeda)}</b> (${p(baixo.fracao)} do peso) e outro por <b>${fmt(alto.min, moeda)}–${fmt(alto.max, moeda)}</b> (${p(alto.fracao)}), com pouca coisa no meio.${avisoVao}</p>
+        <div class="pp-prec-titulo">⚠ As vendas parecidas se dividem em dois grupos${oQue('grupos')}</div>
+        <p>Os preços das vendas parecidas formam duas faixas bem diferentes, quase sem nada no meio: um grupo saiu por <b>${fmt(baixo.min, moeda)}–${fmt(baixo.max, moeda)}</b> (${p(baixo.fracao)} do peso) e outro por <b>${fmt(alto.min, moeda)}–${fmt(alto.max, moeda)}</b> (${p(alto.fracao)}), com pouca coisa no meio.${avisoVao}</p>
         <p class="pp-prec-acao">Para <b>vender logo</b>, anuncie perto do preço do grupo barato (<b>${fmt(baixo.preco, moeda)}</b>); se puder <b>esperar</b> um comprador, perto do grupo caro (<b>${fmt(alto.preco, moeda)}</b>). ${parecido} Compare este Pokémon com cada grupo:</p>
         <table>
           <thead><tr><th></th><th>${cab('baixo')}</th><th>${cab('alto')}</th><th>Esta ficha</th></tr></thead>
@@ -267,8 +292,8 @@
     const razao = num(salto.razao, 1).replace(/,0$/, '');
     return `
       <div class="pp-prec-bloco pp-prec-umgrupo">
-        <p><b>As vendas parecidas formam um grupo só.</b> O maior salto entre preços vizinhos vai de
-        <b>${fmt(salto.de, moeda)}</b> para <b>${fmt(salto.para, moeda)}</b> (${razao}×); a janela só separa em dois grupos a partir de 2,5×.</p>
+        <p><b>As vendas parecidas formam um grupo só:</b> os preços vão subindo aos poucos, sem um salto grande no meio, então o preço de mercado representa bem essas vendas.${oQue('grupos')}</p>
+        <p class="pp-prec-fraco">O maior salto entre duas vendas vizinhas (em preço) foi de <b>${fmt(salto.de, moeda)}</b> para <b>${fmt(salto.para, moeda)}</b> (${razao}×). A janela só avisa de dois grupos quando um salto passa de 2,5× e há bastante venda dos dois lados.</p>
       </div>`;
   }
 

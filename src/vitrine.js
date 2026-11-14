@@ -152,7 +152,8 @@
         dinheiroDoAnuncio(an),
       titulo: `Smart Market — preço de mercado estimado: ${fmt(res.precoJusto, an.moeda)} ` +
         `(Vender rápido ${fmt(res.venderRapido, an.moeda)} · Esperar ${fmt(res.esperar, an.moeda)}). ` +
-        `Este anúncio está ${pct(dif)} em relação ao preço de mercado. Base: ${base}.`,
+        `Este anúncio está ${pct(dif)} em relação ao preço de mercado. Base: ${base}.` +
+        (res.confianca === 'baixa' ? ' Borda tracejada: confiança baixa (poucas vendas parecidas ou preços muito espalhados) — use só como referência.' : ''),
     };
   }
 

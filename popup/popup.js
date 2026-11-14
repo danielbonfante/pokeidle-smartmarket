@@ -195,6 +195,8 @@
 
   async function iniciar() {
     $('#versao').textContent = chrome.runtime.getManifest().version;
+    // "Como ler": o mesmo glossário da janela Precificar (src/glossario.js)
+    if (window.PIGlossario) $('#glossario').innerHTML = window.PIGlossario.html();
     iniciarApoie();
     await iniciarOpcoes();
     mostrarLimpar();

@@ -53,6 +53,8 @@ O botão **Precificar**, no quadro da ficha, abre a análise completa:
 
 **O que pesa no preço:** principalmente a **Nota**, que já resume IV, Qualidade e Potência; depois o **nível**. TM AoE, Z-Move e Mega também contam, e vendas recentes pesam mais que as antigas.
 
+Na dúvida sobre algum termo, o botão **? Como ler** (e os links **o que é isso?** de cada bloco) explica cada um. O mesmo texto está no popup do ícone, em **Como ler os preços e os selos**.
+
 ### Selos no Mercado
 
 Na vitrine do Mercado da Comunidade, cada anúncio de Pokémon ganha um selo abaixo do preço:
