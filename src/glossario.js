@@ -23,7 +23,14 @@
     { id: 'liq', termo: 'líq',
       texto: 'Quanto quem vende recebe depois da comissão do Mercado (Coins: 15%; Gemas: 13%, 10% ou 7,5%, conforme o valor).' },
     { id: 'confianca', termo: 'Confiança',
-      texto: '<b>Alta</b>, <b>média</b> ou <b>baixa</b>: quantas vendas parecidas existem e quanto os preços delas variam. É baixa quando menos de 3 vendas parecidas contam de verdade, ou quando os preços estão muito espalhados. Na janela Precificar, a porcentagem diz quantas vezes, nas últimas vendas da espécie, o preço de mercado ficou a até 25% do que foi pago.' },
+      // os limites são os do motor.js (nEfetivo e largura da faixa) e os da Precificar (70% / 50%)
+      texto: 'O quanto dá para confiar no preço, pelo número de vendas parecidas e pela largura da faixa (de Vender rápido a Esperar) comparada ao preço de mercado:' +
+        '<ul class="pp-gl-lista">' +
+        '<li><b class="pp-gl-verde">Alta</b>: pelo menos 8 vendas parecidas contam de verdade, e a faixa tem até 60% do preço de mercado (ex.: mercado 100, faixa de 80 a 140). Os preços parecidos combinam entre si.</li>' +
+        '<li><b class="pp-gl-amarelo">Média</b>: pelo menos 3 vendas parecidas, e a faixa tem até 120% do preço de mercado (ex.: mercado 100, faixa de 60 a 180). Bom ponto de partida, mas olhe as vendas.</li>' +
+        '<li><b class="pp-gl-vermelho">Baixa</b>: menos de 3 vendas parecidas, ou a faixa passa disso (preços muito espalhados). Use só como referência.</li>' +
+        '</ul>' +
+        'Na janela Precificar, a <b>porcentagem</b> é outra medida, feita de verdade: refazendo a conta para as últimas vendas da espécie, cada uma só com as vendas de antes dela, quantas vezes o preço de mercado ficou a até 25% do que foi pago. Verde a partir de 70%, amarelo a partir de 50%.' },
     { id: 'selos', termo: 'Selos da vitrine',
       texto: '<b class="pp-gl-verde">desconto</b>: o anúncio está no Vender rápido ou abaixo. <b>no preço</b>: dentro da faixa. <b class="pp-gl-vermelho">acima do mercado</b>: passou do Esperar. A porcentagem compara o anúncio com o preço de mercado. <span class="pp-gl-tracejado">Borda tracejada</span>: confiança baixa — use só como referência.' },
     { id: 'grupos', termo: 'Grupos de preço',

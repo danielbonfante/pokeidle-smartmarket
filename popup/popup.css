@@ -132,3 +132,6 @@ footer .versao { margin-top: 2px; font-size: 10px; color: #8f7cad; }
 .pp-gl-verde { color: var(--verde) !important; }
 .pp-gl-vermelho { color: var(--vermelho) !important; }
 .pp-gl-tracejado { padding: 0 4px; border: 1px dashed currentColor; border-radius: 4px; }
+.pp-glossario .pp-gl-lista { margin: 3px 0 4px; padding-left: 16px; }
+.pp-glossario .pp-gl-lista li { margin: 2px 0; }
+.pp-gl-amarelo { color: var(--amarelo) !important; }

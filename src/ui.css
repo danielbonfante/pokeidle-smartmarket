@@ -618,3 +618,6 @@ tr.pp-mesmo td { background: color-mix(in srgb, var(--rx-rosa, #ffa7d7) 14%, tra
 .pp-gl-verde { color: #7ee2a8 !important; }
 .pp-gl-vermelho { color: #ff8f8f !important; }
 .pp-gl-tracejado { padding: 0 4px; border: 1px dashed currentColor; border-radius: 4px; }
+.pp-glossario .pp-gl-lista { margin: 3px 0 4px; padding-left: 16px; }
+.pp-glossario .pp-gl-lista li { margin: 2px 0; }
+.pp-gl-amarelo { color: #f2c86b !important; }
