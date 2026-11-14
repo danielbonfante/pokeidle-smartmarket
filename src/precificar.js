@@ -240,6 +240,9 @@
   }
 
   function htmlConfianca(conf, res) {
+    // Sem preço para este Pokémon, a confiança da espécie não tem o que medir aqui: um "72%" ao lado de
+    // "sem vendas parecidas" parecia que a conta tinha dado certo (Brave Mantine P5, 14/11/2026)
+    if (!res || !res.suficiente) return '';
     if (!conf) {
       return `<div class="pp-prec-bloco"><div class="pp-prec-titulo">Confiança</div><div class="pp-an-vazio">Ainda não há vendas suficientes desta espécie nesta moeda para medir a confiança.</div></div>`;
     }
