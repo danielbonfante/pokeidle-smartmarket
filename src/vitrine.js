@@ -120,11 +120,23 @@
     };
   }
 
-  /** Anúncio em Gemas: quanto custa comprar, em dinheiro (cotação de compra do jogo; ver dinheiro.js). */
-  function dinheiroDoAnuncio(an) {
-    if (an.moeda !== 'orb' || !window.PIDinheiro) return '';
-    const t = window.PIDinheiro.texto(an.preco, 'compra', 'ambos');
-    return t ? `<span class="pp-vit-dinheiro" title="${window.PIUi.esc(window.PIUi.DICA.dinheiroCompra)}">${t}</span>` : '';
+  /**
+   * Anúncio em Gemas: quanto custa comprar, em dinheiro (cotação de compra do jogo; ver dinheiro.js).
+   * Fica fora do selo, logo abaixo do preço do jogo (14/11/2026, pedido do Daniel): a conversão só
+   * depende do preço do anúncio, então aparece em todo anúncio em Gemas, com ou sem vendas da espécie.
+   */
+  function porDinheiro(rod, an) {
+    const t = an.moeda === 'orb' && window.PIDinheiro ? window.PIDinheiro.texto(an.preco, 'compra', 'ambos') : '';
+    let el = rod.querySelector('.pp-vit-din');
+    if (!t) { if (el) el.remove(); return; }
+    if (!el) {
+      el = document.createElement('div');
+      el.className = 'pp-vit-din';
+      el.title = window.PIUi.DICA.dinheiroCompra;
+      const preco = rod.querySelector('.cm-preco');
+      if (preco) preco.insertAdjacentElement('afterend', el); else rod.prepend(el);
+    }
+    if (el.textContent !== t) el.textContent = t;
   }
 
   /** "115–140" ou "120–150 M": a unidade (k, M, B) aparece uma vez só quando as duas pontas têm a mesma. */
@@ -148,8 +160,7 @@
     return {
       cls,
       // a faixa explica o rótulo: desconto = até o Vender rápido; acima = passou do Esperar
-      html: `<b>${rotulo} ${pct(dif)}</b><span>mercado ${fmt(res.precoJusto, an.moeda)} · faixa ${faixaTexto(res, an.moeda)}</span>` +
-        dinheiroDoAnuncio(an),
+      html: `<b>${rotulo} ${pct(dif)}</b><span>mercado ${fmt(res.precoJusto, an.moeda)} · faixa ${faixaTexto(res, an.moeda)}</span>`,
       titulo: `Smart Market — preço de mercado estimado: ${fmt(res.precoJusto, an.moeda)} ` +
         `(Vender rápido ${fmt(res.venderRapido, an.moeda)} · Esperar ${fmt(res.esperar, an.moeda)}). ` +
         `Este anúncio está ${pct(dif)} em relação ao preço de mercado. Base: ${base}.` +
@@ -161,13 +172,14 @@
   async function aplicar() {
     const lista = document.getElementById('cm-lista');
     if (!lista) return;
-    if (!ligado()) { lista.querySelectorAll('.pp-vit').forEach(s => s.remove()); return; }
+    if (!ligado()) { lista.querySelectorAll('.pp-vit, .pp-vit-din').forEach(s => s.remove()); return; }
     observar(lista);
     const memoEsp = new Map();
     for (const card of lista.querySelectorAll('.cm-card')) {
       const alvo = alvoDoCard(card);
       if (!alvo) continue;
       const { an, rod, base } = alvo;
+      porDinheiro(rod, an);
       const pronto = selosProntos.get(base);
       if (pronto && pronto.versao === versao) { porSelo(rod, base, pronto); continue; }
       const foco = atualizando.get(an.moeda);
@@ -203,8 +215,8 @@
     if (selo && selo.__pronto === pronto) return;
     if (!selo) {
       selo = document.createElement('div');
-      const preco = rod.querySelector('.cm-preco');
-      if (preco) preco.insertAdjacentElement('afterend', selo); else rod.prepend(selo);
+      const antes = rod.querySelector('.pp-vit-din') || rod.querySelector('.cm-preco'); // depois do dinheiro, se houver
+      if (antes) antes.insertAdjacentElement('afterend', selo); else rod.prepend(selo);
     }
     selo.className = 'pp-vit ' + pronto.c.cls;
     selo.innerHTML = pronto.c.html;
@@ -219,6 +231,7 @@
     for (const card of lista.querySelectorAll('.cm-card')) {
       const alvo = alvoDoCard(card);
       if (!alvo) continue;
+      porDinheiro(alvo.rod, alvo.an);
       const pronto = selosProntos.get(alvo.base);
       if (pronto) porSelo(alvo.rod, alvo.base, pronto); // mesmo de uma versão anterior: melhor que sumir
       if (!pronto || pronto.versao !== versao) falta = true;
@@ -280,7 +293,7 @@
   }
 
   function ehNossa(no) {
-    return no.nodeType === 1 && (no.classList.contains('pp-vit') || !!no.closest('.pp-vit'));
+    return no.nodeType === 1 && (no.classList.contains('pp-vit') || no.classList.contains('pp-vit-din') || !!no.closest('.pp-vit'));
   }
 
   // O jogo redesenha os cards (troca de página, favoritar…): reaplica os selos
