@@ -326,23 +326,33 @@
     const s = A.simular(alvo, j.vendas, moeda, sim);
     // Sem vendas com o extra, o motor não tem como medir o efeito dele (pesa todas igual): avisar
     const avisos = [];
-    const extra = (ligado, original, com, sem, nome) => {
+    // O motor só "vê" o extra entre as vendas parecidas em Nota e nível: se quase todas elas têm o
+    // extra como o original, tirar (ou pôr) o extra não muda o preço, e a janela precisa dizer isso.
+    let semMedida = false, medido = false;
+    const extra = (ligado, original, com, sem, peso, nome) => {
       if (ligado === original) return;
       const n = ligado ? com : sem;
       const quais = `${ligado ? 'com' : 'sem'} ${nome}`;
       const efeito = `o efeito ${ligado ? 'do' : 'de tirar o'} ${nome}`;
-      if (!n) avisos.push(`Nenhuma venda da espécie ${quais} em ${MOEDA[moeda].nome} nos últimos 30 dias: a conta não tem como medir ${efeito}.`);
-      else if (n < 3) avisos.push(`Só ${n} venda${n > 1 ? 's' : ''} da espécie ${quais}: ${efeito} fica incerto.`);
+      if (!n) { semMedida = true; avisos.push(`Nenhuma venda da espécie ${quais} em ${MOEDA[moeda].nome} nos últimos 30 dias: a conta não tem como medir ${efeito}.`); }
+      else if (peso < 0.05) { semMedida = true; avisos.push(`A espécie tem ${n} venda${n > 1 ? 's' : ''} ${quais}, mas nenhuma parecida com este Pokémon em Nota e nível: a conta não tem como medir ${efeito}, e o preço fica quase o mesmo.`); }
+      else {
+        medido = true;
+        if (n < 3 || peso < 0.2) avisos.push(`Poucas vendas parecidas ${quais} (${pct(peso)} do peso): ${efeito} fica incerto.`);
+      }
     };
-    extra(sim.aoe, !!alvo.aoe, s.comAoe, s.semAoe, 'AoE');
-    extra(sim.zmove, !!alvo.zmove, s.comZ, s.semZ, 'Z-Move');
+    extra(sim.aoe, !!alvo.aoe, s.comAoe, s.semAoe, s.pesoMesmoAoe, 'AoE');
+    extra(sim.zmove, !!alvo.zmove, s.comZ, s.semZ, s.pesoMesmoZ, 'Z-Move');
     const r = s.res;
     let html;
     if (!r.suficiente) {
       html = '<p>Sem vendas parecidas o bastante com esse caso para um preço.</p>';
     } else {
-      const dif = base && base.suficiente
-        ? ` <span class="pp-prec-sim-dif">${window.PIUi.fmtDif(r.precoJusto / base.precoJusto - 1)} sobre o justo desta ficha (${fmt(base.precoJusto, moeda)})</span>` : '';
+      // só os extras mudaram e o efeito deles não dá para medir: o "±0%" pareceria uma medida
+      const soExtrasSemMedida = semMedida && !medido && sim.level === Number(alvo.level);
+      const dif = soExtrasSemMedida ? ' <span class="pp-prec-sim-dif">o mesmo desta ficha: o efeito não dá para medir (veja abaixo)</span>'
+        : base && base.suficiente
+        ?` <span class="pp-prec-sim-dif">${window.PIUi.fmtDif(r.precoJusto / base.precoJusto - 1)} sobre o justo desta ficha (${fmt(base.precoJusto, moeda)})</span>` : '';
       html = `<p>Preço justo <b class="pp-prec-sim-justo">${fmt(r.precoJusto, moeda)} ${MOEDA[moeda].icone}</b>${dif}</p>
         <p class="pp-prec-fraco">faixa ${fmt(r.venderRapido, moeda)}–${fmt(r.esperar, moeda)}${r.faixaAlargada ? ' (alargada: poucas vendas parecidas)' : ''} · cerca de ${num(r.nEfetivo, r.nEfetivo < 10 ? 1 : 0)} vendas parecidas</p>`;
     }

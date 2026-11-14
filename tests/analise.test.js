@@ -180,3 +180,24 @@ test('historicoDoPokemon: só as linhas deste Pokémon, sem nicks, mais novas pr
   }
   assert.deepEqual(A.historicoDoPokemon(null, 77), []);
 });
+
+test('simular: vendas parecidas todas com o extra → peso das sem extra ~0 (a janela diz que não dá para medir)', () => {
+  const agora = Date.UTC(2026, 10, 14);
+  const H = 3600e3;
+  // como o Mega Dragonite shiny de Nota 7,39: as vendas parecidas em Nota têm AoE e Z-Move; as sem ficam longe na Nota
+  const base = (i, extra) => Object.assign({ id: i, em: agora - i * H, moeda: 'orb', speciesId: 149, nome: 'Mega Dragonite', level: 2000, potencia: 1, shiny: true, mega: true }, extra);
+  const vendas = [
+    base(1, { preco: 55000, nota: 7.39, aoe: true, zmove: true }),
+    base(2, { preco: 40000, nota: 7.35, aoe: true, zmove: true }),
+    base(3, { preco: 3000, nota: 5.2, aoe: false, zmove: false }),
+    base(4, { preco: 2500, nota: 5.0, aoe: false, zmove: false }),
+    base(5, { preco: 2800, nota: 5.1, aoe: false, zmove: false }),
+  ];
+  const alvo = { id: 7, speciesId: 149, nome: 'Mega Dragonite', level: 2181, nota: 7.39, potencia: 1, shiny: true, aoe: true, zmove: true, mega: true };
+  const s = A.simular(alvo, vendas, 'orb', { aoe: false, zmove: false }, agora);
+  assert.equal(s.semAoe, 3);
+  assert.ok(s.pesoMesmoAoe < 0.05, 'peso das parecidas sem AoE: ' + s.pesoMesmoAoe);
+  assert.ok(s.pesoMesmoZ < 0.05);
+  // e com o extra igual ao das parecidas, o peso é quase todo
+  assert.ok(A.simular(alvo, vendas, 'orb', {}, agora).pesoMesmoAoe > 0.95);
+});

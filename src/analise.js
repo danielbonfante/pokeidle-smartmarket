@@ -176,10 +176,24 @@
     const daMoeda = (vendas || []).filter(v => v.moeda === moeda && !!v.shiny === !!alvo.shiny &&
       v.em >= desde && v.em <= t && mesmaEspecie(alvo, v));
     const conta = f => daMoeda.filter(f).length;
+    // Quanto do peso das vendas parecidas (Nota, nível, potência e idade, SEM a penalidade dos extras)
+    // está em vendas com o mesmo AoE / Z-Move da simulação. Se quase nada (ex.: o Mega Dragonite shiny
+    // de Nota 7,39, cujas vendas parecidas são todas com AoE e Z-Move), tirar o extra só multiplica
+    // todas por 0,3 e o preço não muda: a janela diz que não dá para medir (14/11/2026).
+    const semPenalidade = Object.assign({}, M.PADRAO, { pesoSemExtraIgual: 1 });
+    let total = 0, mesmoAoe = 0, mesmoZ = 0;
+    for (const v of daMoeda) {
+      const w = M.pesoVenda(alvoSim, v, t, semPenalidade);
+      total += w;
+      if (!!v.aoe === !!alvoSim.aoe) mesmoAoe += w;
+      if (!!v.zmove === !!alvoSim.zmove) mesmoZ += w;
+    }
     return {
       alvo: alvoSim, res, total: daMoeda.length,
       comAoe: conta(v => v.aoe), semAoe: conta(v => !v.aoe),
       comZ: conta(v => v.zmove), semZ: conta(v => !v.zmove),
+      pesoMesmoAoe: total ? mesmoAoe / total : 0, // 0–1
+      pesoMesmoZ: total ? mesmoZ / total : 0,
     };
   }
 
