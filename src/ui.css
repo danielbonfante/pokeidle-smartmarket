@@ -611,7 +611,7 @@ tr.pp-mesmo td { background: color-mix(in srgb, var(--rx-rosa, #ffa7d7) 14%, tra
 }
 .pp-glossario { margin: 0; font-size: 12px; }
 .pp-glossario dt { margin-top: 8px; font-weight: 700; color: #e8d7ff; }
-.pp-glossario dt:first-child { margin-top: 2px; }
+.pp-glossario .pp-gl-item:first-child dt { margin-top: 2px; }
 .pp-glossario dd { margin: 2px 0 0; color: #d9c4ff; line-height: 1.45; }
 .pp-glossario dd b { color: #fff; }
 .pp-glossario .pp-gl-destaque { background: rgba(242, 200, 107, 0.16); border-radius: 4px; }
@@ -621,3 +621,5 @@ tr.pp-mesmo td { background: color-mix(in srgb, var(--rx-rosa, #ffa7d7) 14%, tra
 .pp-glossario .pp-gl-lista { margin: 3px 0 4px; padding-left: 16px; }
 .pp-glossario .pp-gl-lista li { margin: 2px 0; }
 .pp-gl-amarelo { color: #f2c86b !important; }
+.pp-prec-sim-vendas { margin-top: 8px; }
+.pp-prec-sim-vendas table { margin-top: 4px; }

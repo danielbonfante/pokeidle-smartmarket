@@ -172,15 +172,20 @@
     const t = agora || Date.now();
     const desde = t - M.PADRAO.janelaDias * DIA;
     const alvoSim = Object.assign({}, alvo, mud);
-    const res = M.precificar(alvoSim, vendas || [], { moeda, agora: t });
-    const daMoeda = (vendas || []).filter(v => v.moeda === moeda && !!v.shiny === !!alvo.shiny &&
+    // Shiny (14/11/2026): o shiny entra na Nota (a Nota de um shiny é bem maior que a do mesmo
+    // Pokémon sem shiny), então, com outro status shiny, a Nota desta ficha não serve para achar
+    // vendas parecidas. A conta compara só pelo nível, potência, extras e idade (semNota).
+    const semNota = !!alvoSim.shiny !== !!alvo.shiny;
+    const ajuste = semNota ? { escalaNota: 1e9 } : {};
+    const res = M.precificar(alvoSim, vendas || [], Object.assign({ moeda, agora: t }, ajuste));
+    const daMoeda = (vendas || []).filter(v => v.moeda === moeda && !!v.shiny === !!alvoSim.shiny &&
       v.em >= desde && v.em <= t && mesmaEspecie(alvo, v));
     const conta = f => daMoeda.filter(f).length;
     // Quanto do peso das vendas parecidas (Nota, nível, potência e idade, SEM a penalidade dos extras)
     // está em vendas com o mesmo AoE / Z-Move da simulação. Se quase nada (ex.: o Mega Dragonite shiny
     // de Nota 7,39, cujas vendas parecidas são todas com AoE e Z-Move), tirar o extra só multiplica
     // todas por 0,3 e o preço não muda: a janela diz que não dá para medir (14/11/2026).
-    const semPenalidade = Object.assign({}, M.PADRAO, { pesoSemExtraIgual: 1 });
+    const semPenalidade = Object.assign({}, M.PADRAO, { pesoSemExtraIgual: 1 }, ajuste);
     let total = 0, mesmoAoe = 0, mesmoZ = 0;
     for (const v of daMoeda) {
       const w = M.pesoVenda(alvoSim, v, t, semPenalidade);
@@ -189,7 +194,7 @@
       if (!!v.zmove === !!alvoSim.zmove) mesmoZ += w;
     }
     return {
-      alvo: alvoSim, res, total: daMoeda.length,
+      alvo: alvoSim, res, total: daMoeda.length, semNota,
       comAoe: conta(v => v.aoe), semAoe: conta(v => !v.aoe),
       comZ: conta(v => v.zmove), semZ: conta(v => !v.zmove),
       pesoMesmoAoe: total ? mesmoAoe / total : 0, // 0–1

@@ -135,3 +135,8 @@ footer .versao { margin-top: 2px; font-size: 10px; color: #8f7cad; }
 .pp-glossario .pp-gl-lista { margin: 3px 0 4px; padding-left: 16px; }
 .pp-glossario .pp-gl-lista li { margin: 2px 0; }
 .pp-gl-amarelo { color: var(--amarelo) !important; }
+/* em janela larga, o "Como ler" ocupa a largura inteira, abaixo das duas colunas, e o texto vai em duas colunas */
+@media (min-width: 640px) {
+  .como-ler .pp-glossario { columns: 2; column-gap: 24px; }
+  .como-ler .pp-gl-item { break-inside: avoid; padding-top: 1px; }
+}

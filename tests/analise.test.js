@@ -201,3 +201,21 @@ test('simular: vendas parecidas todas com o extra → peso das sem extra ~0 (a j
   // e com o extra igual ao das parecidas, o peso é quase todo
   assert.ok(A.simular(alvo, vendas, 'orb', {}, agora).pesoMesmoAoe > 0.95);
 });
+
+test('simular shiny: usa as vendas shiny da espécie e ignora a Nota (o shiny muda a Nota)', () => {
+  const agora = Date.UTC(2026, 10, 14);
+  const H = 3600e3;
+  const base = (i, extra) => Object.assign({ id: i, em: agora - i * H, moeda: 'orb', speciesId: 9, nome: 'Blastoise', level: 800, potencia: 1, aoe: false, zmove: false, mega: false }, extra);
+  const vendas = [];
+  for (let i = 1; i <= 10; i++) vendas.push(base(i, { preco: 150, nota: 3.6, shiny: false }));
+  // shiny: Nota bem maior (o shiny entra na Nota); preço por volta de 3.000
+  for (let i = 11; i <= 16; i++) vendas.push(base(i, { preco: 2800 + (i % 3) * 200, nota: 5.8 + (i % 4) * 0.1, shiny: true }));
+  const alvo = { id: 1, speciesId: 9, nome: 'Blastoise', level: 808, nota: 3.6, potencia: 1, shiny: false, aoe: false, zmove: false, mega: false };
+  const s = A.simular(alvo, vendas, 'orb', { shiny: true }, agora);
+  assert.equal(s.semNota, true);
+  assert.equal(s.total, 6, 'conta só as shiny');
+  assert.ok(s.res.suficiente);
+  assert.ok(s.res.precoJusto > 2500 && s.res.precoJusto < 3300, 'preço das shiny: ' + s.res.precoJusto);
+  assert.ok(s.res.nEfetivo > 4, 'a Nota diferente não derruba o peso');
+  assert.equal(A.simular(alvo, vendas, 'orb', { level: 900 }, agora).semNota, false);
+});

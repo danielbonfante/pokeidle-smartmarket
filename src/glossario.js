@@ -44,7 +44,7 @@
   /** Lista em HTML (dl). ids: só esses termos, na ordem dada; sem ids, todos. */
   function html(ids) {
     const lista = ids ? ids.map(id => TERMOS.find(t => t.id === id)).filter(Boolean) : TERMOS;
-    return '<dl class="pp-glossario">' + lista.map(t => `<dt data-termo="${t.id}">${t.termo}</dt><dd data-termo="${t.id}">${t.texto}</dd>`).join('') + '</dl>';
+    return '<dl class="pp-glossario">' + lista.map(t => `<div class="pp-gl-item"><dt data-termo="${t.id}">${t.termo}</dt><dd data-termo="${t.id}">${t.texto}</dd></div>`).join('') + '</dl>';
   }
 
   const api = { TERMOS, html };

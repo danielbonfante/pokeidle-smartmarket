@@ -297,17 +297,19 @@
       </div>`;
   }
 
-  // ---------- simular nível, AoE e Z-Move (14/11/2026) ----------
-  const simInicial = alvo => ({ level: Number(alvo.level) || 1, aoe: !!alvo.aoe, zmove: !!alvo.zmove });
+  // ---------- simular nível, AoE, Z-Move e shiny (14/11/2026) ----------
+  const simInicial = alvo => ({ level: Number(alvo.level) || 1, aoe: !!alvo.aoe, zmove: !!alvo.zmove, shiny: !!alvo.shiny });
   let esperaSim = 0;
+  const ligado = (caixa, sel) => caixa.querySelector(sel).getAttribute('aria-pressed') === 'true';
 
   function aoMudarSim(j) {
     if (!j || janela !== j) return;
     const caixa = j.el.querySelector('.pp-prec-sim');
     const nv = Math.round(Number(caixa.querySelector('.pp-prec-sim-nv').value));
     if (nv >= 1) j.sim.level = nv; // campo vazio ou zero no meio da digitação: fica o último nível válido
-    j.sim.aoe = caixa.querySelector('.pp-prec-sim-aoe').getAttribute('aria-pressed') === 'true';
-    j.sim.zmove = caixa.querySelector('.pp-prec-sim-z').getAttribute('aria-pressed') === 'true';
+    j.sim.aoe = ligado(caixa, '.pp-prec-sim-aoe');
+    j.sim.zmove = ligado(caixa, '.pp-prec-sim-z');
+    j.sim.shiny = ligado(caixa, '.pp-prec-sim-shiny');
     clearTimeout(esperaSim);
     esperaSim = setTimeout(() => desenharSim(j), 200);
   }
@@ -318,6 +320,7 @@
     caixa.querySelector('.pp-prec-sim-nv').value = j.sim.level;
     caixa.querySelector('.pp-prec-sim-aoe').setAttribute('aria-pressed', String(j.sim.aoe));
     caixa.querySelector('.pp-prec-sim-z').setAttribute('aria-pressed', String(j.sim.zmove));
+    caixa.querySelector('.pp-prec-sim-shiny').setAttribute('aria-pressed', String(j.sim.shiny));
     desenharSim(j);
   }
 
@@ -333,42 +336,73 @@
     return `
       <div class="pp-prec-bloco pp-prec-sim">
         <div class="pp-prec-titulo">Simular</div>
-        <p>Quanto o preço muda se este Pokémon tivesse outro nível ou outros extras. É a mesma conta do Preço de mercado, com as vendas guardadas desta espécie; a Nota fica a mesma.</p>
+        <p>Quanto o preço muda se este Pokémon tivesse outro nível, outros extras ou fosse shiny. É a mesma conta do Preço de mercado, com as vendas guardadas desta espécie.</p>
         <div class="pp-prec-sim-campos">
           <label>Nv <input type="number" class="pp-prec-sim-nv" min="1" step="1" inputmode="numeric" value="${sim.level}"></label>
           <!-- botões de ligar, não caixas de marcar: o CSS do jogo desenha as caixas do jeito dele (14/11/2026) -->
           <button type="button" class="pp-prec-sim-extra pp-prec-sim-aoe" aria-pressed="${sim.aoe}">TM AoE</button>
           <button type="button" class="pp-prec-sim-extra pp-prec-sim-z" aria-pressed="${sim.zmove}">Z-Move</button>
-          <button type="button" class="pp-prec-sim-volta" title="Volta ao nível e aos extras desta ficha">desta ficha</button>
+          <button type="button" class="pp-prec-sim-extra pp-prec-sim-shiny" aria-pressed="${sim.shiny}">✨ Shiny</button>
+          <button type="button" class="pp-prec-sim-volta" title="Volta ao nível, aos extras e ao shiny desta ficha">desta ficha</button>
         </div>
         <div class="pp-prec-sim-res">${htmlSimResultado(j)}</div>
       </div>`;
   }
 
+  // +6% / −30%; a partir de 3× vira "112× o desta ficha" (um +10757% não se lê)
+  const variacao = razao => razao >= 3 ? `${num(razao, razao < 10 ? 1 : 0)}×` : `${window.PIUi.fmtDif(razao - 1)} sobre`;
+
+  /** As vendas que mais pesaram no número simulado: de onde ele vem. */
+  function htmlSimVendas(r, moeda, semNota) {
+    const lista = (r.comparaveis || []).slice(0, 5);
+    if (!lista.length) return '';
+    const linhas = lista.map(v => `
+      <tr>
+        <td><span class="pp-prec-peso" title="parecida ${pct(v.peso)} com a mais parecida"><i style="width:${pct(v.peso)}"></i></span></td>
+        <td class="pp-prec-valor">${fmt(v.preco, moeda)}</td>
+        <td>${num(v.level, 0)}</td>
+        <td>P${v.potencia}</td>
+        <td><b>${num(v.nota, 3)}</b></td>
+        <td>${[v.shiny ? '✨' : '', extras(v) === '—' ? '' : extras(v)].filter(Boolean).join(' ') || '—'}</td>
+        <td>${window.PIUi.fmtIdade(v.em)}</td>
+      </tr>`).join('');
+    return `
+      <div class="pp-prec-vendas pp-prec-sim-vendas">
+        <p class="pp-prec-fraco"><b>De onde vem o número:</b> as vendas que mais pesaram nesta simulação (mais parecidas ${semNota ? 'em nível, potência e extras' : 'em Nota, nível e extras'} e mais recentes pesam mais).</p>
+        <table>
+          <thead><tr><th>Parecida</th><th>Preço</th><th>Nv</th><th>Pot.</th><th>Nota</th><th>Extras</th><th>Há</th></tr></thead>
+          <tbody>${linhas}</tbody>
+        </table>
+      </div>`;
+  }
+
   function htmlSimResultado(j) {
     const { alvo, moeda, sim, res: base } = j;
+    if (sim.shiny && moeda === 'gold') return '<p>Shiny só vende em Gemas: troque para <b>Gemas</b> no topo da janela para simular.</p>';
     if (base && base.soGemas) return '<p>Shiny só vende em Gemas.</p>';
-    if (sim.level === Number(alvo.level) && sim.aoe === !!alvo.aoe && sim.zmove === !!alvo.zmove) {
-      return '<p class="pp-prec-fraco">Mude o nível ou marque/desmarque os extras para ver o preço.</p>';
+    if (sim.level === Number(alvo.level) && sim.aoe === !!alvo.aoe && sim.zmove === !!alvo.zmove && sim.shiny === !!alvo.shiny) {
+      return '<p class="pp-prec-fraco">Mude o nível, ligue ou desligue os extras ou o shiny para ver o preço.</p>';
     }
     const s = A.simular(alvo, j.vendas, moeda, sim);
-    // O motor só "vê" um extra entre as vendas parecidas em Nota e nível. Se nenhuma delas tem o extra
-    // simulado, ligar (ou tirar) o extra multiplica todas por 0,3 e o preço não muda: as "vendas
-    // parecidas" do resultado são então as SEM o extra, e a janela precisa dizer isso com todas as
-    // letras (14/11/2026: Blastoise Nv 808 com AoE e Z-Move simulados dava "150, cerca de 33 vendas
+    // Shiny muda a Nota: com outro status shiny, a conta não usa a Nota desta ficha (analise.simular)
+    const emQue = s.semNota ? 'em nível e potência' : 'em Nota e nível';
+    // O motor só "vê" um extra entre as vendas parecidas. Se nenhuma delas tem o extra simulado,
+    // ligar (ou tirar) o extra multiplica todas por 0,3 e o preço não muda: as "vendas parecidas"
+    // do resultado são então as SEM o extra, e a janela precisa dizer isso com todas as letras
+    // (14/11/2026: Blastoise Nv 808 com AoE e Z-Move simulados dava "150, cerca de 33 vendas
     // parecidas" e, logo abaixo, "nenhuma parecida" — parecia contraditório).
     const semMedida = [], efeitosSemMedida = [], incertos = [], avisos = [];
     let medidos = 0; // extras mudados que dá para medir (mesmo que incertos)
-    const extra = (ligado, original, com, sem, peso, nome) => {
-      if (ligado === original) return;
-      const n = ligado ? com : sem;
-      const quais = `${ligado ? 'com' : 'sem'} ${nome}`;
+    const extra = (liga, original, com, sem, peso, nome) => {
+      if (liga === original) return;
+      const n = liga ? com : sem;
+      const quais = `${liga ? 'com' : 'sem'} ${nome}`;
       if (!n) {
-        semMedida.push(quais); efeitosSemMedida.push(`${ligado ? 'do' : 'de tirar o'} ${nome}`);
-        avisos.push(`A espécie não tem nenhuma venda ${quais} em ${MOEDA[moeda].nome} nos últimos 30 dias.`);
+        semMedida.push(quais); efeitosSemMedida.push(`${liga ? 'do' : 'de tirar o'} ${nome}`);
+        avisos.push(`A espécie não tem nenhuma venda${s.alvo.shiny ? ' shiny' : ''} ${quais} em ${MOEDA[moeda].nome} nos últimos 30 dias.`);
       } else if (peso < 0.05) {
-        semMedida.push(quais); efeitosSemMedida.push(`${ligado ? 'do' : 'de tirar o'} ${nome}`);
-        avisos.push(`A espécie tem ${n} venda${n > 1 ? 's' : ''} ${quais}, mas de Nota ou nível bem diferentes deste Pokémon, e por isso quase não contam.`);
+        semMedida.push(quais); efeitosSemMedida.push(`${liga ? 'do' : 'de tirar o'} ${nome}`);
+        avisos.push(`A espécie tem ${n} venda${n > 1 ? 's' : ''} ${quais}, mas ${s.semNota ? 'de nível bem diferente' : 'de Nota ou nível bem diferentes'} deste Pokémon, e por isso quase não contam.`);
       } else {
         medidos++;
         if (n < 3 || peso < 0.2) {
@@ -381,33 +415,39 @@
     extra(sim.zmove, !!alvo.zmove, s.comZ, s.semZ, s.pesoMesmoZ, 'Z-Move');
     const r = s.res;
     const juntar = l => l.length > 1 ? l.slice(0, -1).join(', ') + ' e ' + l[l.length - 1] : l[0];
+    const shinyTxt = s.alvo.shiny ? 'shiny' : 'sem shiny';
+    // o aviso do shiny: de onde vem o número quando a Nota não pode ser usada
+    const avisoShiny = s.semNota
+      ? `<p class="pp-prec-aviso"><b>${s.alvo.shiny ? 'Como shiny' : 'Sem o shiny'}:</b> o shiny entra na Nota (a de um shiny é bem maior), então a Nota desta ficha não serve para comparar. A conta usa as ${s.total} venda${s.total === 1 ? '' : 's'} ${shinyTxt} da espécie em ${MOEDA[moeda].nome} e compara só pelo nível, potência e extras — é uma ideia do preço, não uma medida.</p>` : '';
     let html;
     if (!r.suficiente) {
-      html = '<p>Sem vendas parecidas o bastante com esse caso para um preço.</p>';
-    } else {
-      const nParecidas = num(r.nEfetivo, r.nEfetivo < 10 ? 1 : 0);
-      // selo de confiança da simulação: a do motor, mas "não dá para medir" quando um extra simulado
-      // não tem vendas parecidas, e no máximo "baixa" quando é incerto
-      const selo = semMedida.length
-        ? '<span class="pp-conf pp-conf-baixa" title="Não há vendas parecidas com o que foi simulado para comparar.">não dá para medir</span>'
-        : (() => {
-          const c = incertos.length ? 'baixa' : r.confianca;
-          return `<span class="pp-conf pp-conf-${c}" title="${esc(window.PIUi.DICA.conf[c] || '')}">confiança ${c === 'media' ? 'média' : c}</span>`;
-        })();
-      // nada que dê para medir mudou (nem o nível): o número é o desta ficha, e a % pareceria uma medida
-      const soSemMedida = semMedida.length && !medidos && sim.level === Number(alvo.level);
-      const dif = base && base.suficiente
-        ? ` <span class="pp-prec-sim-dif">${window.PIUi.fmtDif(r.precoJusto / base.precoJusto - 1)} sobre o desta ficha (${fmt(base.precoJusto, moeda)})</span>` : '';
-      html = `<p>Preço de mercado <b class="pp-prec-sim-justo">${fmt(r.precoJusto, moeda)} ${MOEDA[moeda].icone}</b>${soSemMedida ? '' : dif} ${selo}${oQue('confianca')}</p>`;
-      if (semMedida.length) {
-        // o que o número é de verdade: o preço das vendas parecidas que NÃO têm o extra simulado
-        const de = soSemMedida ? 'É o mesmo desta ficha' : `O número acima não inclui o efeito ${juntar(efeitosSemMedida)}`;
-        html += `<p class="pp-prec-aviso"><b>${de}:</b> nenhuma das cerca de ${nParecidas} vendas parecidas com este Pokémon (em Nota e nível) é ${juntar(semMedida)}, então a conta não tem como medir esse efeito.</p>`;
-      } else {
-        html += `<p class="pp-prec-fraco">faixa ${fmt(r.venderRapido, moeda)}–${fmt(r.esperar, moeda)}${r.faixaAlargada ? ' (alargada: poucas vendas parecidas)' : ''} · cerca de ${nParecidas} vendas parecidas em Nota e nível</p>`;
-      }
+      html = s.semNota && s.total < 3
+        ? `<p>${s.total ? `Só ${s.total} venda${s.total === 1 ? '' : 's'}` : 'Nenhuma venda'} ${shinyTxt} da espécie em ${MOEDA[moeda].nome} nos últimos 30 dias: não dá para um preço.</p>`
+        : '<p>Sem vendas parecidas o bastante com esse caso para um preço.</p>';
+      return html + avisos.map(a => `<p class="pp-prec-aviso">${esc(a)}</p>`).join('');
     }
-    return html + avisos.map(a => `<p class="pp-prec-aviso">${esc(a)}</p>`).join('');
+    const nParecidas = num(r.nEfetivo, r.nEfetivo < 10 ? 1 : 0);
+    // selo de confiança da simulação: a do motor; "não dá para medir" quando um extra simulado não tem
+    // vendas parecidas; no máximo "baixa" quando um extra é incerto ou quando a Nota não pôde ser usada
+    const selo = semMedida.length
+      ? '<span class="pp-conf pp-conf-baixa" title="Não há vendas parecidas com o que foi simulado para comparar.">não dá para medir</span>'
+      : (() => {
+        const c = incertos.length || s.semNota ? 'baixa' : r.confianca;
+        return `<span class="pp-conf pp-conf-${c}" title="${esc(window.PIUi.DICA.conf[c] || '')}">confiança ${c === 'media' ? 'média' : c}</span>`;
+      })();
+    // nada que dê para medir mudou (nem o nível, nem o shiny): o número é o desta ficha, e a % pareceria uma medida
+    const soSemMedida = semMedida.length && !medidos && !s.semNota && sim.level === Number(alvo.level);
+    const dif = base && base.suficiente
+      ? ` <span class="pp-prec-sim-dif">${variacao(r.precoJusto / base.precoJusto)} o desta ficha (${fmt(base.precoJusto, moeda)})</span>` : '';
+    html = `<p>Preço de mercado <b class="pp-prec-sim-justo">${fmt(r.precoJusto, moeda)} ${MOEDA[moeda].icone}</b>${soSemMedida ? '' : dif} ${selo}${oQue('confianca')}</p>`;
+    html += `<p class="pp-prec-fraco">faixa ${fmt(r.venderRapido, moeda)}–${fmt(r.esperar, moeda)}${r.faixaAlargada ? ' (alargada: poucas vendas parecidas)' : ''} · cerca de ${nParecidas} vendas parecidas ${emQue}</p>`;
+    html += avisoShiny;
+    if (semMedida.length) {
+      // o que o número é de verdade: o preço das vendas parecidas que NÃO têm o extra simulado
+      const de = soSemMedida ? 'É o mesmo desta ficha' : `O número acima não inclui o efeito ${juntar(efeitosSemMedida)}`;
+      html += `<p class="pp-prec-aviso"><b>${de}:</b> nenhuma das cerca de ${nParecidas} vendas parecidas com este Pokémon (${emQue}) é ${juntar(semMedida)}, então a conta não tem como medir esse efeito. As vendas abaixo são as que formam o número.</p>`;
+    }
+    return html + avisos.map(a => `<p class="pp-prec-aviso">${esc(a)}</p>`).join('') + htmlSimVendas(r, moeda, s.semNota);
   }
 
   // ---------- vendas deste Pokémon pelo "#id" (14/11/2026) ----------
