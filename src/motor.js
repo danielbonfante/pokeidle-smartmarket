@@ -159,7 +159,7 @@
     // da faixa só 15% das vezes (deveria ser ~50%), e o selo dava "+59%" com uma certeza que não
     // existia (o Mega Dragonite revendido de 13/11/2026). A faixa passa a ter pelo menos a largura
     // das vendas parecidas com o peso achatado (raiz), vezes 3/nEfetivo (até 3×): 15% → 39% (< 2) e
-    // 32% → 48% (2–3); com nEfetivo ≥ 3 nada muda, e o Preço justo nunca muda.
+    // 32% → 48% (2–3); com nEfetivo ≥ 3 nada muda, e o Preço de mercado nunca muda.
     let faixaAlargada = false;
     if (nEfetivo < 3) {
       const achatados = pesadas.map(p => ({ x: Math.log(p.v.preco), w: Math.sqrt(p.w) })).sort((a, b) => a.x - b.x);
@@ -191,7 +191,7 @@
       vendasEspecie,
       dispersao,
       confianca,
-      faixaAlargada, // poucas vendas parecidas: Vender rápido/Esperar foram afastados do justo
+      faixaAlargada, // poucas vendas parecidas: Vender rápido/Esperar foram afastados do preço de mercado
       comparaveis,
     };
   }

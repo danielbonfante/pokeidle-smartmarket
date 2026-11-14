@@ -28,14 +28,14 @@ O resumo da loja vem do campo `description` do `manifest.json` (no máximo 132 c
 Quanto vale o seu Pokémon no Mercado da Comunidade do pokeidle.io? A Smart Market responde dentro do próprio jogo, em Gemas e em Coins, com base nas vendas reais do Mercado.
 
 NA FICHA DO POKÉMON
-• Vender rápido, Preço justo e Esperar, nas duas moedas.
+• Vender rápido, Preço de mercado e Esperar, nas duas moedas.
 • Quanto você recebe depois da comissão do Mercado.
 • Confiança da estimativa: alta, média ou baixa. Com poucas vendas parecidas, a faixa fica mais larga, para mostrar a incerteza.
 • Revenda: se este mesmo Pokémon já foi vendido no último mês, mostra por quanto e quando.
 • Botão Precificar: as vendas parecidas numa barra, a tabela das vendas que mais pesaram no preço (comparando nível, Potência, IV, Qualidade e Nota com o seu) quantas vezes a estimativa acertou nas últimas vendas da espécie, uma simulação de outro nível, TM AoE ou Z-Move, e um botão que busca todas as vendas deste mesmo Pokémon.
 
 NO MERCADO
-• Cada anúncio de Pokémon ganha um selo: desconto, no preço ou acima do justo, com a porcentagem em relação ao Preço justo e a faixa de preço das vendas parecidas.
+• Cada anúncio de Pokémon ganha um selo: desconto, no preço ou acima do mercado, com a porcentagem em relação ao Preço de mercado e a faixa de preço das vendas parecidas.
 
 EM DINHEIRO
 • As Gemas também aparecem em dólar (e, se você quiser, em real), pela cotação de compra e de saque do próprio jogo.

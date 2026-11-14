@@ -278,7 +278,7 @@
 .pp-fi-cartao[class*="pp-fn"] i { color: #2b2135; font-weight: 700; }
 .pp-fi-cartao.pp-fi-t5 { box-shadow: inset 0 0 0 2px var(--c-esc), inset 0 0 0 3px color-mix(in srgb, var(--c-luz) 55%, transparent), 0 0 7px #ffc02e66; }
 
-/* Selo "sem preço justo · buscar": busca as vendas da espécie sob demanda */
+/* Selo "sem vendas da espécie · buscar": busca as vendas da espécie sob demanda */
 .pp-vit-buscar { color: #d9c4ff; text-decoration: underline; cursor: pointer; font-weight: 700; }
 .pp-vit-buscar:hover, .pp-vit-buscar:focus-visible { color: #fff; outline: none; }
 .pp-vit-buscando { opacity: 0.8; font-style: italic; }

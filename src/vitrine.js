@@ -4,7 +4,7 @@
  *
  * Quando o jogo recebe uma página de anúncios de Pokémon ({t:'market', aba:'vitrine'}),
  * guarda em memória só o preço, a moeda e os dados do Pokémon de cada anúncio (nada de
- * nick). Em cada card da vitrine põe um selo com o preço justo estimado e quanto o
+ * nick). Em cada card da vitrine põe um selo com o preço de mercado estimado e quanto o
  * anúncio está abaixo ou acima dele.
  *
  * O cálculo usa o cache de vendas. Só busca vendas novas no jogo quando a vitrine
@@ -100,14 +100,14 @@
       return {
         cls: 'pp-vit-sem',
         html: comBotao(`sem vendas${sh} parecidas da espécie`),
-        titulo: `Smart Market: há ${n} vendas de ${onde}, mas nenhuma com nível, Nota e potência parecidos com este — um preço justo aqui seria chute.` + maisBusca,
+        titulo: `Smart Market: há ${n} vendas de ${onde}, mas nenhuma com nível, Nota e potência parecidos com este — um preço aqui seria chute.` + maisBusca,
       };
     }
     if (n > 0) {
       return {
         cls: 'pp-vit-sem',
         html: comBotao(`só ${n} venda${n > 1 ? 's' : ''}${sh} da espécie`),
-        titulo: `Smart Market: só ${n === 1 ? '1 venda' : n + ' vendas'} de ${onde}; são precisas pelo menos 3 para um preço justo.` + maisBusca,
+        titulo: `Smart Market: só ${n === 1 ? '1 venda' : n + ' vendas'} de ${onde}; são precisas pelo menos 3 para estimar um preço.` + maisBusca,
       };
     }
     if (feita) {
@@ -141,18 +141,18 @@
     const dif = an.preco / res.precoJusto - 1;
     let cls, rotulo;
     if (an.preco <= res.venderRapido) { cls = 'pp-vit-pechincha'; rotulo = 'desconto'; }
-    else if (an.preco > res.esperar) { cls = 'pp-vit-caro'; rotulo = 'acima do justo'; }
+    else if (an.preco > res.esperar) { cls = 'pp-vit-caro'; rotulo = 'acima do mercado'; }
     else { cls = 'pp-vit-justo'; rotulo = 'no preço'; }
     if (res.confianca === 'baixa') cls += ' pp-vit-incerto';
     const base = `${res.vendasEspecie} vendas${an.alvo.shiny ? ' shiny' : ''} da espécie, confiança ${res.confianca}`;
     return {
       cls,
       // a faixa explica o rótulo: desconto = até o Vender rápido; acima = passou do Esperar
-      html: `<b>${rotulo} ${pct(dif)}</b><span>justo ${fmt(res.precoJusto, an.moeda)} · faixa ${faixaTexto(res, an.moeda)}</span>` +
+      html: `<b>${rotulo} ${pct(dif)}</b><span>mercado ${fmt(res.precoJusto, an.moeda)} · faixa ${faixaTexto(res, an.moeda)}</span>` +
         dinheiroDoAnuncio(an),
-      titulo: `Smart Market — preço justo estimado: ${fmt(res.precoJusto, an.moeda)} ` +
+      titulo: `Smart Market — preço de mercado estimado: ${fmt(res.precoJusto, an.moeda)} ` +
         `(Vender rápido ${fmt(res.venderRapido, an.moeda)} · Esperar ${fmt(res.esperar, an.moeda)}). ` +
-        `Este anúncio está ${pct(dif)} em relação ao justo. Base: ${base}.`,
+        `Este anúncio está ${pct(dif)} em relação ao preço de mercado. Base: ${base}.`,
     };
   }
 

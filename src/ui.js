@@ -24,7 +24,7 @@
   // Textos dos tooltips (atributo title, como a própria ficha do jogo faz)
   const DICA = {
     venderRapido: 'Vender rápido — 25% das vendas parecidas saíram por menos que isso. Anunciando aqui, tende a vender logo.',
-    precoJusto: 'Preço justo — o meio das vendas parecidas: metade saiu por menos, metade por mais.',
+    precoJusto: 'Preço de mercado — o meio das vendas parecidas: metade saiu por menos, metade por mais. Não é o único preço certo: é por quanto Pokémon parecidos costumam sair.',
     esperar: 'Esperar — só 25% das vendas parecidas saíram por mais que isso. Dá para pedir esse valor se você puder esperar um comprador.',
     conf: {
       alta: 'Confiança alta — muitas vendas parecidas, com preços próximos entre si.',
@@ -43,10 +43,10 @@
     faixa: 'Regra do Mercado da Comunidade: só entra Pokémon com Nv 50+ e Nota 3,5+. Shiny, P5 e lendário/mítico entram com qualquer nível e Nota.',
     soGemas: 'Regra do Mercado da Comunidade: Pokémon shiny só pode ser anunciado em Gemas.',
     usar: 'Preenche o campo "Preço por unidade" do jogo com este valor. Quem publica o anúncio é você.',
-    avenda: 'Anúncios abertos agora desta espécie, nesta moeda, os mais parecidos com este Pokémon primeiro. A porcentagem compara com o Preço justo.',
+    avenda: 'Anúncios abertos agora desta espécie, nesta moeda, os mais parecidos com este Pokémon primeiro. A porcentagem compara com o Preço de mercado.',
     vendidos: 'Vendas desta espécie nos últimos 30 dias, nesta moeda, as mais parecidas com este Pokémon primeiro.',
     travado: 'o jogo só deixa mudar o preço a cada 30 min',
-    precificar: 'Abre a análise completa: o preço justo com as vendas parecidas na barra, a confiança medida nesta espécie e os grupos de preço.',
+    precificar: 'Abre a análise completa: o preço de mercado com as vendas parecidas na barra, a confiança medida nesta espécie e os grupos de preço.',
     mesmoPokemon: 'Esta venda é deste mesmo Pokémon: ele já foi vendido antes e agora está de novo à venda (revenda). Pelo número do Pokémon, não pela semelhança.',
     dinheiroSaque: 'Quanto você recebe em dinheiro: as Gemas líquidas (depois da comissão) na cotação de saque do jogo (Saque — Gemas para USDT; 0,0090 USDT por Gema em 13/11/2026). O real usa a cotação do popup. Escolha dólar, real ou nada no ícone da extensão.',
     dinheiroCompra: 'Quanto custa em dinheiro comprar este anúncio: o preço em Gemas na cotação de compra do jogo (Depósito — comprar Gemas; 0,0100 USDT por Gema em 13/11/2026). O real usa a cotação do popup.',
@@ -190,7 +190,7 @@
         <button type="button" class="pp-precificar" title="${esc(DICA.precificar)}"><span class="pp-mais" aria-hidden="true">+</span>Precificar</button>
         <button type="button" class="pp-ver" title="${esc(DICA.ver)}" aria-expanded="false">vendas<span class="pp-seta" aria-hidden="true"></span></button>
       </div>
-      <div class="pp-rotulos"><span title="${esc(DICA.venderRapido)}">Vender rápido</span><span title="${esc(DICA.precoJusto)}">Preço justo</span><span title="${esc(DICA.esperar)}">Esperar</span></div>
+      <div class="pp-rotulos"><span title="${esc(DICA.venderRapido)}">Vender rápido</span><span title="${esc(DICA.precoJusto)}">Preço de mercado</span><span title="${esc(DICA.esperar)}">Esperar</span></div>
       ${MOEDAS.map(m => `
         <div class="pp-linha" data-moeda="${m.id}">
           <span class="pp-moeda" title="${m.nome}">${m.icone}</span>
@@ -284,10 +284,10 @@
         linha.title = DICA.soGemas;
       } else if (n >= 3) {
         q2.textContent = `sem vendas${sh} parecidas`;
-        linha.title = `Há ${n} vendas${onde}, mas nenhuma com nível, Nota e extras parecidos com este Pokémon — um preço justo aqui seria chute.` + semEstimativa;
+        linha.title = `Há ${n} vendas${onde}, mas nenhuma com nível, Nota e extras parecidos com este Pokémon — um preço aqui seria chute.` + semEstimativa;
       } else if (n > 0) {
         q2.textContent = `só ${n} venda${n > 1 ? 's' : ''}${sh}`;
-        linha.title = `Só ${n === 1 ? '1 venda' : n + ' vendas'}${onde}; são precisas pelo menos 3 parecidas para um preço justo.` + semEstimativa;
+        linha.title = `Só ${n === 1 ? '1 venda' : n + ' vendas'}${onde}; são precisas pelo menos 3 parecidas para estimar um preço.` + semEstimativa;
       } else {
         q2.textContent = `sem vendas${sh}`;
         linha.title = `Nenhuma venda${onde} guardada.` + semEstimativa;
@@ -300,7 +300,7 @@
     q2.textContent = fmtPreco(res.precoJusto, moeda);
     q3.textContent = fmtPreco(res.esperar, moeda);
     linha.title = `${res.vendasEspecie} vendas da espécie, ~${fmtNumero(res.nEfetivo, 1)} parecidas` +
-      (res.faixaAlargada ? ' — poucas parecidas: Vender rápido e Esperar foram afastados do justo para mostrar a incerteza' : '');
+      (res.faixaAlargada ? ' — poucas parecidas: Vender rápido e Esperar foram afastados do preço de mercado para mostrar a incerteza' : '');
   }
 
   function comparar(seu) {

@@ -2,7 +2,7 @@
  * Smart Market — janela "Precificar" (análise de preço do Pokémon)
  * © 2026 dan_the_treiner — uso pessoal; proibido redistribuir, modificar para publicar ou vender (ver LICENSE).
  *
- * Aberta pelo botão "Precificar" do quadro de preço da ficha. Mostra o Preço justo em
+ * Aberta pelo botão "Precificar" do quadro de preço da ficha. Mostra o Preço de mercado em
  * destaque com uma barra onde aparecem as vendas parecidas, frases em português claro,
  * a confiança medida de verdade (o motor refeito para as vendas recentes da espécie) e
  * um aviso quando as vendas se dividem em dois grupos de preço. Usa só o cache: nenhuma
@@ -145,7 +145,7 @@
     const seu = `
       <tr class="pp-prec-seu">
         <td>esta ficha</td>
-        <td class="pp-prec-valor" title="o Preço justo calculado para esta ficha"><small>justo</small> ${fmt(res.precoJusto, moeda)}</td>
+        <td class="pp-prec-valor" title="o Preço de mercado calculado para esta ficha"><small>mercado</small> ${fmt(res.precoJusto, moeda)}</td>
         <td>${alvo.level}</td>
         <td>${isFinite(alvo.potencia) && alvo.potencia ? 'P' + alvo.potencia : '—'}</td>
         <td>${alvo.ivTotal || '—'}</td>
@@ -191,7 +191,7 @@
     return `
       <div class="pp-prec-bloco">
         <div class="pp-prec-justo">
-          <span>Preço justo</span>
+          <span>Preço de mercado</span>
           <b>${fmt(res.precoJusto, moeda)} <small>${MOEDA[moeda].icone}</small></b>
           <em>você recebe ${M.formatarValor(liquidoJusto, moeda)} depois da comissão${moeda === 'orb' ? ` <span class="pp-dinheiro" data-tipo="saque" data-parte="ambos" data-gemas="${liquidoJusto}" title="${esc(window.PIUi.DICA.dinheiroSaque)}"></span>` : ''}</em>
         </div>
@@ -200,7 +200,7 @@
           <div class="pp-prec-faixa" style="${faixa}"></div>
           ${pontosHtml}
           ${marca(res.venderRapido, 'pp-prec-q1', 'Vender rápido')}
-          ${marca(res.precoJusto, 'pp-prec-q2', 'Justo')}
+          ${marca(res.precoJusto, 'pp-prec-q2', 'Mercado')}
           ${marca(res.esperar, 'pp-prec-q3', 'Esperar')}
         </div>
         <ul class="pp-prec-frases">
@@ -223,7 +223,7 @@
       <div class="pp-prec-bloco">
         <div class="pp-prec-titulo">Confiança <b class="pp-prec-conf pp-conf-${nivel}">${pct(conf.taxa)}</b></div>
         <div class="pp-prec-confbarra"><i class="pp-conf-${nivel}" style="width:${pct(conf.taxa)}"></i></div>
-        <p>Refazendo a conta para as últimas <b>${conf.total}</b> vendas desta espécie — cada uma só com as vendas anteriores a ela —, o Preço justo ficou a até 25% do valor pago em <b>${conf.acertos}</b> (${Math.round(conf.taxa * 10)} em cada 10).</p>
+        <p>Refazendo a conta para as últimas <b>${conf.total}</b> vendas desta espécie — cada uma só com as vendas anteriores a ela —, o Preço de mercado ficou a até 25% do valor pago em <b>${conf.acertos}</b> (${Math.round(conf.taxa * 10)} em cada 10).</p>
       </div>`;
   }
 
@@ -236,12 +236,12 @@
     const mp = A.grupoMaisParecido(grupos);
     const nomeGrupo = lado => (lado === 'alto' ? 'caro' : 'barato');
     const cab = lado => `Grupo ${nomeGrupo(lado)}${mp && mp.lado === lado ? ' <span class="pp-prec-parecido" title="o grupo com mais peso: as vendas dele se parecem mais com este Pokémon (Nota, nível, potência, extras)">★ mais parecido</span>' : ''}`;
-    const seuPreco = res && res.suficiente ? `<small>justo</small> ${fmt(res.precoJusto, moeda)}` : '—';
+    const seuPreco = res && res.suficiente ? `<small>mercado</small> ${fmt(res.precoJusto, moeda)}` : '—';
     const parecido = mp
       ? `Pelas vendas, este Pokémon se parece mais com o <b>grupo ${nomeGrupo(mp.lado)}</b> (${p(mp.fracao)} do peso).`
       : 'Este Pokémon fica no meio dos dois: nenhum grupo se parece claramente mais com ele.';
-    // Medido na planilha de 11/11/2026: com o justo no vão, ele ficou a até 25% do pago em ~1 de cada 6 vendas
-    const avisoVao = vao ? ' <b>O Preço justo cai no vão entre eles</b>, e nesse caso ele erra mais: nos testes, acertou só cerca de 1 em cada 6 vendas.' : '';
+    // Medido na planilha de 11/11/2026: com o preço de mercado no vão, ele ficou a até 25% do pago em ~1 de cada 6 vendas
+    const avisoVao = vao ? ' <b>O Preço de mercado cai no vão entre eles</b>, e nesse caso ele erra mais: nos testes, acertou só cerca de 1 em cada 6 vendas.' : '';
     return `
       <div class="pp-prec-bloco pp-prec-grupos">
         <div class="pp-prec-titulo">⚠ As vendas parecidas se dividem em dois grupos</div>
@@ -308,7 +308,7 @@
     return `
       <div class="pp-prec-bloco pp-prec-sim">
         <div class="pp-prec-titulo">Simular</div>
-        <p>Quanto o preço muda se este Pokémon tivesse outro nível ou outros extras. É a mesma conta do Preço justo, com as vendas guardadas desta espécie; a Nota fica a mesma.</p>
+        <p>Quanto o preço muda se este Pokémon tivesse outro nível ou outros extras. É a mesma conta do Preço de mercado, com as vendas guardadas desta espécie; a Nota fica a mesma.</p>
         <div class="pp-prec-sim-campos">
           <label>Nv <input type="number" class="pp-prec-sim-nv" min="1" step="1" inputmode="numeric" value="${sim.level}"></label>
           <!-- botões de ligar, não caixas de marcar: o CSS do jogo desenha as caixas do jeito dele (14/11/2026) -->
@@ -355,8 +355,8 @@
       const soExtrasSemMedida = semMedida && !medido && sim.level === Number(alvo.level);
       const dif = soExtrasSemMedida ? ' <span class="pp-prec-sim-dif">o mesmo desta ficha: o efeito não dá para medir (veja abaixo)</span>'
         : base && base.suficiente
-        ?` <span class="pp-prec-sim-dif">${window.PIUi.fmtDif(r.precoJusto / base.precoJusto - 1)} sobre o justo desta ficha (${fmt(base.precoJusto, moeda)})</span>` : '';
-      html = `<p>Preço justo <b class="pp-prec-sim-justo">${fmt(r.precoJusto, moeda)} ${MOEDA[moeda].icone}</b>${dif}</p>
+        ?` <span class="pp-prec-sim-dif">${window.PIUi.fmtDif(r.precoJusto / base.precoJusto - 1)} sobre o preço de mercado desta ficha (${fmt(base.precoJusto, moeda)})</span>` : '';
+      html = `<p>Preço de mercado <b class="pp-prec-sim-justo">${fmt(r.precoJusto, moeda)} ${MOEDA[moeda].icone}</b>${dif}</p>
         <p class="pp-prec-fraco">faixa ${fmt(r.venderRapido, moeda)}–${fmt(r.esperar, moeda)}${r.faixaAlargada ? ' (alargada: poucas vendas parecidas)' : ''} · cerca de ${num(r.nEfetivo, r.nEfetivo < 10 ? 1 : 0)} vendas parecidas</p>`;
     }
     return html + avisos.map(a => `<p class="pp-prec-aviso">${esc(a)}</p>`).join('');

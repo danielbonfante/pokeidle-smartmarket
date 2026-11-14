@@ -2,8 +2,8 @@
 
 Extensão do Chrome para quem joga [pokeidle.io](https://pokeidle.io): mostra **quanto vale o seu Pokémon no Mercado da Comunidade (RMT)**, em Gemas e Coins, calculado a partir das vendas reais do próprio jogo.
 
-- Na **ficha do Pokémon**: Vender rápido, Preço justo e Esperar, e quanto você recebe depois da comissão.
-- No **Mercado**: um selo em cada anúncio dizendo se está com **desconto**, **no preço** ou **acima do justo**.
+- Na **ficha do Pokémon**: Vender rápido, Preço de mercado e Esperar, e quanto você recebe depois da comissão.
+- No **Mercado**: um selo em cada anúncio dizendo se está com **desconto**, **no preço** ou **acima do mercado**.
 - Na hora de **anunciar** (ou editar um anúncio): os preços e os anúncios parecidos ao lado da tela, com um botão para preencher o preço.
 
 **Só leitura:** a extensão não compra, não vende, não anuncia e não guarda o nick de ninguém. Quem decide e clica é sempre você.
@@ -30,10 +30,10 @@ Para atualizar, baixe o ZIP de novo, substitua a pasta e clique em ↻ na extens
 Abra a ficha de qualquer Pokémon. Aparece o quadro **Preço estimado**:
 
 - **Vender rápido**: 1 em cada 4 vendas parecidas saiu por menos que isso. Anunciar aqui tende a vender logo.
-- **Preço justo**: o meio das vendas parecidas.
+- **Preço de mercado**: o meio das vendas parecidas: metade saiu por menos, metade por mais. Não é o único preço certo de pagar ou de pedir; é por quanto Pokémon parecidos costumam sair.
 - **Esperar**: só 1 em cada 4 saiu por mais. Dá para pedir se você puder esperar um comprador.
 - **líq**: quanto você recebe vendendo por aquele preço, já descontada a comissão do RMT (15% em Coins; em Gemas, 13% até 500, 10% até 5.000 e 7,5% acima).
-- **Confiança** (alta, média ou baixa): quantas vendas parecidas existem e quanto os preços variam. Com poucas vendas parecidas, Vender rápido e Esperar ficam mais afastados do justo, para mostrar a incerteza.
+- **Confiança** (alta, média ou baixa): quantas vendas parecidas existem e quanto os preços variam. Com poucas vendas parecidas, Vender rápido e Esperar ficam mais afastados do preço de mercado, para mostrar a incerteza.
 - **Revenda:** se este mesmo Pokémon já foi vendido nos últimos 30 dias, o quadro diz por quanto e quando ("Este mesmo Pokémon já foi vendido por…"), e a venda aparece marcada como **este mesmo Pokémon** na lista de vendas, na Precificar e no painel de anúncio.
 
 Na primeira vez que você abre uma espécie, a extensão busca o histórico dela. Enquanto busca, o quadro mostra "carregando" com a página em que está, e o preço só aparece quando a busca termina, já com todas as vendas. As consultas seguem um ritmo lento de propósito, então uma espécie muito vendida pode levar uns 4 minutos para baixar tudo, Gemas e Coins juntas. Depois disso fica guardado e a atualização leva poucos segundos. Vendas com mais de 30 dias, que já não entram no preço, são apagadas sozinhas uma vez por dia.
@@ -48,7 +48,7 @@ O botão **Precificar**, no quadro da ficha, abre a análise completa:
 - a tabela das **vendas que mais pesaram no preço**, com o seu Pokémon na primeira linha para comparar nível, Potência, IV, Qualidade e Nota;
 - a **confiança medida**: a extensão refaz a conta para as últimas vendas da espécie e diz quantas vezes acertou;
 - um **aviso** quando as vendas se dividem em dois grupos de preço bem diferentes: o **preço de cada grupo**, qual deles mais se parece com o seu (★), o que os diferencia, e a dica de vender perto do grupo barato para vender logo ou perto do caro se puder esperar;
-- **Simular:** mude o nível, o TM AoE ou o Z-Move e veja quanto o Preço justo muda (se a espécie não tem vendas com o extra, a janela avisa que não dá para medir);
+- **Simular:** mude o nível, o TM AoE ou o Z-Move e veja quanto o Preço de mercado muda (se a espécie não tem vendas com o extra, a janela avisa que não dá para medir);
 - **Vendas deste Pokémon:** um botão busca na Tabela de preços todas as vendas deste mesmo Pokémon, desde a primeira (uma consulta, só quando você clica; os nomes de quem vendeu e comprou são descartados).
 
 **O que pesa no preço:** principalmente a **Nota**, que já resume IV, Qualidade e Potência; depois o **nível**. TM AoE, Z-Move e Mega também contam, e vendas recentes pesam mais que as antigas.
@@ -59,9 +59,9 @@ Na vitrine do Mercado da Comunidade, cada anúncio de Pokémon ganha um selo aba
 
 - **desconto −30%**, em verde: preço na faixa "Vender rápido" ou abaixo;
 - **no preço**: entre "Vender rápido" e "Esperar";
-- **acima do justo +40%**, em vermelho: acima de "Esperar".
+- **acima do mercado +40%**, em vermelho: acima de "Esperar".
 
-A porcentagem compara o anúncio com o Preço justo; o rótulo compara com a faixa entre Vender rápido e Esperar. Por isso nem sempre andam juntos: quando as vendas parecidas custam quase o mesmo, a faixa é estreita e −9% já ganha o selo de desconto; quando os preços variam muito, a faixa é larga e −31% ainda fica "no preço". A segunda linha do selo mostra o justo e essa faixa (por exemplo, "justo 130 · faixa 115–140"). Borda tracejada quer dizer confiança baixa ou estimativa; a estimativa pela Nota (shiny ou P5 de espécie pouco vendida) também ganha a palavra **estimado** no selo. Passe o mouse no selo para ver os detalhes.
+A porcentagem compara o anúncio com o Preço de mercado; o rótulo compara com a faixa entre Vender rápido e Esperar. Por isso nem sempre andam juntos: quando as vendas parecidas custam quase o mesmo, a faixa é estreita e −9% já ganha o selo de desconto; quando os preços variam muito, a faixa é larga e −31% ainda fica "no preço". A segunda linha do selo mostra o justo e essa faixa (por exemplo, "justo 130 · faixa 115–140"). Borda tracejada quer dizer confiança baixa ou estimativa; a estimativa pela Nota (shiny ou P5 de espécie pouco vendida) também ganha a palavra **estimado** no selo. Passe o mouse no selo para ver os detalhes.
 
 Os selos usam as vendas já guardadas. Vendas novas são buscadas quando a vitrine mostra uma espécie só (clicando na espécie ou buscando pelo nome) ou só shiny / só P5. Se a espécie não tem vendas guardadas, ou tem poucas, o selo oferece **buscar**: um clique busca as vendas dela, no mesmo ritmo de sempre.
 
@@ -69,7 +69,7 @@ Os selos usam as vendas já guardadas. Vendas novas são buscadas quando a vitri
 
 Ao anunciar um Pokémon (Mercado → **+ Anunciar** → **Um pokemon** → escolher o Pokémon), aparece um painel ao lado da tela de preço:
 
-- **Vender rápido / Preço justo / Esperar** na moeda escolhida, com o **líq** e um botão **usar** que preenche o campo de preço. Quem publica é sempre você.
+- **Vender rápido / Preço de mercado / Esperar** na moeda escolhida, com o **líq** e um botão **usar** que preenche o campo de preço. Quem publica é sempre você.
 - Dentro do palco do jogo, ao lado do Pokémon, uma **ficha resumida**: tipos, Potência, Qualidade, IV, Nota e Poder.
 - Dá para **arrastar** o painel pela barra de cima, para ver o que está atrás (a janela Precificar também).
 - As abas **À venda** (anúncios abertos agora da mesma espécie) e **Vendidos** (vendas dos últimos 30 dias), com os mais parecidos com o seu primeiro.
@@ -131,7 +131,7 @@ A extensão não tem servidor, não envia dados para fora do seu navegador e nã
 
 **Como funciona.** O jogo conversa com o servidor por um WebSocket. A extensão pede o histórico de vendas do Mercado (`market.historicoGlobal`) pela conexão que o jogo já abriu, guarda as vendas no IndexedDB sem nicks e calcula o preço em [`src/motor.js`](src/motor.js): pega as vendas da mesma espécie, moeda e status shiny dos últimos 30 dias, dá um peso a cada uma pela semelhança (Nota, nível, potência, AoE / Z-Move / Mega) e pela idade (meia-vida de 5 dias), e usa os quartis ponderados (25%, 50%, 75%) em escala logarítmica. O selo da vitrine compara o preço do anúncio com esses quartis ([`src/vitrine.js`](src/vitrine.js)). O [`CLAUDE.md`](CLAUDE.md) descreve o protocolo do jogo, a arquitetura e as decisões tomadas.
 
-**Backtest** (11/11/2026; cada venda precificada só com as anteriores; acerto = Preço justo a até 25% do valor pago):
+**Backtest** (11/11/2026; cada venda precificada só com as anteriores; acerto = Preço de mercado a até 25% do valor pago):
 
 | Dados | Gemas | Coins |
 |---|---|---|

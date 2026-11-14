@@ -120,9 +120,9 @@
   /**
    * O grupo mais parecido com o Pokémon: o de maior peso, porque o peso de cada venda já mede
    * a semelhança (Nota, nível, potência, extras). Com menos de `minimo` (60%) do peso, não aponta
-   * nenhum. Medido na planilha de 11/11/2026 (justo no vão): em Coins o grupo mais pesado era o
+   * nenhum. Medido na planilha de 11/11/2026 (preço de mercado no vão): em Coins o grupo mais pesado era o
    * certo em 79% das vezes; em Gemas, só em 59%. Por isso a janela mostra os dois preços e só
-   * indica o mais parecido, sem trocar o Preço justo.
+   * indica o mais parecido, sem trocar o Preço de mercado.
    */
   function grupoMaisParecido(grupos, minimo) {
     if (!grupos) return null;
@@ -139,7 +139,7 @@
 
   /**
    * Confiança medida: para as vendas recentes da espécie (até n, últimos 30 dias), refaz o
-   * motor usando só as vendas anteriores a cada uma e conta quantas vezes o Preço justo ficou
+   * motor usando só as vendas anteriores a cada uma e conta quantas vezes o Preço de mercado ficou
    * a até `tolerancia` (25%) do valor pago. null se houver menos de minTotal avaliáveis.
    */
   function confiancaEspecie(vendas, moeda, agora, opcoes) {
