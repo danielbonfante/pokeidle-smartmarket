@@ -352,37 +352,60 @@
       return '<p class="pp-prec-fraco">Mude o nível ou marque/desmarque os extras para ver o preço.</p>';
     }
     const s = A.simular(alvo, j.vendas, moeda, sim);
-    // Sem vendas com o extra, o motor não tem como medir o efeito dele (pesa todas igual): avisar
-    const avisos = [];
-    // O motor só "vê" o extra entre as vendas parecidas em Nota e nível: se quase todas elas têm o
-    // extra como o original, tirar (ou pôr) o extra não muda o preço, e a janela precisa dizer isso.
-    let semMedida = false, medido = false;
+    // O motor só "vê" um extra entre as vendas parecidas em Nota e nível. Se nenhuma delas tem o extra
+    // simulado, ligar (ou tirar) o extra multiplica todas por 0,3 e o preço não muda: as "vendas
+    // parecidas" do resultado são então as SEM o extra, e a janela precisa dizer isso com todas as
+    // letras (14/11/2026: Blastoise Nv 808 com AoE e Z-Move simulados dava "150, cerca de 33 vendas
+    // parecidas" e, logo abaixo, "nenhuma parecida" — parecia contraditório).
+    const semMedida = [], efeitosSemMedida = [], incertos = [], avisos = [];
+    let medidos = 0; // extras mudados que dá para medir (mesmo que incertos)
     const extra = (ligado, original, com, sem, peso, nome) => {
       if (ligado === original) return;
       const n = ligado ? com : sem;
       const quais = `${ligado ? 'com' : 'sem'} ${nome}`;
-      const efeito = `o efeito ${ligado ? 'do' : 'de tirar o'} ${nome}`;
-      if (!n) { semMedida = true; avisos.push(`Nenhuma venda da espécie ${quais} em ${MOEDA[moeda].nome} nos últimos 30 dias: a conta não tem como medir ${efeito}.`); }
-      else if (peso < 0.05) { semMedida = true; avisos.push(`A espécie tem ${n} venda${n > 1 ? 's' : ''} ${quais}, mas nenhuma parecida com este Pokémon em Nota e nível: a conta não tem como medir ${efeito}, e o preço fica quase o mesmo.`); }
-      else {
-        medido = true;
-        if (n < 3 || peso < 0.2) avisos.push(`Poucas vendas parecidas ${quais} (${pct(peso)} do peso): ${efeito} fica incerto.`);
+      if (!n) {
+        semMedida.push(quais); efeitosSemMedida.push(`${ligado ? 'do' : 'de tirar o'} ${nome}`);
+        avisos.push(`A espécie não tem nenhuma venda ${quais} em ${MOEDA[moeda].nome} nos últimos 30 dias.`);
+      } else if (peso < 0.05) {
+        semMedida.push(quais); efeitosSemMedida.push(`${ligado ? 'do' : 'de tirar o'} ${nome}`);
+        avisos.push(`A espécie tem ${n} venda${n > 1 ? 's' : ''} ${quais}, mas de Nota ou nível bem diferentes deste Pokémon, e por isso quase não contam.`);
+      } else {
+        medidos++;
+        if (n < 3 || peso < 0.2) {
+          incertos.push(quais);
+          avisos.push(`Só ${pct(peso)} do peso das vendas parecidas é de vendas ${quais}: o efeito do ${nome} fica incerto.`);
+        }
       }
     };
-    extra(sim.aoe, !!alvo.aoe, s.comAoe, s.semAoe, s.pesoMesmoAoe, 'AoE');
+    extra(sim.aoe, !!alvo.aoe, s.comAoe, s.semAoe, s.pesoMesmoAoe, 'TM AoE');
     extra(sim.zmove, !!alvo.zmove, s.comZ, s.semZ, s.pesoMesmoZ, 'Z-Move');
     const r = s.res;
+    const juntar = l => l.length > 1 ? l.slice(0, -1).join(', ') + ' e ' + l[l.length - 1] : l[0];
     let html;
     if (!r.suficiente) {
       html = '<p>Sem vendas parecidas o bastante com esse caso para um preço.</p>';
     } else {
-      // só os extras mudaram e o efeito deles não dá para medir: o "±0%" pareceria uma medida
-      const soExtrasSemMedida = semMedida && !medido && sim.level === Number(alvo.level);
-      const dif = soExtrasSemMedida ? ' <span class="pp-prec-sim-dif">o mesmo desta ficha: o efeito não dá para medir (veja abaixo)</span>'
-        : base && base.suficiente
-        ?` <span class="pp-prec-sim-dif">${window.PIUi.fmtDif(r.precoJusto / base.precoJusto - 1)} sobre o preço de mercado desta ficha (${fmt(base.precoJusto, moeda)})</span>` : '';
-      html = `<p>Preço de mercado <b class="pp-prec-sim-justo">${fmt(r.precoJusto, moeda)} ${MOEDA[moeda].icone}</b>${dif}</p>
-        <p class="pp-prec-fraco">faixa ${fmt(r.venderRapido, moeda)}–${fmt(r.esperar, moeda)}${r.faixaAlargada ? ' (alargada: poucas vendas parecidas)' : ''} · cerca de ${num(r.nEfetivo, r.nEfetivo < 10 ? 1 : 0)} vendas parecidas</p>`;
+      const nParecidas = num(r.nEfetivo, r.nEfetivo < 10 ? 1 : 0);
+      // selo de confiança da simulação: a do motor, mas "não dá para medir" quando um extra simulado
+      // não tem vendas parecidas, e no máximo "baixa" quando é incerto
+      const selo = semMedida.length
+        ? '<span class="pp-conf pp-conf-baixa" title="Não há vendas parecidas com o que foi simulado para comparar.">não dá para medir</span>'
+        : (() => {
+          const c = incertos.length ? 'baixa' : r.confianca;
+          return `<span class="pp-conf pp-conf-${c}" title="${esc(window.PIUi.DICA.conf[c] || '')}">confiança ${c === 'media' ? 'média' : c}</span>`;
+        })();
+      // nada que dê para medir mudou (nem o nível): o número é o desta ficha, e a % pareceria uma medida
+      const soSemMedida = semMedida.length && !medidos && sim.level === Number(alvo.level);
+      const dif = base && base.suficiente
+        ? ` <span class="pp-prec-sim-dif">${window.PIUi.fmtDif(r.precoJusto / base.precoJusto - 1)} sobre o desta ficha (${fmt(base.precoJusto, moeda)})</span>` : '';
+      html = `<p>Preço de mercado <b class="pp-prec-sim-justo">${fmt(r.precoJusto, moeda)} ${MOEDA[moeda].icone}</b>${soSemMedida ? '' : dif} ${selo}${oQue('confianca')}</p>`;
+      if (semMedida.length) {
+        // o que o número é de verdade: o preço das vendas parecidas que NÃO têm o extra simulado
+        const de = soSemMedida ? 'É o mesmo desta ficha' : `O número acima não inclui o efeito ${juntar(efeitosSemMedida)}`;
+        html += `<p class="pp-prec-aviso"><b>${de}:</b> nenhuma das cerca de ${nParecidas} vendas parecidas com este Pokémon (em Nota e nível) é ${juntar(semMedida)}, então a conta não tem como medir esse efeito.</p>`;
+      } else {
+        html += `<p class="pp-prec-fraco">faixa ${fmt(r.venderRapido, moeda)}–${fmt(r.esperar, moeda)}${r.faixaAlargada ? ' (alargada: poucas vendas parecidas)' : ''} · cerca de ${nParecidas} vendas parecidas em Nota e nível</p>`;
+      }
     }
     return html + avisos.map(a => `<p class="pp-prec-aviso">${esc(a)}</p>`).join('');
   }
