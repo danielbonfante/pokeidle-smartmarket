@@ -22,6 +22,10 @@
     background: linear-gradient(#7a3b4c 0 26px, #2a1520 26px); }
   .dlg-palco::before { content: ''; position: absolute; left: 50%; top: 34px; width: 44px; height: 46px; margin-left: -22px; background: #c0392b; border-radius: 8px; }
   .dlg-palco.compacta > :not(.pp-palco-ficha) { position: relative; }
+  /* placas do Editar, com as medidas vistas no jogo em 15/11/2026 (palco 492×133): preço em cima à
+     direita, estadia em cima à esquerda */
+  .dlg-palco.compacta > .dlg-placa { position: absolute; top: 40px; right: 16px; height: 27px; line-height: 27px; padding: 0 8px; background: #f4e3c2; color: #4a2a10; border-radius: 4px; font-weight: 700; }
+  .dlg-palco.compacta > .dlg-placa-dias { position: absolute; top: 42px; left: 16px; height: 23px; line-height: 23px; padding: 0 8px; background: #6b3fa0; color: #fff; border-radius: 4px; font-weight: 700; }
   .mk-card { display: inline-block; padding: 10px; margin: 6px; background: #1d0f16; cursor: pointer; }
   .cm-moeda.on { outline: 2px solid #b58cff; }
   #resumo { margin-top: 8px; }
@@ -134,7 +138,7 @@
     folha.querySelector('.cm-folha-caixa').style.height = '779px';
     const travado = caso === 'editar-travado';
     corpo.innerHTML = '<div class="dlg-palco dlg-feira compacta"><span class="dlg-ator-nome">' + (item ? 'Darkness Stone' : 'Furious Scizor') + '</span>' +
-      (item ? '' : '<span class="dlg-ator-sub">Nv 100</span>') + '<span class="dlg-placa-dias">1 dia</span></div>' +
+      (item ? '' : '<span class="dlg-ator-sub">Nv 100</span>') + '<span class="dlg-placa">◎ 666</span><span class="dlg-placa-dias">3 dias</span></div>' +
       '<div class="cm-form"><label><input id="cm-preco" type="number" value="666" min="2"' + (travado ? ' disabled' : '') + '><em>mínimo 2 Gemas/un.</em></label>' +
       '<div class="cm-moedas"><button type="button" class="cm-moeda" data-moeda="gold">Coins</button><button type="button" class="cm-moeda on" data-moeda="orb">Gemas</button></div>' +
       '<div id="cm-resumo">VOCÊ RECEBE <b>584</b></div>' +

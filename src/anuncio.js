@@ -162,6 +162,9 @@
     window.removeEventListener('scroll', posicionar, true);
     painel.el.remove();
     if (painel.palcoFicha) painel.palcoFicha.remove();
+    // a placa da estadia volta para o lugar dela (painel desligado no popup com o Editar aberto)
+    const palco = painel.folha && painel.folha.querySelector('.dlg-palco');
+    if (palco) voltarDias(palco.querySelector('.dlg-placa-dias'));
     painel = null;
   }
 
@@ -238,11 +241,15 @@
       if (getComputedStyle(palco).position === 'static') palco.style.position = 'relative';
       palco.appendChild(el);
     }
+    // No Editar, a placa da estadia ("3 dias") fica no canto de cima à esquerda e não deixava a ficha
+    // caber: ela vai para a direita, logo abaixo da placa do preço (15/11/2026, ideia do Daniel). Se a
+    // ficha não couber mesmo assim, a placa volta para o lugar dela.
+    const dias = moverDias(palco);
     // à esquerda do sprite (que fica no meio): no máximo metade do palco menos uma folga para ele
     const largura = Math.min(190, Math.floor(palco.clientWidth / 2) - 56);
     el.style.width = largura + 'px';
     el.hidden = false; // para medir de verdade
-    if (largura < 120 || el.offsetHeight > palco.clientHeight - 12) { el.hidden = true; return; }
+    if (largura < 120 || el.offsetHeight > palco.clientHeight - 12) { el.hidden = true; voltarDias(dias); return; }
     // Não cobre nada do jogo (nome, nível, a placa da estadia no Editar…): tenta o canto de baixo,
     // depois o de cima (abaixo do toldo), cada um do mais largo até 130 px; se encostar em texto do
     // jogo em todos, não mostra
@@ -255,6 +262,31 @@
       el.style.width = largura + 'px';
     }
     el.hidden = true;
+    voltarDias(dias);
+  }
+
+  /**
+   * Placa da estadia do Editar (`.dlg-placa-dias`, visto no jogo em 15/11/2026: absoluta, top 42 /
+   * left 16 num palco de 492×133; a placa do preço `.dlg-placa` em top 40 / right 16, 27 de altura):
+   * passa para a direita, 6 px abaixo da placa do preço. Só estilo, nada do anúncio muda. Devolve a
+   * placa movida (ou null) para voltar com voltarDias.
+   */
+  function moverDias(palco) {
+    const dias = palco.querySelector('.dlg-placa-dias');
+    const preco = palco.querySelector('.dlg-placa');
+    if (!dias || !preco) return null;
+    if (dias.dataset.ppMovida) return dias;
+    const top = preco.offsetTop + preco.offsetHeight + 6;
+    if (top + dias.offsetHeight > palco.clientHeight - 4) return null; // não cabe embaixo do preço
+    dias.dataset.ppMovida = '1';
+    Object.assign(dias.style, { top: top + 'px', left: 'auto', right: getComputedStyle(preco).right });
+    return dias;
+  }
+
+  function voltarDias(dias) {
+    if (!dias || !dias.dataset.ppMovida) return;
+    delete dias.dataset.ppMovida;
+    Object.assign(dias.style, { top: '', left: '', right: '' });
   }
 
   /** Algum texto do jogo dentro do palco encosta no retângulo da ficha? Mede o texto, não a caixa
