@@ -73,6 +73,8 @@
   // Anúncios que a vitrine já viu (plano B quando a consulta é recusada)
   window.PIVitrine = { anunciosDaEspecie: (sid, moeda) => [
     { id: 900, preco: moeda === 'orb' ? 610 : 1.2e8, moeda, vistoEm: agora - 12 * 60000, alvo: Object.assign({}, alvoJogo, { id: 7900, nota: 4.58 }) },
+    // visto há 5 h: fica de fora da lista (só os das últimas 3 h)
+    { id: 901, preco: moeda === 'orb' ? 2400 : 6e8, moeda, vistoEm: agora - 5 * 3600e3, alvo: Object.assign({}, alvoJogo, { id: 7901, nota: 4.6 }) },
   ] };
   window.PIStore = { vendasPorEspecie: async () => vendas, vendasPorClasse: async () => [] };
   // #carregando: finge uma busca de vendas de 3 páginas (1 s cada): o preço fica em "carregando · pág. N"

@@ -626,3 +626,4 @@ tr.pp-mesmo td { background: color-mix(in srgb, var(--rx-rosa, #ffa7d7) 14%, tra
 .pp-prec-sim-vendas { margin-top: 8px; }
 .pp-prec-sim-vendas table { margin-top: 4px; }
 .pp-prec-sim-nv.pp-invalido { border-color: #ff8f8f; box-shadow: 0 0 0 1px #ff8f8f; }
+.pp-an-lista .pp-an-visto { color: var(--sobre-mad-dim, #a993c9); opacity: 0.8; font-size: 0.9em; white-space: nowrap; }

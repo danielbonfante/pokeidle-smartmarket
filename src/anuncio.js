@@ -350,6 +350,16 @@
   }
 
   /** Anúncios abertos da espécie nesta moeda: uma consulta por moeda; recusada → os já vistos. */
+  // Anúncios já vistos na vitrine (Editar, ou consulta recusada): só os das últimas 3 h. Os mais
+  // velhos provavelmente já foram vendidos ou mudaram de preço, e pareciam atuais (15/11/2026).
+  const VISTO_MAX_MS = 3 * 3600e3;
+  function vistosRecentes(sid, moeda) {
+    const todos = window.PIVitrine && window.PIVitrine.anunciosDaEspecie ? window.PIVitrine.anunciosDaEspecie(sid, moeda) : [];
+    const desde = Date.now() - VISTO_MAX_MS;
+    const itens = todos.filter(a => !a.vistoEm || a.vistoEm >= desde);
+    return { itens, antigos: todos.length - itens.length };
+  }
+
   async function carregarAVenda(p, moeda) {
     const ja = p.avendaPorMoeda[moeda];
     if (ja) { aplicarAVenda(p, moeda); return; }
@@ -357,8 +367,8 @@
     // No Editar, atrás da folha está a lista de "Meus anúncios": uma consulta de vitrine a trocaria.
     // Mostra só os anúncios desta espécie que a vitrine (vitrine.js) já viu.
     if (p.editando && sid != null) {
-      const vistos = window.PIVitrine && window.PIVitrine.anunciosDaEspecie ? window.PIVitrine.anunciosDaEspecie(sid, moeda) : [];
-      p.avendaPorMoeda[moeda] = { itens: vistos, erro: 'no Editar a lista não é atualizada', visto: true };
+      const v = vistosRecentes(sid, moeda);
+      p.avendaPorMoeda[moeda] = { itens: v.itens, antigos: v.antigos, visto: 'editar' };
       aplicarAVenda(p, moeda);
       return;
     }
@@ -377,10 +387,23 @@
         .map(l => ({ id: l.id, preco: Number(l.preco), moeda: l.moeda, alvo: M.normalizarAlvo(l.ficha) }));
       p.avendaPorMoeda[moeda] = { itens };
     } catch (e) {
-      const vistos = window.PIVitrine && window.PIVitrine.anunciosDaEspecie ? window.PIVitrine.anunciosDaEspecie(sid, moeda) : [];
-      p.avendaPorMoeda[moeda] = { itens: vistos, erro: e.message, visto: true };
+      const v = vistosRecentes(sid, moeda);
+      p.avendaPorMoeda[moeda] = { itens: v.itens, antigos: v.antigos, erro: e.message, visto: 'erro' };
     }
     aplicarAVenda(p, moeda);
+  }
+
+  /** O aviso da aba À venda: de onde vem a lista e, no Editar, o que fazer para atualizar. */
+  function avisoAVenda(d) {
+    if (!d.visto) return d.erro || null;
+    const fora = d.antigos ? ` ${d.antigos === 1 ? '1 anúncio visto' : d.antigos + ' anúncios vistos'} há mais de 3 h ficou de fora.`.replace('ficou', d.antigos === 1 ? 'ficou' : 'ficaram') : '';
+    if (d.visto === 'editar') {
+      return (d.itens.length
+        ? 'No Editar esta lista não é atualizada: são os anúncios que a extensão viu na vitrine nas últimas 3 h.'
+        : 'No Editar esta lista não é atualizada, e a extensão não viu anúncios desta espécie na vitrine nas últimas 3 h.') +
+        fora + ' Para atualizar, abra a vitrine desta espécie no Mercado antes de editar.';
+    }
+    return `${d.erro} — ${d.itens.length ? 'mostrando os anúncios vistos na vitrine nas últimas 3 h' : 'nenhum anúncio desta espécie visto nas últimas 3 h'}.${fora}`;
   }
 
   function aplicarAVenda(p, moeda) {
@@ -388,7 +411,7 @@
     const d = p.avendaPorMoeda[moeda];
     if (!d || d.carregando) return;
     p.avenda = L.ordenarAVenda(p.alvo, d.itens, moeda);
-    p.avendaErro = d.erro ? d.erro + (d.visto ? (d.itens.length ? ' — mostrando anúncios já vistos' : ' — nenhum anúncio desta espécie visto ainda') : '') : null;
+    p.avendaErro = avisoAVenda(d);
     desenharLista();
   }
 
@@ -485,8 +508,10 @@
             dif = pct(d);
             cls = a.preco <= res.venderRapido ? 'pp-vit-pechincha' : a.preco > res.esperar ? 'pp-vit-caro' : 'pp-vit-justo';
           }
-          const visto = a.vistoEm ? ` title="visto há ${esc(window.PIUi.fmtIdade(a.vistoEm))}"` : '';
-          return `<tr${visto}><td>${esc(resumoPokemon(a.alvo))}</td><td>${MOEDA[moeda].icone} ${fmt(a.preco, moeda)}</td><td class="${cls}">${dif}</td></tr>`;
+          // anúncio já visto (não veio de uma consulta agora): mostra há quanto tempo, na própria linha
+          const ha = a.vistoEm ? esc(window.PIUi.fmtIdade(a.vistoEm)) : '';
+          const visto = ha ? ` title="visto na vitrine há ${ha}"` : '';
+          return `<tr${visto}><td>${esc(resumoPokemon(a.alvo))}${ha ? ` <small class="pp-an-visto">· há ${ha}</small>` : ''}</td><td>${MOEDA[moeda].icone} ${fmt(a.preco, moeda)}</td><td class="${cls}">${dif}</td></tr>`;
         }).join('') + '</table>'
       : (painel.avendaErro ? '' : `<div class="pp-an-vazio">Nenhum anúncio desta espécie em ${MOEDA[moeda].nome} agora.</div>`);
     lista.innerHTML = motivo + lista.innerHTML;
