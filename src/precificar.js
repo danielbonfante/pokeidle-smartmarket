@@ -523,7 +523,7 @@
     const outroNome = h.vendas.some(v => v.nome !== j.alvo.nome); // vendido antes de evoluir: mostra o nome
     const linhas = h.vendas.map(v => `
       <tr>
-        <td>${new Date(v.em).toLocaleDateString('pt-BR')} <small>há ${esc(window.PIUi.fmtIdade(v.em))}</small></td>
+        <td>${new Date(v.em).toLocaleDateString('pt-BR')} <small>${esc(window.PIUi.fmtHa(v.em))}</small></td>
         <td class="pp-prec-valor">${MOEDA[v.moeda] ? MOEDA[v.moeda].icone : ''} ${fmt(v.preco, v.moeda)}</td>
         ${outroNome ? `<td>${esc(v.nome)}</td>` : ''}
         <td>${num(v.level, 0)}</td>

@@ -72,10 +72,16 @@
   }
   function fmtIdade(em) {
     const min = Math.round((Date.now() - em) / 60000);
+    if (min < 1) return 'agora'; // e não "0 min"
     if (min < 60) return min + ' min';
     const h = Math.round(min / 60);
     if (h < 48) return h + ' h';
     return Math.round(h / 24) + ' d';
+  }
+  /** "há 12 min", ou "agora" (sem o "há") para menos de 1 min. */
+  function fmtHa(em) {
+    const t = fmtIdade(em);
+    return t === 'agora' ? t : 'há ' + t;
   }
   /** Diferença relativa com sinal: 0,67 → "+67%", −0,31 → "−31%", 0 → "±0%". */
   function fmtDif(x) {
@@ -374,7 +380,7 @@
     // na lista "vendas" a venda dele aparece sempre, marcada, mesmo fora das 5 que mais pesaram
     const corpo = badge.querySelector('.pp-comps tbody');
     if (corpo && !corpo.querySelector('tr.pp-mesmo')) corpo.insertAdjacentHTML('beforeend', linhaVenda(m, v, alvo));
-    el.innerHTML = `<b>Este mesmo Pokémon</b> já foi vendido por ${m.icone} ${esc(fmtPreco(v.preco, v.moeda))} há ${esc(fmtIdade(v.em))}, no Nv ${esc(fmtNumero(v.level, 0))}` +
+    el.innerHTML = `<b>Este mesmo Pokémon</b> já foi vendido por ${m.icone} ${esc(fmtPreco(v.preco, v.moeda))} ${esc(fmtHa(v.em))}, no Nv ${esc(fmtNumero(v.level, 0))}` +
       (dele.length > 1 ? ` (e mais ${dele.length - 1} ${dele.length > 2 ? 'vezes' : 'vez'} nos últimos 30 dias)` : '') + '.';
   }
 
@@ -596,5 +602,5 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);
   else iniciar();
 
-  window.PIUi = { MOEDA, fmtPreco, fmtNumero, fmtIdade, fmtDif, esc, calcular, arrastavel, DICA };
+  window.PIUi = { MOEDA, fmtPreco, fmtNumero, fmtIdade, fmtHa, fmtDif, esc, calcular, arrastavel, DICA };
 })();

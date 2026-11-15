@@ -509,9 +509,9 @@
             cls = a.preco <= res.venderRapido ? 'pp-vit-pechincha' : a.preco > res.esperar ? 'pp-vit-caro' : 'pp-vit-justo';
           }
           // anúncio já visto (não veio de uma consulta agora): mostra há quanto tempo, na própria linha
-          const ha = a.vistoEm ? esc(window.PIUi.fmtIdade(a.vistoEm)) : '';
-          const visto = ha ? ` title="visto na vitrine há ${ha}"` : '';
-          return `<tr${visto}><td>${esc(resumoPokemon(a.alvo))}${ha ? ` <small class="pp-an-visto">· há ${ha}</small>` : ''}</td><td>${MOEDA[moeda].icone} ${fmt(a.preco, moeda)}</td><td class="${cls}">${dif}</td></tr>`;
+          const ha = a.vistoEm ? esc(window.PIUi.fmtHa(a.vistoEm)) : '';
+          const visto = ha ? ` title="visto na vitrine ${ha}"` : '';
+          return `<tr${visto}><td>${esc(resumoPokemon(a.alvo))}${ha ? ` <small class="pp-an-visto">· ${ha}</small>` : ''}</td><td>${MOEDA[moeda].icone} ${fmt(a.preco, moeda)}</td><td class="${cls}">${dif}</td></tr>`;
         }).join('') + '</table>'
       : (painel.avendaErro ? '' : `<div class="pp-an-vazio">Nenhum anúncio desta espécie em ${MOEDA[moeda].nome} agora.</div>`);
     lista.innerHTML = motivo + lista.innerHTML;
