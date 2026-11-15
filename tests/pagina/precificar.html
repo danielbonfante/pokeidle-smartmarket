@@ -55,7 +55,9 @@
   // #longe: o mesmo Blastoise com Nv 5.000 — a espécie tem vendas, mas nenhuma parecida
   // ("poucas com Nv e Nota parecidos" no quadro)
   const nivel = location.hash === '#longe' ? 5000 : 395;
-  window.PIWs = { pokemon: () => ({ id: 97553169, speciesId: 9, nome: 'Blastoise', level: nivel, nota: 3.598, quality: 1.8, potencia: 1, shiny: false, tmAoe: false, tmElemental: null, ivTotal: 130 }), conectado: () => comSync || tabelaFora || comHistorico,
+  // #inicial: o Pokémon inicial (Qualidade 1,600, P2, IV 162): o quadro avisa que não pode ser vendido
+  const inicial = location.hash === '#inicial';
+  window.PIWs = { pokemon: () => ({ id: 97553169, speciesId: 9, nome: 'Blastoise', level: nivel, nota: 3.598, quality: inicial ? 1.6 : 1.8, potencia: inicial ? 2 : 1, shiny: false, tmAoe: false, tmElemental: null, ivTotal: 130 }), conectado: () => comSync || tabelaFora || comHistorico,
     // #historico / #nunca: o botão "Buscar as vendas deste Pokémon" da Precificar (busca "#id", todas as
     // moedas). Vem uma venda dele antes de evoluir (Wartortle, em Coins), uma depois e uma de OUTRO Pokémon
     // (número parecido, que a janela tem de deixar de fora); as linhas trazem nicks, como as do jogo.

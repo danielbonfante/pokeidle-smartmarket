@@ -52,3 +52,14 @@ test('faixa: com uma venda dominando (revenda do mesmo Pokémon), a faixa não f
   assert.ok(r.esperar / r.venderRapido > 1.3, 'faixa ' + Math.round(r.venderRapido) + '–' + Math.round(r.esperar));
   assert.ok(r.venderRapido < r.precoJusto && r.precoJusto < r.esperar);
 });
+
+test('inicial: Qualidade 1,600 (só o inicial tem) → não pode ir ao Mercado, mesmo com Nv e Nota na faixa', () => {
+  // o Charizard inicial evoluído: Nv 211, Nota 3,704, P2, IV 162, Qualidade 1,600
+  const f = M.faixaMercado({ quality: 1.6, level: 211, nota: 3.704, potencia: 2, ivTotal: 162 });
+  assert.equal(f.inicial, true);
+  assert.equal(f.pode, false);
+  assert.equal(M.ehInicial({ quality: 1.6 }), true);
+  // Qualidades vizinhas são de Pokémon comuns (a faixa sorteada pula de 1,6 para 1,7)
+  for (const q of [1.596, 1.59, 1.7, 1.741, 1.8, 0]) assert.equal(M.ehInicial({ quality: q }), false, String(q));
+  assert.equal(M.faixaMercado({ quality: 1.596, level: 211, nota: 3.704, potencia: 2 }).pode, true);
+});

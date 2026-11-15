@@ -245,7 +245,18 @@
    * Diz se o Pokémon pode ser anunciado no RMT. Fora da faixa ele não tem preço de mercado.
    * Retorna { pode, livre, faltaNivel, faltaNota }.
    */
+  /**
+   * Pokémon inicial (o primeiro, que o jogo dá): nasce com Qualidade 1,600, IV 27 em tudo (162) e P2,
+   * e nenhum outro Pokémon do jogo pode ter Qualidade 1,600 (as faixas sorteadas pulam de 1,6 a 1,7).
+   * O inicial (e as evoluções dele, que guardam a Qualidade) não pode ser vendido (15/11/2026).
+   */
+  function ehInicial(alvo) {
+    const q = Number(alvo && alvo.quality);
+    return q > 0 && Math.abs(q - 1.6) < 0.0005;
+  }
+
   function faixaMercado(alvo) {
+    if (ehInicial(alvo)) return { pode: false, livre: false, inicial: true, faltaNivel: false, faltaNota: false };
     const livre = !!alvo.shiny || Number(alvo.potencia) >= 5 || ehLendario(alvo.nome);
     if (livre) return { pode: true, livre: true, faltaNivel: false, faltaNota: false };
     const faltaNivel = !(Number(alvo.level) >= FAIXA_MERCADO.nivelMin);
@@ -291,7 +302,7 @@
     return f(Math.floor(x + 1e-9), 0);
   }
 
-  const api = { PADRAO, FAIXA_MERCADO, COMISSAO, liquidoVendedor, formatarValor, normalizarVenda, normalizarAlvo, precificar, classeDe, mesmaEspecie, mesmoPokemon, arredondarPreco, pesoVenda, ehLendario, faixaMercado };
+  const api = { PADRAO, FAIXA_MERCADO, COMISSAO, liquidoVendedor, formatarValor, normalizarVenda, normalizarAlvo, precificar, classeDe, mesmaEspecie, mesmoPokemon, arredondarPreco, pesoVenda, ehLendario, ehInicial, faixaMercado };
   root.PIMotor = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

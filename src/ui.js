@@ -41,6 +41,7 @@
     liquidoGemas: 'Você recebe — o que sobra para o vendedor depois da comissão do RMT, se vender por cada um dos preços acima. Pokémon em Gemas paga por faixa: 13% até 500, 10% de 500 a 5.000 e 7,5% acima disso (10.000 Gemas → você recebe 9.110). A pensão do anúncio, 100 mil Coins por dia, é paga à parte, na hora de publicar.',
     liquidoCoins: 'Você recebe — o que sobra para o vendedor depois da comissão do RMT, se vender por cada um dos preços acima. Anúncio em Coins paga 15%. A pensão do anúncio, 100 mil Coins por dia, é paga à parte, na hora de publicar.',
     faixa: 'Regra do Mercado da Comunidade: só entra Pokémon com Nv 50+ e Nota 3,5+. Shiny, P5 e lendário/mítico entram com qualquer nível e Nota.',
+    inicial: 'Reconhecido pela Qualidade 1,600: só o Pokémon inicial nasce com ela (junto com IV 27 em tudo e P2), e as evoluções dele a mantêm. O jogo não deixa anunciar o inicial.',
     soGemas: 'Regra do Mercado da Comunidade: Pokémon shiny só pode ser anunciado em Gemas.',
     usar: 'Preenche o campo "Preço por unidade" do jogo com este valor. Quem publica o anúncio é você.',
     avenda: 'Anúncios abertos agora desta espécie, nesta moeda, os mais parecidos com este Pokémon primeiro. A porcentagem compara com o Preço de mercado.',
@@ -234,6 +235,21 @@
         Subir de nível não muda a Nota; evoluir sobe.
       </div>
       ${alvo.parcial ? '<div class="pp-aviso">Shiny não foi detectado nesta ficha. Se ele for shiny, pode ser anunciado em Gemas.</div>' : ''}
+    `;
+    return el;
+  }
+
+  /** Badge do Pokémon inicial: o jogo não deixa vender, então não há preço de RMT (15/11/2026). */
+  function criarBadgeInicial(alvo) {
+    const el = document.createElement('div');
+    el.className = 'pp-badge pp-fora';
+    el.dataset.id = alvo.id;
+    el.innerHTML = `
+      <div class="pp-topo"><span class="pp-titulo">Preço estimado</span></div>
+      <div class="pp-fora-msg" title="${esc(DICA.inicial)}">
+        <b>Pokémon inicial: não pode ser vendido no Mercado.</b>
+        O jogo não deixa anunciar o seu Pokémon inicial, nem depois de evoluir, então ele não tem preço de RMT.
+      </div>
     `;
     return el;
   }
@@ -562,6 +578,11 @@
 
     fichaAtual = id;
     const faixa = window.PIMotor.faixaMercado(alvo);
+    // Inicial: não pode ser vendido, então nem consulta vendas
+    if (faixa.inicial) {
+      inserirQuadro(ficha, acoes, criarBadgeInicial(alvo));
+      return;
+    }
     // Nota abaixo do mínimo: não pode ir ao RMT, então nem consulta vendas
     if (faixa.faltaNota) {
       inserirQuadro(ficha, acoes, criarBadgeForaDaFaixa(alvo));
