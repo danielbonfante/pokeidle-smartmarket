@@ -63,3 +63,33 @@ test('inicial: Qualidade 1,600 (só o inicial tem) → não pode ir ao Mercado, 
   for (const q of [1.596, 1.59, 1.7, 1.741, 1.8, 0]) assert.equal(M.ehInicial({ quality: q }), false, String(q));
   assert.equal(M.faixaMercado({ quality: 1.596, level: 211, nota: 3.704, potencia: 2 }).pode, true);
 });
+
+test('empate: muitas vendas parecidas no mesmo preço → concentração alta; só arredondamento → baixa', () => {
+  const agora = Date.UTC(2026, 10, 15);
+  const H = 3600e3;
+  const base = (i, preco) => ({ id: i, em: agora - i * H, moeda: 'gold', preco, speciesId: 212, nome: 'Furious Scizor', level: 100, nota: 3.7, potencia: 2, shiny: false, aoe: false, zmove: false, mega: false });
+  const alvo = { speciesId: 212, nome: 'Furious Scizor', level: 100, nota: 3.7, potencia: 2, shiny: false, aoe: false, zmove: false, mega: false };
+  // como o Furious Scizor em Coins: a maioria por 50 M cravados
+  const cravado = [];
+  for (let i = 1; i <= 20; i++) cravado.push(base(i, i % 4 === 0 ? 45e6 : 5e7));
+  const r1 = M.precificar(alvo, cravado, { moeda: 'gold', agora });
+  const e1 = M.empate(r1);
+  assert.equal(e1.lado, 'cima');
+  assert.equal(e1.preco, 5e7);
+  assert.ok(e1.concentracao > 0.6, 'concentração ' + e1.concentracao);
+  // preços espalhados entre 145 e 154 M: arredondados viram "150 M", mas ninguém vendeu por 150 M exatos
+  const espalhado = [];
+  for (let i = 1; i <= 20; i++) espalhado.push(base(i, 145e6 + (i % 10) * 1e6));
+  const r2 = M.precificar(alvo, espalhado, { moeda: 'gold', agora });
+  const e2 = M.empate(r2);
+  assert.ok(e2, 'os três arredondam para o mesmo número');
+  assert.ok(e2.concentracao < 0.25, 'concentração ' + e2.concentracao);
+  assert.equal(M.empate({ suficiente: true, venderRapido: 40, precoJusto: 50, esperar: 60 }), null);
+  assert.equal(M.empate({ suficiente: false }), null);
+});
+
+test('inicial: com a soma de IV conhecida, só 162 conta', () => {
+  assert.equal(M.ehInicial({ quality: 1.6, ivTotal: 162 }), true);
+  assert.equal(M.ehInicial({ quality: 1.6, ivTotal: 120 }), false);
+  assert.equal(M.ehInicial({ quality: 1.6 }), true, 'sem IV (lido da tela incompleta): vale a Qualidade');
+});

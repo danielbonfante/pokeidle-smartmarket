@@ -396,7 +396,9 @@
   /** O aviso da aba À venda: de onde vem a lista e, no Editar, o que fazer para atualizar. */
   function avisoAVenda(d) {
     if (!d.visto) return d.erro || null;
-    const fora = d.antigos ? ` ${d.antigos === 1 ? '1 anúncio visto' : d.antigos + ' anúncios vistos'} há mais de 3 h ficou de fora.`.replace('ficou', d.antigos === 1 ? 'ficou' : 'ficaram') : '';
+    const fora = !d.antigos ? '' : d.antigos === 1
+      ? ' 1 anúncio visto há mais de 3 h ficou de fora.'
+      : ` ${d.antigos} anúncios vistos há mais de 3 h ficaram de fora.`;
     if (d.visto === 'editar') {
       return (d.itens.length
         ? 'No Editar esta lista não é atualizada: são os anúncios que a extensão viu na vitrine nas últimas 3 h.'
@@ -484,11 +486,7 @@
   // (a régua do motor) e, embaixo, as outras, numa ordem útil: Vendidos pelas mais recentes, À venda
   // pelos mais baratos. Cada parte com o seu título.
   const MAIS_PARECIDAS = 8;
-  function emDuasPartes(itens, ordemResto) {
-    const topo = itens.slice(0, MAIS_PARECIDAS);
-    const resto = itens.slice(MAIS_PARECIDAS).sort(ordemResto).slice(0, MAX_LINHAS - MAIS_PARECIDAS);
-    return { topo, resto };
-  }
+  const emDuasPartes = (itens, ordemResto, fixar) => L.emDuasPartes(itens, ordemResto, { topo: MAIS_PARECIDAS, total: MAX_LINHAS, fixar });
   const tituloSecao = txt => `<tr class="pp-an-secao"><td colspan="3">${esc(txt)}</td></tr>`;
 
   function desenharLista() {
@@ -497,7 +495,8 @@
     const lista = painel.el.querySelector('.pp-an-lista');
     const moeda = painel.moeda;
     if (painel.aba === 'vendidos') {
-      const { topo, resto } = emDuasPartes(painel.vendidos, (a, b) => b.em - a.em);
+      // a venda deste mesmo Pokémon (revenda) fica sempre no topo, como na lista do quadro da ficha
+      const { topo, resto } = emDuasPartes(painel.vendidos, (a, b) => b.em - a.em, v => M.mesmoPokemon(painel.alvo, v));
       const linhaVendida = v => {
           // venda deste mesmo Pokémon (ex.: você comprou e está revendendo)
           const mesmo = M.mesmoPokemon(painel.alvo, v);
@@ -505,7 +504,7 @@
       };
       lista.innerHTML = topo.length
         ? '<table>' + tituloSecao('Vendas mais parecidas com o seu') + topo.map(linhaVendida).join('') +
-          (resto.length ? tituloSecao(`Últimas ${resto.length} vendas`) + resto.map(linhaVendida).join('') : '') + '</table>'
+          (resto.length ? tituloSecao(`Outras ${resto.length} vendas, das mais recentes`) + resto.map(linhaVendida).join('') : '') + '</table>'
         : `<div class="pp-an-vazio">Nenhuma venda desta espécie em ${MOEDA[moeda].nome} nos últimos 30 dias.</div>`;
       return;
     }
@@ -569,6 +568,12 @@
     if (ligado && !painel && input && visivel && ehPokemon) montar(folha, input);
     // o jogo pode redesenhar o palco (troca de moeda, digitação): a ficha volta para o palco novo
     if (painel && painel.palcoFicha && !painel.palcoFicha.isConnected) colocarFichaNoPalco();
+    // o jogo pode trocar só a placa da estadia (controle da estadia, "+1 dia"): a nova nasce no canto da
+    // ficha, então volta para baixo do preço (2ª revisão de 15/11/2026)
+    else if (painel && painel.palcoFicha && !painel.palcoFicha.hidden) {
+      const dias = painel.folha.querySelector('.dlg-palco .dlg-placa-dias');
+      if (dias && !dias.dataset.ppMovida) colocarFichaNoPalco();
+    }
     // o painel está na página, não dentro da folha: acompanha a caixa do jogo se ela se mexer
     if (painel) posicionar();
   }

@@ -147,3 +147,19 @@ test('acharNoIndice: acha o Pokémon do card de "Meus anúncios" pelo nome, nív
   assert.equal(L.acharNoIndice(indice, { nome: 'Furious Scizor', level: 100, nota: NaN }), null, 'sem Nota não arrisca');
   assert.equal(L.acharNoIndice([], { nome: 'X', level: 1, nota: 1 }), null);
 });
+
+test('emDuasPartes: 8 mais parecidas em cima, o resto na ordem pedida, até 30; o fixado vai ao topo', () => {
+  const itens = Array.from({ length: 40 }, (_, i) => ({ i, em: 1000 + ((i * 7) % 40) }));
+  const { topo, resto } = L.emDuasPartes(itens, (a, b) => b.em - a.em, { topo: 8, total: 30 });
+  assert.deepEqual(topo.map(x => x.i), [0, 1, 2, 3, 4, 5, 6, 7]);
+  assert.equal(resto.length, 22);
+  for (let k = 1; k < resto.length; k++) assert.ok(resto[k - 1].em >= resto[k].em, 'resto pelas mais recentes');
+  assert.ok(resto.every(x => x.i >= 8), 'nada do topo repete embaixo');
+  // a venda deste mesmo Pokémon (índice 35, longe do topo) sobe para o primeiro lugar
+  const fix = L.emDuasPartes(itens, (a, b) => b.em - a.em, { topo: 8, total: 30, fixar: x => x.i === 35 });
+  assert.equal(fix.topo[0].i, 35);
+  assert.equal(fix.topo.length, 8);
+  assert.ok(!fix.resto.some(x => x.i === 35));
+  assert.equal(itens[0].i, 0, 'não muda a lista recebida');
+  assert.deepEqual(L.emDuasPartes([], () => 0), { topo: [], resto: [] });
+});

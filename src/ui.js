@@ -325,8 +325,8 @@
     // na dica, em vez de uma linha a mais no quadro (15/11/2026)
     const empate = textoEmpate(res, moeda);
     if (empate) {
-      const f = x => fmtPreco(x, moeda), m = f(res.precoJusto);
-      const alvoI = f(res.esperar) === m ? q3 : f(res.venderRapido) === m ? q1 : q2;
+      const e = window.PIMotor.empate(res);
+      const alvoI = e.lado === 'cima' ? q3 : e.lado === 'baixo' ? q1 : q2;
       alvoI.insertAdjacentHTML('beforeend', ` <span class="pp-info" title="${esc(empate)}" aria-label="${esc(empate)}" role="img"></span>`);
     }
     linha.title = `${res.vendasEspecie} vendas da espécie, ~${fmtNumero(res.nEfetivo, 1)} parecidas` +
@@ -339,14 +339,21 @@
    * dois). Diz isso, em vez de deixar parecer erro. Com a faixa alargada, os números já se afastam.
    */
   function textoEmpate(res, moeda) {
-    if (!res || !res.suficiente || res.faixaAlargada) return '';
-    const f = x => fmtPreco(x, moeda);
-    const m = f(res.precoJusto), nome = (MOEDA[moeda] || { nome: moeda }).nome;
-    const cima = f(res.esperar) === m, baixo = f(res.venderRapido) === m;
-    if (cima && baixo) return `Metade das vendas parecidas saiu por ${m} ${nome}: é o preço que esse Pokémon costuma ter.`;
-    if (cima) return `Mais de 1/4 das vendas parecidas saiu por ${m} ${nome}: acima disso, quase ninguém comprou.`;
-    if (baixo) return `Mais de 1/4 das vendas parecidas saiu por ${m} ${nome}: abaixo disso, quase ninguém vendeu.`;
-    return '';
+    const e = window.PIMotor.empate(res);
+    if (!e) return '';
+    const m = fmtPreco(e.preco, moeda) + ' ' + (MOEDA[moeda] || { nome: moeda }).nome;
+    // Só diz "saíram por X" quando muitas vendas parecidas saíram mesmo por X (revisão de 15/11/2026:
+    // antes, o arredondamento podia juntar 145 M e 154 M num "150 M" e o texto afirmava uma concentração
+    // que não existia; e "acima disso, quase ninguém comprou" contradizia o Esperar, que tem 1/4 acima)
+    if (e.concentracao >= 0.25) {
+      const pct = 'Cerca de ' + Math.round(e.concentracao * 100) + '% das vendas parecidas saíram por ' + m;
+      if (e.lado === 'tudo') return pct + ': é o preço que esse Pokémon costuma ter.';
+      return e.lado === 'cima'
+        ? pct + ', por isso o Esperar dá o mesmo valor do Preço de mercado. Pedir mais que isso tende a demorar.'
+        : pct + ', por isso o Vender rápido dá o mesmo valor do Preço de mercado.';
+    }
+    const quais = e.lado === 'tudo' ? 'Vender rápido, Preço de mercado e Esperar ficam' : e.lado === 'cima' ? 'O Preço de mercado e o Esperar ficam' : 'O Vender rápido e o Preço de mercado ficam';
+    return quais + ' muito perto um do outro e, arredondados, aparecem iguais (' + m + ').';
   }
 
   function comparar(seu) {

@@ -237,7 +237,7 @@
             : `Metade das vendas parecidas saiu entre <b>${fmt(res.venderRapido, moeda)}</b> e <b>${fmt(res.esperar, moeda)}</b>.`}${oQue('faixa')}</li>
           <li><b>Vender rápido:</b> 1 em cada 4 vendas parecidas saiu por menos que isso — anunciar aqui tende a vender logo.</li>
           <li><b>Esperar:</b> só 1 em cada 4 saiu por mais — dá para pedir se você puder esperar um comprador.</li>
-          ${window.PIUi.textoEmpate(res, moeda) ? `<li><span class="pp-marca-texto">${esc(window.PIUi.textoEmpate(res, moeda))}</span></li>` : ''}
+          ${(t => t ? `<li><span class="pp-marca-texto">${esc(t)}</span></li>` : '')(window.PIUi.textoEmpate(res, moeda))}
           <li class="pp-prec-base">${esc(base)}</li>
         </ul>
       </div>`;

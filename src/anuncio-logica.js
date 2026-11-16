@@ -117,7 +117,22 @@
     return null;
   }
 
-  const api = { moedaPainel, semelhanca, ordenarAVenda, ordenarVendidos, posicaoPainel, valorUsar, faixaNota, indiceFaixaNota, nivelSelo, acharNoIndice };
+  /**
+   * Lista do painel em duas partes: as `topo` primeiras (já na ordem da semelhança) e o resto numa
+   * ordem útil (`ordemResto`), até `total` itens. `fixar`: itens que sempre ficam no topo, primeiro
+   * (a venda deste mesmo Pokémon, que podia cair fora das 30). Não muda a lista recebida.
+   */
+  function emDuasPartes(itens, ordemResto, opcoes) {
+    const o = Object.assign({ topo: 8, total: 30, fixar: null }, opcoes);
+    const lista = itens || [];
+    const fixos = o.fixar ? lista.filter(o.fixar).slice(0, o.topo) : [];
+    const outros = lista.filter(x => !fixos.includes(x));
+    const topo = fixos.concat(outros.slice(0, o.topo - fixos.length));
+    const resto = outros.slice(o.topo - fixos.length).sort(ordemResto).slice(0, Math.max(0, o.total - topo.length));
+    return { topo, resto };
+  }
+
+  const api = { emDuasPartes, moedaPainel, semelhanca, ordenarAVenda, ordenarVendidos, posicaoPainel, valorUsar, faixaNota, indiceFaixaNota, nivelSelo, acharNoIndice };
   root.PIAnuncioLogica = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);

@@ -115,7 +115,10 @@
   }
 
   // o chrome.tabs não entregou uma aba de verdade (ou entregou o próprio popup)
-  const tabsSemAba = () => !aba || aba.id == null || /^[a-z-]+-extension:/.test(aba.url || '');
+  // popupComoAba: o próprio popup aberto como aba/janela (chrome.tabs.getCurrent devolve a aba dele,
+  // sem pedir permissão), o caso de navegadores que abrem o popup assim (2ª revisão de 15/11/2026)
+  let popupComoAba = false;
+  const tabsSemAba = () => popupComoAba || !aba || aba.id == null || /^[a-z-]+-extension:/.test(aba.url || '');
 
   let canal = null; // o caminho que funcionou: 'aba' ou 'storage'
   async function pedir(pedido) {
@@ -225,6 +228,7 @@
     mostrarLimpar();
     // sobras de um popup fechado no meio de um pedido (o plano B pelo storage)
     try { chrome.storage.local.remove([CHAVE_PEDIDO, CHAVE_RESPOSTA]); } catch (e) { /* sem storage */ }
+    try { popupComoAba = !!(chrome.tabs.getCurrent && await chrome.tabs.getCurrent()); } catch (e) { popupComoAba = false; }
     try { [aba] = await chrome.tabs.query({ active: true, currentWindow: true }); } catch (e) { aba = null; }
     await atualizarJogo(true);
     // o freio muda com o tempo; o cache, não. Sem caminho achado (a aba do jogo ainda carregando, ou

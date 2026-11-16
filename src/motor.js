@@ -172,6 +172,16 @@
     }
     const dispersao = q2 ? (q3 - q1) / q2 : Infinity;
 
+    // Concentração: quanto do peso das vendas parecidas está exatamente no preço (arredondado) do
+    // Preço de mercado. Diz se um empate com o Esperar/Vender rápido é "muita gente vendeu por X" ou só
+    // o arredondamento (revisão de 15/11/2026; ver empate()).
+    // Pelo preço exato da venda (não o arredondado, que juntaria 145 M e 154 M num "150 M"): entre as
+    // vendas que arredondam para o mesmo número do Preço de mercado, o preço exato com mais peso.
+    const precoArred = arredondarPreco(q2);
+    const porPreco = new Map();
+    for (const p of pesadas) if (arredondarPreco(p.v.preco) === precoArred) porPreco.set(p.v.preco, (porPreco.get(p.v.preco) || 0) + p.w);
+    const concentracao = somaW && porPreco.size ? Math.max(...porPreco.values()) / somaW : 0;
+
     let confianca = 'baixa';
     if (nEfetivo >= 8 && dispersao <= 0.6) confianca = 'alta';
     else if (nEfetivo >= 3 && dispersao <= 1.2) confianca = 'media';
@@ -191,6 +201,7 @@
       vendasEspecie,
       dispersao,
       confianca,
+      concentracao,
       faixaAlargada, // poucas vendas parecidas: Vender rápido/Esperar foram afastados do preço de mercado
       comparaveis,
     };
@@ -252,7 +263,25 @@
    */
   function ehInicial(alvo) {
     const q = Number(alvo && alvo.quality);
-    return q > 0 && Math.abs(q - 1.6) < 0.0005;
+    if (!(q > 0 && Math.abs(q - 1.6) < 0.0005)) return false;
+    // com a soma de IV conhecida, ela também tem de ser 162 (27 em tudo): evita tomar por inicial um
+    // Pokémon comum de Qualidade 1,5996 se o jogo mandar mais casas (2ª revisão de 15/11/2026)
+    const iv = Number(alvo.ivTotal);
+    return !(iv > 0) || iv === 162;
+  }
+
+  /**
+   * Empate na tela: o Preço de mercado e o Esperar (ou o Vender rápido) dão o mesmo número depois de
+   * arredondados. lado: 'cima' (Esperar), 'baixo' (Vender rápido) ou 'tudo' (os três);
+   * concentracao: a parte do peso das vendas parecidas que saiu por um mesmo preço exato perto desse número. Com a faixa
+   * alargada, os números já se afastam. null quando não há empate.
+   */
+  function empate(res) {
+    if (!res || !res.suficiente || res.faixaAlargada) return null;
+    const m = arredondarPreco(res.precoJusto);
+    const cima = arredondarPreco(res.esperar) === m, baixo = arredondarPreco(res.venderRapido) === m;
+    if (!cima && !baixo) return null;
+    return { lado: cima && baixo ? 'tudo' : cima ? 'cima' : 'baixo', preco: m, concentracao: Number(res.concentracao) || 0 };
   }
 
   function faixaMercado(alvo) {
@@ -302,7 +331,7 @@
     return f(Math.floor(x + 1e-9), 0);
   }
 
-  const api = { PADRAO, FAIXA_MERCADO, COMISSAO, liquidoVendedor, formatarValor, normalizarVenda, normalizarAlvo, precificar, classeDe, mesmaEspecie, mesmoPokemon, arredondarPreco, pesoVenda, ehLendario, ehInicial, faixaMercado };
+  const api = { PADRAO, FAIXA_MERCADO, COMISSAO, liquidoVendedor, formatarValor, normalizarVenda, normalizarAlvo, precificar, classeDe, mesmaEspecie, mesmoPokemon, arredondarPreco, pesoVenda, ehLendario, ehInicial, empate, faixaMercado };
   root.PIMotor = api;
   if (typeof module !== 'undefined' && module.exports) module.exports = api;
 })(typeof window !== 'undefined' ? window : globalThis);
