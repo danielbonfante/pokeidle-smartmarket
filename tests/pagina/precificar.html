@@ -44,8 +44,10 @@
   if (location.hash === '#revenda') vendas.push(v({ preco: 26, level: 390, nota: 3.597, pokemonId: 97553169, em: agora - 96 * H }));
   // shiny em Gemas (Nota bem maior, porque o shiny entra nela): para o ✨ Shiny da simulação
   for (let i = 0; i < 6; i++) vendas.push(v({ preco: 2500 + i * 150, level: 320 + i * 40, nota: 5.7 + (i % 3) * 0.15, shiny: true, potencia: 1 }));
-  // Coins: estáveis
-  for (let i = 0; i < 30; i++) vendas.push(v({ moeda: 'gold', preco: 1.8e8 + (i % 5) * 1e7, level: 330 + i * 7, nota: 3.53 + (i % 6) * 0.02 }));
+  // Coins: estáveis. #empate: a maioria saiu por 200 M cravados → Preço de mercado e Esperar iguais,
+  // com a linha que explica ("Mais de 1/4 das vendas parecidas saiu por 200 M Coins…")
+  const empate = location.hash === '#empate';
+  for (let i = 0; i < 30; i++) vendas.push(v({ moeda: 'gold', preco: empate ? (i % 4 === 0 ? 1.7e8 : 2e8) : 1.8e8 + (i % 5) * 1e7, level: 330 + i * 7, nota: 3.53 + (i % 6) * 0.02 }));
   // #sync: finge uma busca no jogo (Gemas 4 páginas, Coins 3, uma página a cada 1,5 s alternando,
   // como a fila do ws.js) para ver o andamento no quadro: "atualizando gemas pág. 2 · coins pág. 1…"
   const comSync = location.hash === '#sync';

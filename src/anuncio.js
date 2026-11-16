@@ -14,7 +14,7 @@
   const L = window.PIAnuncioLogica;
   const M = window.PIMotor;
   const LARGURA = 360; // largura do painel de preços (a ficha resumida fica dentro do palco do jogo)
-  const MAX_LINHAS = 8;
+  const MAX_LINHAS = 30; // as 8 de antes continuam no topo; o resto rola (15/11/2026)
   const MOEDA = window.PIUi.MOEDA;
 
   let escolha = null; // { id, dados } do Pokémon escolhido no passo "Qual pokemon?"
@@ -460,6 +460,8 @@
       return;
     }
     base.textContent = `Baseado em ${res.vendasEspecie} vendas desta espécie nos últimos 30 dias (~${window.PIUi.fmtNumero(res.nEfetivo, 1)} parecidas)`;
+    const empate = window.PIUi.textoEmpate(res, moeda); // ex.: Mercado e Esperar iguais
+    if (empate) base.insertAdjacentHTML('beforeend', `<span class="pp-an-empate">${esc(empate)}</span>`);
     base.title = '';
     const col = (rot, dica, x, cls) => {
       const v = L.valorUsar(x);

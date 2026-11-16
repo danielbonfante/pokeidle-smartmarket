@@ -205,7 +205,8 @@
         </div>
         <div class="pp-liq" data-moeda="${m.id}" hidden title="${esc(m.id === 'orb' ? DICA.liquidoGemas : DICA.liquidoCoins)}">
           <span>líq</span><i class="pp-l1"></i><i class="pp-l2"></i><i class="pp-l3"></i>
-        </div>${m.id === 'orb' ? linhasDinheiro() : ''}`).join('')}
+        </div>${m.id === 'orb' ? linhasDinheiro() : ''}
+        <div class="pp-empate" data-moeda="${m.id}" hidden></div>`).join('')}
       <div class="pp-revenda" hidden title="${esc(DICA.mesmoPokemon)}"></div>
       <div class="pp-status">consultando vendas…</div>
       <div class="pp-comps" hidden></div>
@@ -277,6 +278,8 @@
     if (!linha) return;
     const [q1, q2, q3] = ['.pp-q1', '.pp-q2', '.pp-q3'].map(s => linha.querySelector(s));
     linha.classList.remove('pp-carregando');
+    const empate = badge.querySelector(`.pp-empate[data-moeda="${moeda}"]`);
+    if (empate) { empate.textContent = textoEmpate(res, moeda); empate.hidden = !empate.textContent; }
     const liq = badge.querySelector(`.pp-liq[data-moeda="${moeda}"]`);
     if (liq) {
       const ok = res && res.suficiente;
@@ -323,6 +326,22 @@
     q3.textContent = fmtPreco(res.esperar, moeda);
     linha.title = `${res.vendasEspecie} vendas da espécie, ~${fmtNumero(res.nEfetivo, 1)} parecidas` +
       (res.faixaAlargada ? ' — poucas parecidas: Vender rápido e Esperar foram afastados do preço de mercado para mostrar a incerteza' : '');
+  }
+
+  /**
+   * Quando o Preço de mercado e o Esperar (ou o Vender rápido) dão o mesmo número, é porque muitas
+   * vendas parecidas saíram exatamente por esse preço (15/11/2026: Furious Scizor em Coins, 50 M nos
+   * dois). Diz isso, em vez de deixar parecer erro. Com a faixa alargada, os números já se afastam.
+   */
+  function textoEmpate(res, moeda) {
+    if (!res || !res.suficiente || res.faixaAlargada) return '';
+    const f = x => fmtPreco(x, moeda);
+    const m = f(res.precoJusto), nome = (MOEDA[moeda] || { nome: moeda }).nome;
+    const cima = f(res.esperar) === m, baixo = f(res.venderRapido) === m;
+    if (cima && baixo) return `Metade das vendas parecidas saiu por ${m} ${nome}: é o preço que esse Pokémon costuma ter.`;
+    if (cima) return `Mais de 1/4 das vendas parecidas saiu por ${m} ${nome}: acima disso, quase ninguém comprou.`;
+    if (baixo) return `Mais de 1/4 das vendas parecidas saiu por ${m} ${nome}: abaixo disso, quase ninguém vendeu.`;
+    return '';
   }
 
   function comparar(seu) {
@@ -429,6 +448,8 @@
     q2.innerHTML = `<span class="pp-girando" aria-hidden="true"></span> carregando${pagina ? ' · pág. ' + pagina : ''}`;
     const liq = badge.querySelector(`.pp-liq[data-moeda="${moeda}"]`);
     if (liq) liq.hidden = true;
+    const empate = badge.querySelector(`.pp-empate[data-moeda="${moeda}"]`);
+    if (empate) empate.hidden = true;
     if (moeda === 'orb') renderDinheiro(badge, null);
   }
 
@@ -623,5 +644,5 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', iniciar);
   else iniciar();
 
-  window.PIUi = { MOEDA, fmtPreco, fmtNumero, fmtIdade, fmtHa, fmtDif, esc, calcular, arrastavel, DICA };
+  window.PIUi = { MOEDA, fmtPreco, fmtNumero, fmtIdade, fmtHa, fmtDif, textoEmpate, esc, calcular, arrastavel, DICA };
 })();
