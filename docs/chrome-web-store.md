@@ -7,7 +7,7 @@ Tudo o que o painel de desenvolvedor da Chrome Web Store pede, pronto para copia
 O ZIP enviado à loja leva só o que a extensão usa, com o `manifest.json` na raiz. No terminal, na pasta do projeto:
 
 ```powershell
-tar.exe -a -c -f dist\pokeidle-smartmarket-1.2.1.zip manifest.json src popup icons LICENSE
+tar.exe -a -c -f dist\pokeidle-smartmarket-1.2.2.zip manifest.json src popup icons LICENSE
 ```
 
 Use o `tar` (vem com o Windows 10/11), não o `Compress-Archive`: o do Windows PowerShell 5.1 grava os caminhos com `\` (`src\ws.js`), e a loja pode não reconhecer as pastas. A cada versão nova, suba o `version` do `manifest.json` antes de empacotar e troque o número no nome do arquivo. A pasta `dist/` fica fora do git.
@@ -32,6 +32,8 @@ NA FICHA DO POKÉMON
 • Quanto você recebe depois da comissão do Mercado.
 • Confiança da estimativa: alta, média ou baixa. Com poucas vendas parecidas, a faixa fica mais larga, para mostrar a incerteza.
 • Revenda: se este mesmo Pokémon já foi vendido no último mês, mostra por quanto e quando.
+• Quando dois preços dão o mesmo número, explica por quê (por exemplo: muitas vendas parecidas saíram exatamente por aquele valor).
+• Avisa quando o Pokémon não pode ir ao Mercado: abaixo do Nv 50 ou da Nota 3,5, ou o seu Pokémon inicial.
 • Botão Precificar: as vendas parecidas numa barra, a tabela das vendas que mais pesaram no preço (comparando nível, Potência, IV, Qualidade e Nota com o seu), quantas vezes a estimativa acertou nas últimas vendas da espécie, uma simulação de outro nível, TM AoE, Z-Move ou shiny, e um botão que busca todas as vendas deste mesmo Pokémon.
 
 NO MERCADO
@@ -41,7 +43,7 @@ EM DINHEIRO
 • As Gemas também aparecem em dólar (e, se você quiser, em real), pela cotação de compra e de saque do próprio jogo: na ficha, no anúncio e em todo anúncio em Gemas do Mercado.
 
 NA HORA DE ANUNCIAR
-• Um painel ao lado da tela de anúncio com os preços, os anúncios parecidos à venda agora e os que já foram vendidos. Dá para arrastar o painel para ver o que está atrás.
+• Um painel ao lado da tela de anúncio com os preços, os anúncios à venda agora e os que já foram vendidos: até 30 de cada, os mais parecidos com o seu primeiro. Dá para arrastar o painel para ver o que está atrás.
 • Uma ficha resumida do seu Pokémon dentro da tela do anúncio.
 • Um botão "usar" preenche o campo de preço. Quem publica é sempre você.
 
