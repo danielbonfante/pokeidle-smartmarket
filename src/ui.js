@@ -205,8 +205,7 @@
         </div>
         <div class="pp-liq" data-moeda="${m.id}" hidden title="${esc(m.id === 'orb' ? DICA.liquidoGemas : DICA.liquidoCoins)}">
           <span>líq</span><i class="pp-l1"></i><i class="pp-l2"></i><i class="pp-l3"></i>
-        </div>${m.id === 'orb' ? linhasDinheiro() : ''}
-        <div class="pp-empate" data-moeda="${m.id}" hidden></div>`).join('')}
+        </div>${m.id === 'orb' ? linhasDinheiro() : ''}`).join('')}
       <div class="pp-revenda" hidden title="${esc(DICA.mesmoPokemon)}"></div>
       <div class="pp-status">consultando vendas…</div>
       <div class="pp-comps" hidden></div>
@@ -278,12 +277,6 @@
     if (!linha) return;
     const [q1, q2, q3] = ['.pp-q1', '.pp-q2', '.pp-q3'].map(s => linha.querySelector(s));
     linha.classList.remove('pp-carregando');
-    const empate = badge.querySelector(`.pp-empate[data-moeda="${moeda}"]`);
-    if (empate) {
-      const t = textoEmpate(res, moeda);
-      empate.innerHTML = t ? `<span class="pp-marca-texto">${esc(t)}</span>` : '';
-      empate.hidden = !t;
-    }
     const liq = badge.querySelector(`.pp-liq[data-moeda="${moeda}"]`);
     if (liq) {
       const ok = res && res.suficiente;
@@ -328,6 +321,14 @@
     q1.textContent = fmtPreco(res.venderRapido, moeda);
     q2.textContent = fmtPreco(res.precoJusto, moeda);
     q3.textContent = fmtPreco(res.esperar, moeda);
+    // Empate (Mercado = Esperar ou = Vender rápido): um "i" ao lado do número repetido, com a explicação
+    // na dica, em vez de uma linha a mais no quadro (15/11/2026)
+    const empate = textoEmpate(res, moeda);
+    if (empate) {
+      const f = x => fmtPreco(x, moeda), m = f(res.precoJusto);
+      const alvoI = f(res.esperar) === m ? q3 : f(res.venderRapido) === m ? q1 : q2;
+      alvoI.insertAdjacentHTML('beforeend', ` <span class="pp-info" title="${esc(empate)}" aria-label="${esc(empate)}">i</span>`);
+    }
     linha.title = `${res.vendasEspecie} vendas da espécie, ~${fmtNumero(res.nEfetivo, 1)} parecidas` +
       (res.faixaAlargada ? ' — poucas parecidas: Vender rápido e Esperar foram afastados do preço de mercado para mostrar a incerteza' : '');
   }
@@ -452,8 +453,6 @@
     q2.innerHTML = `<span class="pp-girando" aria-hidden="true"></span> carregando${pagina ? ' · pág. ' + pagina : ''}`;
     const liq = badge.querySelector(`.pp-liq[data-moeda="${moeda}"]`);
     if (liq) liq.hidden = true;
-    const empate = badge.querySelector(`.pp-empate[data-moeda="${moeda}"]`);
-    if (empate) empate.hidden = true;
     if (moeda === 'orb') renderDinheiro(badge, null);
   }
 

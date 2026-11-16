@@ -628,8 +628,14 @@ tr.pp-mesmo td { background: color-mix(in srgb, var(--rx-rosa, #ffa7d7) 14%, tra
 .pp-prec-sim-nv.pp-invalido { border-color: #ff8f8f; box-shadow: 0 0 0 1px #ff8f8f; }
 .pp-an-lista .pp-an-visto { color: var(--sobre-mad-dim, #a993c9); opacity: 0.8; font-size: 0.9em; white-space: nowrap; }
 
-/* Preço de mercado igual ao Esperar (ou ao Vender rápido): a explicação, uma linha por moeda (15/11/2026) */
-.pp-badge .pp-empate { margin: 1px 0 3px 24px; font-size: 10px; font-style: italic; color: var(--sobre-mad-dim, #f5cdb9); }
+/* Preço de mercado igual ao Esperar (ou ao Vender rápido): no quadro, um "i" com a dica; no painel, uma linha (15/11/2026) */
+/* o "i" ao lado do número que empatou: a explicação fica na dica (title) */
+.pp-info {
+  display: inline-flex; align-items: center; justify-content: center; width: 12px; height: 12px; margin-left: 3px;
+  vertical-align: 1px; border-radius: 50%; border: 1px solid currentColor; cursor: help;
+  font: italic 700 9px/1 Georgia, "Times New Roman", serif; color: #f2c86b; opacity: 0.9;
+}
+.pp-info:hover { opacity: 1; background: rgba(242, 200, 107, 0.18); }
 .pp-an-empate { display: block; margin-top: 2px; font-style: italic; }
 /* marca-texto na frase do empate: um traço amarelo por trás da metade de baixo do texto */
 .pp-marca-texto {
@@ -644,3 +650,6 @@ tr.pp-mesmo td { background: color-mix(in srgb, var(--rx-rosa, #ffa7d7) 14%, tra
   color: #f2c86b; background: rgba(242, 200, 107, 0.08); border-top: 1px solid rgba(242, 200, 107, 0.35);
 }
 .pp-an-lista tr.pp-an-secao:first-child td { border-top: 0; }
+/* o "i" fica ao lado do número sem empurrar a coluna (os números continuam alinhados com o líq) */
+.pp-linha b:has(.pp-info) { position: relative; }
+.pp-linha .pp-info { position: absolute; left: 100%; top: 50%; transform: translateY(-50%); margin-left: 4px; }
