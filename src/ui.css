@@ -629,13 +629,14 @@ tr.pp-mesmo td { background: color-mix(in srgb, var(--rx-rosa, #ffa7d7) 14%, tra
 .pp-an-lista .pp-an-visto { color: var(--sobre-mad-dim, #a993c9); opacity: 0.8; font-size: 0.9em; white-space: nowrap; }
 
 /* Preço de mercado igual ao Esperar (ou ao Vender rápido): no quadro, um "i" com a dica; no painel, uma linha (15/11/2026) */
-/* o "i" ao lado do número que empatou: a explicação fica na dica (title) */
+/* o aviso ao lado do número que empatou: a gema da extensão com um "!" (pixel art do Daniel, 15/11/2026),
+   16x16 sem suavizar; a explicação fica na dica (title) */
 .pp-info {
-  display: inline-flex; align-items: center; justify-content: center; width: 12px; height: 12px; margin-left: 3px;
-  vertical-align: 1px; border-radius: 50%; border: 1px solid currentColor; cursor: help;
-  font: italic 700 9px/1 Georgia, "Times New Roman", serif; color: #f2c86b; opacity: 0.9;
+  display: inline-block; width: 16px; height: 16px; margin-left: 3px; vertical-align: -3px; cursor: help;
+  background: url("data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAACrSURBVDhPldLBDYMwDAVQrr2wAkNULNA1eus83CuxByMgNQswSNW7q7j9KHzbEA5fSJH/iyPRiEjDuV46yeFzzbhszs2AFlOrMcivLCVibmXAbONtoAN/nYH3fZJXP9htAGBIgXEJgQhZASAMoDx0Dx/AE4B4QFSuAnL5ECgRD4jKG4CRmrIBgJSJzhEX4D8xfz/zzaQKQJmR9Aw2KNfdu30X4DCSy6cAIF6+lvqEL/QOQdEAAAAASUVORK5CYII=") no-repeat center / 16px 16px;
+  image-rendering: pixelated; font-size: 0; color: transparent;
 }
-.pp-info:hover { opacity: 1; background: rgba(242, 200, 107, 0.18); }
+.pp-info:hover { filter: brightness(1.15) drop-shadow(0 0 2px rgba(242, 200, 107, 0.7)); }
 .pp-an-empate { display: block; margin-top: 2px; font-style: italic; }
 /* marca-texto na frase do empate: um traço amarelo por trás da metade de baixo do texto */
 .pp-marca-texto {

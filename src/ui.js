@@ -327,7 +327,7 @@
     if (empate) {
       const f = x => fmtPreco(x, moeda), m = f(res.precoJusto);
       const alvoI = f(res.esperar) === m ? q3 : f(res.venderRapido) === m ? q1 : q2;
-      alvoI.insertAdjacentHTML('beforeend', ` <span class="pp-info" title="${esc(empate)}" aria-label="${esc(empate)}">i</span>`);
+      alvoI.insertAdjacentHTML('beforeend', ` <span class="pp-info" title="${esc(empate)}" aria-label="${esc(empate)}" role="img"></span>`);
     }
     linha.title = `${res.vendasEspecie} vendas da espécie, ~${fmtNumero(res.nEfetivo, 1)} parecidas` +
       (res.faixaAlargada ? ' — poucas parecidas: Vender rápido e Esperar foram afastados do preço de mercado para mostrar a incerteza' : '');
