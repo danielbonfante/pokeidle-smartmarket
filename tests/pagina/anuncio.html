@@ -54,6 +54,8 @@
       speciesId: 212, nome: 'Furious Scizor', level: 96 + (i % 9), nota: 4.5 + (i % 7) * 0.03, ivTotal: 120, quality: 1.2, potencia: 2,
       shiny, aoe: i === 3, zmove: false, mega: false, refino: 0 });
   }
+  // #muitas: uma venda antiga em Coins deste mesmo Pokémon (revenda), que tem de ficar no topo do Vendidos
+  if (caso === 'muitas') Object.assign(vendas[48], { pokemonId: alvoJogo.id, preco: 4.99e7, nota: 4.2, level: 60 });
   window.__cliquesPublicar = 0;
   window.__chamadas = { consultarVitrine: 0, restaurarVitrine: 0 };
   window.PIWs = {
