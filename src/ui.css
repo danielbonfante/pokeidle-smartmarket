@@ -631,3 +631,16 @@ tr.pp-mesmo td { background: color-mix(in srgb, var(--rx-rosa, #ffa7d7) 14%, tra
 /* Preço de mercado igual ao Esperar (ou ao Vender rápido): a explicação, uma linha por moeda (15/11/2026) */
 .pp-badge .pp-empate { margin: 1px 0 3px 24px; font-size: 10px; font-style: italic; color: var(--sobre-mad-dim, #f5cdb9); }
 .pp-an-empate { display: block; margin-top: 2px; font-style: italic; }
+/* marca-texto na frase do empate: um traço amarelo por trás da metade de baixo do texto */
+.pp-marca-texto {
+  background: linear-gradient(transparent 45%, rgba(242, 200, 107, 0.38) 45%, rgba(242, 200, 107, 0.38) 92%, transparent 92%);
+  -webkit-box-decoration-break: clone; box-decoration-break: clone; padding: 0 2px; border-radius: 2px;
+  font-style: normal; color: var(--sobre-mad, #fff6ef);
+}
+.pp-prec-frases .pp-marca-texto { color: #fff; }
+/* títulos das duas partes das listas do painel */
+.pp-an-lista tr.pp-an-secao td {
+  padding: 5px 6px 3px; text-align: left; font-size: 0.85em; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase;
+  color: #f2c86b; background: rgba(242, 200, 107, 0.08); border-top: 1px solid rgba(242, 200, 107, 0.35);
+}
+.pp-an-lista tr.pp-an-secao:first-child td { border-top: 0; }

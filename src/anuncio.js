@@ -461,7 +461,7 @@
     }
     base.textContent = `Baseado em ${res.vendasEspecie} vendas desta espécie nos últimos 30 dias (~${window.PIUi.fmtNumero(res.nEfetivo, 1)} parecidas)`;
     const empate = window.PIUi.textoEmpate(res, moeda); // ex.: Mercado e Esperar iguais
-    if (empate) base.insertAdjacentHTML('beforeend', `<span class="pp-an-empate">${esc(empate)}</span>`);
+    if (empate) base.insertAdjacentHTML('beforeend', `<span class="pp-an-empate"><span class="pp-marca-texto">${esc(empate)}</span></span>`);
     base.title = '';
     const col = (rot, dica, x, cls) => {
       const v = L.valorUsar(x);
@@ -480,19 +480,32 @@
     if (window.PIDinheiro) window.PIDinheiro.pintar(box);
   }
 
+  // As listas em duas partes (15/11/2026, ideia do Daniel): as 8 mais parecidas com o seu Pokémon
+  // (a régua do motor) e, embaixo, as outras, numa ordem útil: Vendidos pelas mais recentes, À venda
+  // pelos mais baratos. Cada parte com o seu título.
+  const MAIS_PARECIDAS = 8;
+  function emDuasPartes(itens, ordemResto) {
+    const topo = itens.slice(0, MAIS_PARECIDAS);
+    const resto = itens.slice(MAIS_PARECIDAS).sort(ordemResto).slice(0, MAX_LINHAS - MAIS_PARECIDAS);
+    return { topo, resto };
+  }
+  const tituloSecao = txt => `<tr class="pp-an-secao"><td colspan="3">${esc(txt)}</td></tr>`;
+
   function desenharLista() {
     if (!painel) return;
     painel.el.querySelectorAll('[data-aba]').forEach(b => b.classList.toggle('on', b.getAttribute('data-aba') === painel.aba));
     const lista = painel.el.querySelector('.pp-an-lista');
     const moeda = painel.moeda;
     if (painel.aba === 'vendidos') {
-      const vs = painel.vendidos.slice(0, MAX_LINHAS);
-      lista.innerHTML = vs.length
-        ? '<table>' + vs.map(v => {
+      const { topo, resto } = emDuasPartes(painel.vendidos, (a, b) => b.em - a.em);
+      const linhaVendida = v => {
           // venda deste mesmo Pokémon (ex.: você comprou e está revendendo)
           const mesmo = M.mesmoPokemon(painel.alvo, v);
           return `<tr${mesmo ? ` class="pp-mesmo" title="${esc(D().mesmoPokemon)}"` : ''}><td title="${esc(D().nota)}">${mesmo ? '<span class="pp-mesmo-tag">este mesmo Pokémon</span> ' : ''}${esc(resumoPokemon(v))}</td><td title="${esc(D().preco)}">${MOEDA[moeda].icone} ${fmt(v.preco, moeda)}</td><td title="${esc(D().ha)}">${window.PIUi.fmtIdade(v.em)}</td></tr>`;
-        }).join('') + '</table>'
+      };
+      lista.innerHTML = topo.length
+        ? '<table>' + tituloSecao('Vendas mais parecidas com o seu') + topo.map(linhaVendida).join('') +
+          (resto.length ? tituloSecao(`Últimas ${resto.length} vendas`) + resto.map(linhaVendida).join('') : '') + '</table>'
         : `<div class="pp-an-vazio">Nenhuma venda desta espécie em ${MOEDA[moeda].nome} nos últimos 30 dias.</div>`;
       return;
     }
@@ -501,9 +514,8 @@
     // enquanto a busca consulta o jogo, o preço mostra "carregando": a % contra o preço de mercado do cache antigo
     // também fica de fora (aparece quando a busca termina e o preço de mercado final é calculado)
     const res = painel.carregando == null ? painel.resultado : null;
-    const as = painel.avenda.slice(0, MAX_LINHAS);
-    lista.innerHTML = as.length
-      ? '<table>' + as.map(a => {
+    const { topo, resto } = emDuasPartes(painel.avenda, (a, b) => a.preco - b.preco);
+    const linhaAVenda = a => {
           let cls = '', dif = '';
           if (res && res.suficiente) {
             const d = a.preco / res.precoJusto - 1;
@@ -514,7 +526,10 @@
           const ha = a.vistoEm ? esc(window.PIUi.fmtHa(a.vistoEm)) : '';
           const visto = ha ? ` title="visto na vitrine ${ha}"` : '';
           return `<tr${visto}><td>${esc(resumoPokemon(a.alvo))}${ha ? ` <small class="pp-an-visto">· ${ha}</small>` : ''}</td><td>${MOEDA[moeda].icone} ${fmt(a.preco, moeda)}</td><td class="${cls}">${dif}</td></tr>`;
-        }).join('') + '</table>'
+    };
+    lista.innerHTML = topo.length
+      ? '<table>' + tituloSecao('Anúncios mais parecidos com o seu') + topo.map(linhaAVenda).join('') +
+        (resto.length ? tituloSecao(`Outros ${resto.length} anúncios, dos mais baratos`) + resto.map(linhaAVenda).join('') : '') + '</table>'
       : (painel.avendaErro ? '' : `<div class="pp-an-vazio">Nenhum anúncio desta espécie em ${MOEDA[moeda].nome} agora.</div>`);
     lista.innerHTML = motivo + lista.innerHTML;
   }

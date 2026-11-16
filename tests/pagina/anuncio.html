@@ -47,7 +47,8 @@
   // #cores: os números de um Furious Scizor real, para conferir as cores dos cartões
   if (caso === 'cores') Object.assign(alvoJogo, { quality: 1.768, potencia: 3, ivTotal: 109, nota: 3.688, poder: 377 });
   const vendas = [];
-  for (let i = 0; i < 16; i++) {
+  // #muitas: 50 vendas e 14 anúncios, para ver as listas em duas partes (as 8 mais parecidas e o resto)
+  for (let i = 0; i < (caso === 'muitas' ? 50 : 16); i++) {
     const moeda = shiny ? 'orb' : (i % 2 ? 'orb' : 'gold');
     vendas.push({ id: i + 1, em: agora - i * 5 * H, moeda, preco: moeda === 'orb' ? (shiny ? 4000 + i * 200 : 560 + i * 15) : 1.1e8 + i * 4e6,
       speciesId: 212, nome: 'Furious Scizor', level: 96 + (i % 9), nota: 4.5 + (i % 7) * 0.03, ivTotal: 120, quality: 1.2, potencia: 2,
@@ -64,7 +65,8 @@
       window.__chamadas.consultarVitrine++;
       window.__ultimaConsulta = { especieId, moeda };
       if (caso === 'pausa') return Promise.reject(new Error('o jogo pediu para ir mais devagar; consultas pausadas por ~3 min'));
-      const linhas = [4.62, 4.40, 4.60, 4.10].map((nota, i) => ({ id: 500 + i, tipo: 'pokemon', moeda, preco: moeda === 'orb' ? [520, 900, 640, 450][i] : [1e8, 1.8e8, 1.25e8, 9e7][i],
+      const notas = caso === 'muitas' ? [4.62, 4.40, 4.60, 4.10, 4.55, 4.66, 4.2, 4.35, 4.7, 4.48, 4.52, 4.3, 4.58, 4.64] : [4.62, 4.40, 4.60, 4.10];
+      const linhas = notas.map((nota, i) => ({ id: 500 + i, tipo: 'pokemon', moeda, preco: moeda === 'orb' ? [520, 900, 640, 450][i] || 400 + i * 37 : [1e8, 1.8e8, 1.25e8, 9e7][i] || 8e7 + i * 7e6,
         pokemonId: 7000 + i, vendedor: 'NAO_MOSTRAR', ficha: { id: 7000 + i, speciesId: 212, nome: 'Furious Scizor', level: 100, nota, potencia: 2, shiny, tmAoe: false, tmElemental: null, caughtBy: 'NAO_MOSTRAR' } }));
       return new Promise(r => setTimeout(() => r({ t: 'market', aba: 'vitrine', linhas }), 800));
     },

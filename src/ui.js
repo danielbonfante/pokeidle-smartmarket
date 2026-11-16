@@ -279,7 +279,11 @@
     const [q1, q2, q3] = ['.pp-q1', '.pp-q2', '.pp-q3'].map(s => linha.querySelector(s));
     linha.classList.remove('pp-carregando');
     const empate = badge.querySelector(`.pp-empate[data-moeda="${moeda}"]`);
-    if (empate) { empate.textContent = textoEmpate(res, moeda); empate.hidden = !empate.textContent; }
+    if (empate) {
+      const t = textoEmpate(res, moeda);
+      empate.innerHTML = t ? `<span class="pp-marca-texto">${esc(t)}</span>` : '';
+      empate.hidden = !t;
+    }
     const liq = badge.querySelector(`.pp-liq[data-moeda="${moeda}"]`);
     if (liq) {
       const ok = res && res.suficiente;
